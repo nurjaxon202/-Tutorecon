@@ -2,26 +2,68 @@
 import Doc from '../layouts/Doc.astro';
 import { site } from '../site';
 import { url } from '../lib/url';
+import { accountsOn } from '../lib/accounts';
+
+const description = accountsOn
+  ? 'What TutorEcon keeps in your browser, what an optional account stores, who stores it, and how to delete it.'
+  : 'TutorEcon does not collect personal information. This page explains exactly what stays in your browser and what our host may log.';
 ---
-<Doc title="Privacy policy" eyebrow="Policies" updated={site.policiesUpdated} description="TutorEcon does not collect personal information. This page explains exactly what stays in your browser and what our host may log.">
+<Doc title="Privacy policy" eyebrow="Policies" updated={site.policiesUpdated} description={description}>
   <div class="summary">
-    <p><strong>The short version:</strong> TutorEcon does not collect personal information. There are no accounts, no analytics, no ads, no cookies, and no third-party scripts. Your progress is saved only in your own browser.</p>
+    {accountsOn ? (
+      <p><strong>The short version:</strong> without an account, nothing about you leaves your browser. If you choose to create an account, we keep your email address and a copy of your study progress so you can use it on other devices. There are no analytics, no ads, no cookies, and no tracking, and we never sell or share your information for marketing.</p>
+    ) : (
+      <p><strong>The short version:</strong> TutorEcon does not collect personal information. There are no accounts, no analytics, no ads, no cookies, and no third-party scripts. Your progress is saved only in your own browser.</p>
+    )}
   </div>
 
   <h2>Who runs this site</h2>
   <p>{site.name} is run by <a href={site.ownerUrl}>{site.owner}</a>. You can reach us by <a href={site.contactUrl}>opening an issue on GitHub</a>.</p>
 
   <h2>What we collect</h2>
-  <p>Nothing. The site is a set of static pages. It has no server-side code, no database, no sign-up, and no contact forms. We do not use analytics tools, tracking pixels, advertising networks, or embedded content from other companies. Fonts are served from this site, not from a font service.</p>
+  {accountsOn ? (
+    <>
+      <p><strong>If you do not make an account:</strong> nothing. Your progress stays in your browser, as described below.</p>
+      <p><strong>If you make an account,</strong> we store:</p>
+      <ul>
+        <li>Your email address, so you can sign in and reset your password.</li>
+        <li>Your password, which our account service keeps only as a one-way hash. We never see it.</li>
+        <li>A copy of your study progress: the <code>tutorecon.v1</code> record described below, and the time it was last saved.</li>
+      </ul>
+      <p>To keep sign-in secure, our account service also records technical details such as when you signed in and the IP address a request came from.</p>
+      <p>We do not ask for your name, school, birthday, or anything else. We do not use analytics tools, tracking pixels, advertising networks, or embedded content from other companies. Fonts are served from this site.</p>
+    </>
+  ) : (
+    <p>Nothing. The site is a set of static pages. It has no server-side code, no database, no sign-up, and no contact forms. We do not use analytics tools, tracking pixels, advertising networks, or embedded content from other companies. Fonts are served from this site, not from a font service.</p>
+  )}
+
+  {accountsOn && (
+    <>
+      <h2>How account information is used</h2>
+      <p>Only to let you sign in and to keep your progress the same on every device you use. We email you only for account tasks, such as confirming your address or resetting your password. We do not send newsletters or marketing, and we do not sell, rent, or share your information, except with the service below that stores it for us.</p>
+
+      <h2>Who stores account information</h2>
+      <p>Accounts and saved progress are stored by <a href="https://supabase.com">Supabase</a>, which runs the sign-in system and database for us. Each person’s progress is locked so that only they can read or change it. Supabase’s handling of data is described in its <a href="https://supabase.com/privacy">privacy policy</a>.</p>
+
+      <h2>How long we keep it, and how to delete it</h2>
+      <p>We keep account information until you delete your account. You can do that at any time on <a href={url('/account/')}>Your account and data</a>. It erases your email address and saved progress right away. Copies in our service provider’s routine backups, if any, are removed on its normal schedule.</p>
+    </>
+  )}
 
   <h2>What is saved in your browser</h2>
-  <p>To remember your progress, the site writes up to three entries to your browser's local storage:</p>
+  <p>To remember your progress, the site writes up to {accountsOn ? 'five' : 'three'} entries to your browser’s local storage:</p>
   <ul>
-    <li><code>tutorecon.v1</code>: units you marked done, how far you read in each lesson, your best practice scores, which questions you already answered correctly (so XP is only given once), how many times you tried each question-bank question and whether your last try was right (for “missed last time” and your weakest topics), your free-response self-scores, which flashcards you marked as known, your XP, your streak and the last day it counted, your last 20 mock exam scores, and whether the Pro demo is on.</li>
+    <li><code>tutorecon.v1</code>: units you marked done, how far you read in each lesson, your best practice scores, which questions you already answered correctly (so XP is only given once), how many times you tried each question-bank question and whether your last try was right (for “missed last time” and your weakest topics), questions you flagged to review, your free-response self-scores, which flashcards you marked as known, your study plan, your XP, your streak and the last day it counted, your last 20 mock exam scores, and whether the Pro demo is on.</li>
     <li><code>tutorecon.theme</code>: your light or dark theme choice, if you made one.</li>
     <li><code>tutorecon.lessonMode</code>: whether you read lessons one step at a time or all at once, if you changed it.</li>
+    {accountsOn && <li><code>tutorecon.auth</code>: only while you are signed in, the sign-in tokens that keep you signed in. Removed when you sign out.</li>}
+    {accountsOn && <li><code>tutorecon.sync</code>: only if you have signed in here, which account this browser last synced with, when, and whether it has changes not yet saved.</li>}
   </ul>
-  <p>This data never leaves your device. We cannot see it. You can view, download, or delete it on the <a href={url('/account/')}>Your data and settings</a> page, or by clearing this site's data in your browser settings.</p>
+  {accountsOn ? (
+    <p>Without an account, this data never leaves your device. With an account, only <code>tutorecon.v1</code> is copied to it. You can view, download, move, or delete all of it on <a href={url('/account/')}>Your account and data</a>, or by clearing this site’s data in your browser settings.</p>
+  ) : (
+    <p>This data never leaves your device. We cannot see it. You can view, download, or delete it on the <a href={url('/account/')}>Your data and settings</a> page, or by clearing this site’s data in your browser settings.</p>
+  )}
 
   <p>What you type into the search box is not saved anywhere.</p>
 
@@ -29,17 +71,25 @@ import { url } from '../lib/url';
   <p>The Pro checkout is a demonstration. Anything typed into it is checked in your browser and then discarded. Card numbers, names, and dates are not stored, logged, or sent anywhere, and only published test card numbers are accepted. Please do not type in a real card.</p>
 
   <h2>Our host</h2>
-  <p>The site is hosted on GitHub Pages. Like most web hosts, GitHub may record technical information such as visitors' IP addresses in its server logs for security and to run the service. We do not receive those logs. GitHub's handling of that data is described in the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub General Privacy Statement</a>.</p>
+  <p>The site is hosted on GitHub Pages. Like most web hosts, GitHub may record technical information such as visitors’ IP addresses in its server logs for security and to run the service. We do not receive those logs. GitHub’s handling of that data is described in the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub General Privacy Statement</a>.</p>
 
   <h2>Links to other sites</h2>
-  <p>Some pages link to GitHub. When you follow a link, the other site's privacy policy applies.</p>
+  <p>Some pages link to GitHub{accountsOn ? ' and Supabase' : ''}. When you follow a link, the other site’s privacy policy applies.</p>
 
   <h2>Children and students</h2>
-  <p>{site.name} is made for students, including those under 13. Because the site collects no personal information from anyone, it does not collect it from children either.</p>
+  {accountsOn ? (
+    <p>Anyone can use the lessons and practice tools without an account, and without an account we collect nothing. Accounts are only for people 13 and older. We do not knowingly create accounts for children under 13. If you believe a child under 13 has made one, <a href={site.contactUrl}>contact us</a> and we will delete it.</p>
+  ) : (
+    <p>{site.name} is made for students, including those under 13. Because the site collects no personal information from anyone, it does not collect it from children either.</p>
+  )}
 
   <h2>Your rights</h2>
-  <p>Privacy laws such as the GDPR and CCPA give you rights to access and delete personal data a service holds about you. We hold none. The only data related to your use of the site is in your own browser, under your control.</p>
+  {accountsOn ? (
+    <p>Privacy laws such as the GDPR and CCPA give you rights to see, correct, download, and delete personal data a service holds about you. You can see and download your progress and delete your account yourself on <a href={url('/account/')}>Your account and data</a>. For anything else, <a href={site.contactUrl}>contact us</a>.</p>
+  ) : (
+    <p>Privacy laws such as the GDPR and CCPA give you rights to access and delete personal data a service holds about you. We hold none. The only data related to your use of the site is in your own browser, under your control.</p>
+  )}
 
   <h2>Changes to this policy</h2>
-  <p>If the site ever starts collecting information, for example by switching on real payments, this policy will be updated before that happens, and the date at the top will change.</p>
+  <p>If the site starts collecting anything new, for example by switching on real payments, this policy will be updated before that happens, and the date at the top will change.</p>
 </Doc>

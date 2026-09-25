@@ -2,6 +2,7 @@
 import Doc from '../layouts/Doc.astro';
 import { site } from '../site';
 import { url } from '../lib/url';
+import { accountsOn } from '../lib/accounts';
 ---
 <Doc title="Cookie policy" eyebrow="Policies" updated={site.policiesUpdated} description="TutorEcon does not set cookies. It uses local storage only to remember your progress and settings.">
   <div class="summary">
@@ -9,7 +10,8 @@ import { url } from '../lib/url';
   </div>
 
   <h2>What we use instead</h2>
-  <p>The site uses your browser's local storage to remember your study progress, your theme, and how you like lessons shown. It only exists to make features you use work, it is never read by anyone but your own browser, and it is not used for tracking or advertising. The full list is on the <a href={url('/privacy/')}>privacy policy</a>.</p>
+  <p>The site uses your browser's local storage to remember your study progress, your theme, and how you like lessons shown. It only exists to make features you use work, and it is not used for tracking or advertising. The full list is on the <a href={url('/privacy/')}>privacy policy</a>.</p>
+  {accountsOn && <p>If you sign in to an account, the tokens that keep you signed in are kept in local storage too, not in a cookie, and they are removed when you sign out. They are needed for the account to work, so there is nothing to opt in to.</p>}
 
   <h2>Third-party cookies</h2>
   <p>There are none. The site does not load analytics, ads, social media widgets, video embeds, or fonts from other companies, so no other company can set cookies through it.</p>

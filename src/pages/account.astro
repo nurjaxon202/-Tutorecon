@@ -2,16 +2,80 @@
 import Base from '../layouts/Base.astro';
 import PageBand from '../components/PageBand.astro';
 import { units } from '../data/units';
+import { accountsOn, MIN_PASSWORD } from '../lib/accounts';
 import { url } from '../lib/url';
+
+const title = accountsOn ? 'Your account and data' : 'Your data and settings';
+const lede = accountsOn
+  ? 'Your progress is saved in this browser as you study. If you sign in, a copy is also kept in your account so you can use it on other devices. You can see, move, and delete all of it here.'
+  : 'TutorEcon has no accounts switched on and no server that stores information about you. Everything below lives only in this browser, and you can download it, load it on another device, or delete it here.';
 ---
-<Base title="Your data and settings" description="See and delete everything TutorEcon has saved in your browser, change the theme, and manage the Pro demo.">
-  <PageBand
-    eyebrow="Your data"
-    title="Your data and settings"
-    lede="TutorEcon has no accounts and no server that stores information about you. Everything below lives only in this browser, and you can download it or delete it here."
-  />
+<Base title={title} description="Sign in or out, see and delete everything TutorEcon has saved, move your progress to another device, and change the theme.">
+  <PageBand eyebrow="Your data" title={title} lede={lede} />
 
   <div class="wrap grid">
+    <section class="panel card wide" aria-labelledby="acct-title" data-acct>
+      <h2 id="acct-title" class="h3">Account</h2>
+      {accountsOn ? (
+        <>
+          <p class="muted" data-acct-loading>Checking whether you are signed in.</p>
+
+          <div data-acct-out hidden>
+            <p>Sign in to keep your progress in an account and use it on any device. Anything you have done in this browser is added to the account when you sign in.</p>
+            <div class="btn-row">
+              <a class="btn btn-small" href={url('/sign-in/')}>Sign in</a>
+              <a class="btn btn-secondary btn-small" href={url('/sign-up/')}>Create an account</a>
+            </div>
+          </div>
+
+          <div data-acct-in hidden>
+            <p>Signed in as <strong data-acct-email></strong>.</p>
+            <p class="sync-line" data-sync-line aria-live="polite"></p>
+            <div class="btn-row">
+              <button type="button" class="btn btn-secondary btn-small" data-sync-now>Sync now</button>
+              <button type="button" class="btn btn-secondary btn-small" data-toggle="pw" aria-expanded="false" aria-controls="pw-box">Change password</button>
+              <button type="button" class="btn btn-secondary btn-small" data-toggle="out" aria-expanded="false" aria-controls="out-box">Sign out</button>
+              <button type="button" class="btn btn-secondary btn-small danger" data-toggle="del" aria-expanded="false" aria-controls="del-box">Delete account</button>
+            </div>
+
+            <form id="pw-box" class="auth-form sub" novalidate data-box="pw" hidden>
+              <div class="field">
+                <label for="acct-password">New password</label>
+                <div class="pw">
+                  <input id="acct-password" type="password" class="input" autocomplete="new-password" minlength={MIN_PASSWORD} aria-describedby="acct-password-hint acct-password-error" aria-invalid="false" />
+                  <button type="button" class="reveal" data-reveal aria-controls="acct-password" aria-pressed="false" aria-label="Show password">Show</button>
+                </div>
+                <p id="acct-password-hint" class="hint">At least {MIN_PASSWORD} characters.</p>
+                <p id="acct-password-error" class="error-text" data-error="password"></p>
+              </div>
+              <p class="error-text form-error" role="alert" data-error="form"></p>
+              <div class="btn-row">
+                <button type="submit" class="btn btn-small" data-pw-save>Save new password</button>
+              </div>
+            </form>
+
+            <div id="out-box" class="sub confirm-soft" data-box="out" hidden>
+              <p><strong>Sign out of this browser?</strong> Your progress stays in your account. On a shared computer, also clear it from this browser.</p>
+              <div class="btn-row">
+                <button type="button" class="btn btn-small" data-out-clear>Sign out and clear this browser</button>
+                <button type="button" class="btn btn-secondary btn-small" data-out-keep>Sign out, keep my progress here</button>
+              </div>
+            </div>
+
+            <div id="del-box" class="sub confirm" data-box="del" hidden>
+              <p><strong>Delete your account?</strong> This erases your email address and the progress saved in your account. It cannot be undone. The progress in this browser stays unless you also delete it below.</p>
+              <div class="btn-row">
+                <button type="button" class="btn btn-small btn-bad" data-del-yes>Yes, delete my account</button>
+                <button type="button" class="btn btn-secondary btn-small" data-toggle="del" aria-controls="del-box">Keep my account</button>
+              </div>
+            </div>
+          </div>
+          <p class="hint" data-acct-msg aria-live="polite"></p>
+        </>
+      ) : (
+        <p>Accounts are not switched on for this copy of the site, so everything stays in this browser. To move your progress to another device, download it below and load the file on the other device.</p>
+      )}
+    </section>
     <section class="panel card" aria-labelledby="plan-title">
       <h2 id="plan-title" class="h3">Plan</h2>
       <div data-plan-free>
@@ -62,11 +126,11 @@ import { url } from '../lib/url';
 
     <section class="panel card wide" aria-labelledby="stored-title">
       <h2 id="stored-title" class="h3">Exactly what is stored</h2>
-      <p>Three entries in this browser's local storage, and nothing else. No cookies.</p>
+      <p>{accountsOn ? 'Up to five entries in this browser’s local storage, and nothing else. No cookies.' : 'Up to three entries in this browser’s local storage, and nothing else. No cookies.'}</p>
       <dl class="stored">
         <div>
           <dt class="mono">tutorecon.v1</dt>
-          <dd>Units you marked done, how far you read in each lesson, your best quiz scores, which questions you already got right, how many times you tried each question-bank question and whether your last try was right, your free-response self-scores, which flashcards you marked as known, your XP and streak, your last 20 mock exam scores, and whether the Pro demo is on.</dd>
+          <dd>Units you marked done, how far you read in each lesson, your best quiz scores, which questions you already got right, how many times you tried each question-bank question and whether your last try was right, questions you flagged to review, your free-response self-scores, which flashcards you marked as known, your study plan, your XP and streak, your last 20 mock exam scores, and whether the Pro demo is on.</dd>
         </div>
         <div>
           <dt class="mono">tutorecon.theme</dt>
@@ -76,13 +140,32 @@ import { url } from '../lib/url';
           <dt class="mono">tutorecon.lessonMode</dt>
           <dd>Whether you read lessons one step at a time or all at once, if you changed it.</dd>
         </div>
+        {accountsOn && (
+          <>
+            <div>
+              <dt class="mono">tutorecon.auth</dt>
+              <dd>Only while you are signed in: the sign-in tokens that keep you signed in. Removed when you sign out.</dd>
+            </div>
+            <div>
+              <dt class="mono">tutorecon.sync</dt>
+              <dd>Only if you have signed in here: which account this browser last synced with, when, and whether it has changes not yet saved to the account.</dd>
+            </div>
+          </>
+        )}
       </dl>
+      {accountsOn && <p>When you are signed in, the <span class="mono">tutorecon.v1</span> entry is also saved to your account, along with your email address. Nothing else goes to the account service.</p>}
       <div class="btn-row">
         <button type="button" class="btn btn-secondary btn-small" data-download>Download my data</button>
+        <label class="btn btn-secondary btn-small file-btn">
+          <input type="file" accept=".json,application/json" class="visually-hidden" data-import />
+          Load data from a file
+        </label>
         <button type="button" class="btn btn-secondary btn-small danger" data-delete>Delete all my data</button>
       </div>
+      <p class="hint">Loading a file adds its progress to what is already here. Nothing is lost from either side.</p>
+      <p class="hint" data-import-msg aria-live="polite"></p>
       <div class="confirm" data-delete-confirm hidden>
-        <p><strong>Delete everything?</strong> Your progress, scores, theme, and Pro demo status will be removed from this browser. This cannot be undone.</p>
+        <p><strong>Delete everything?</strong> <span data-delete-text>Your progress, scores, theme, and Pro demo status will be removed from this browser. This cannot be undone.</span></p>
         <div class="btn-row">
           <button type="button" class="btn btn-small btn-bad" data-delete-yes>Yes, delete my data</button>
           <button type="button" class="btn btn-secondary btn-small" data-delete-no>Keep my data</button>
@@ -95,6 +178,20 @@ import { url } from '../lib/url';
 
 <script>
   import { store, currentTheme } from '../scripts/store';
+  import { cleanSaved, mergeSaved } from '../scripts/merge';
+  import {
+    accountsOn,
+    authMessage,
+    connect,
+    currentSession,
+    deleteAccount,
+    onAuth,
+    signOut,
+    syncNow,
+    syncState,
+  } from '../scripts/account';
+  import { MIN_PASSWORD } from '../lib/accounts';
+  import { busy, fieldError, wireReveal } from '../scripts/forms';
 
   const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
 
@@ -152,8 +249,30 @@ import { url } from '../lib/url';
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
 
+  // Load a downloaded file on this device. Its progress is added, not swapped in.
+  const importInput = $<HTMLInputElement>('[data-import]');
+  importInput.addEventListener('change', async () => {
+    const file = importInput.files?.[0];
+    const msg = $('[data-import-msg]');
+    if (!file) return;
+    try {
+      const raw = JSON.parse(await file.text());
+      const body = raw && typeof raw === 'object' && 'tutorecon.v1' in raw ? raw['tutorecon.v1'] : raw;
+      const known = ['done', 'quiz', 'xp', 'qstats', 'steps', 'cards', 'frq'];
+      if (!body || typeof body !== 'object' || !known.some((k) => k in body)) throw new Error('not ours');
+      store.replace(mergeSaved(store.get(), cleanSaved(body)));
+      msg.textContent = `Loaded ${file.name}. Its progress has been added to this browser.`;
+    } catch {
+      msg.textContent = 'That file is not a TutorEcon data file. Use the file made by “Download my data”.';
+    }
+    importInput.value = '';
+  });
+
   const confirmBox = $('[data-delete-confirm]');
   $('[data-delete]').addEventListener('click', () => {
+    $('[data-delete-text]').textContent = currentSession()
+      ? 'This signs you out and removes your progress, scores, theme, and Pro demo status from this browser. The copy in your account stays until you delete the account above.'
+      : 'Your progress, scores, theme, and Pro demo status will be removed from this browser. This cannot be undone.';
     confirmBox.hidden = false;
     $<HTMLButtonElement>('[data-delete-no]').focus();
   });
@@ -161,7 +280,8 @@ import { url } from '../lib/url';
     confirmBox.hidden = true;
     $<HTMLButtonElement>('[data-delete]').focus();
   });
-  $('[data-delete-yes]').addEventListener('click', () => {
+  $('[data-delete-yes]').addEventListener('click', async () => {
+    if (currentSession()) await signOut(true).catch(() => undefined);
     store.clearAll();
     confirmBox.hidden = true;
     $('[data-delete-msg]').textContent = 'Deleted. This browser no longer holds any TutorEcon data.';
@@ -171,6 +291,112 @@ import { url } from '../lib/url';
 
   window.addEventListener('tutorecon:change', render);
   render();
+
+  // Account controls, only when the site has accounts switched on.
+  const acct = document.querySelector<HTMLElement>('[data-acct]');
+  if (accountsOn && acct) {
+    const q = <T extends HTMLElement = HTMLElement>(sel: string) => acct.querySelector<T>(sel)!;
+    const say = (text: string) => (q('[data-acct-msg]').textContent = text);
+    wireReveal(acct);
+
+    const ago = (iso: string) => {
+      const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`;
+      return new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    };
+    const showSync = () => {
+      const st = syncState();
+      const line = q('[data-sync-line]');
+      if (st.state === 'saving') line.textContent = 'Saving to your account.';
+      else if (st.state === 'error') line.textContent = 'Could not reach your account just now. Your progress is safe in this browser and will be saved to the account next time.';
+      else line.textContent = st.at ? `Progress saved to your account ${ago(st.at)}.` : 'Progress will be saved to your account as you study.';
+    };
+    window.addEventListener('tutorecon:sync', showSync);
+
+    const boxes = ['pw', 'out', 'del'];
+    const openBox = (name: string | null) => {
+      for (const b of boxes) {
+        const open = b === name;
+        q(`[data-box="${b}"]`).hidden = !open;
+        acct.querySelectorAll(`[data-toggle="${b}"]`).forEach((t) => t.setAttribute('aria-expanded', String(open)));
+      }
+    };
+    acct.querySelectorAll<HTMLButtonElement>('[data-toggle]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const name = btn.dataset.toggle!;
+        const wasOpen = !q(`[data-box="${name}"]`).hidden;
+        openBox(wasOpen ? null : name);
+        if (!wasOpen) q(`[data-box="${name}"]`).querySelector<HTMLElement>('input, button')?.focus();
+      }),
+    );
+
+    onAuth((s) => {
+      q('[data-acct-loading]').hidden = true;
+      q('[data-acct-out]').hidden = Boolean(s);
+      q('[data-acct-in]').hidden = !s;
+      if (s) q('[data-acct-email]').textContent = s.user.email ?? 'your account';
+      else openBox(null);
+      showSync();
+    });
+
+    q('[data-sync-now]').addEventListener('click', async () => {
+      say('');
+      await syncNow();
+      if (syncState().state === 'saved') say('Up to date. This browser and your account now match.');
+    });
+
+    const pwForm = q<HTMLFormElement>('[data-box="pw"]');
+    const pw = q<HTMLInputElement>('#acct-password');
+    const pwSave = q<HTMLButtonElement>('[data-pw-save]');
+    pwForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      fieldError(pwForm, 'form', '');
+      const msg = pw.value.length >= MIN_PASSWORD ? '' : `Use at least ${MIN_PASSWORD} characters.`;
+      fieldError(pwForm, 'password', msg, pw);
+      if (msg) return pw.focus();
+      busy(pwSave, true, 'Saving');
+      try {
+        const client = await connect();
+        const { error } = await client.auth.updateUser({ password: pw.value });
+        if (error) throw error;
+        pw.value = '';
+        openBox(null);
+        say('Password changed.');
+      } catch (err) {
+        fieldError(pwForm, 'form', authMessage(err));
+      } finally {
+        busy(pwSave, false, 'Save new password');
+      }
+    });
+
+    const out = async (clearHere: boolean) => {
+      say('Signing out.');
+      try {
+        await signOut(clearHere);
+        say(clearHere ? 'Signed out. Your progress was cleared from this browser and is still in your account.' : 'Signed out. Your progress is still here and in your account.');
+        q<HTMLAnchorElement>('[data-acct-out] a').focus();
+      } catch (err) {
+        say(authMessage(err));
+      }
+    };
+    q('[data-out-clear]').addEventListener('click', () => out(true));
+    q('[data-out-keep]').addEventListener('click', () => out(false));
+
+    q('[data-del-yes]').addEventListener('click', async () => {
+      const btn = q<HTMLButtonElement>('[data-del-yes]');
+      busy(btn, true, 'Deleting');
+      try {
+        await deleteAccount();
+        say('Your account and the progress saved in it are deleted. The progress in this browser is still here.');
+        q<HTMLAnchorElement>('[data-acct-out] a').focus();
+      } catch (err) {
+        say(authMessage(err));
+      } finally {
+        busy(btn, false, 'Yes, delete my account');
+      }
+    });
+  }
 </script>
 
 <style>
@@ -186,9 +412,15 @@ import { url } from '../lib/url';
     margin-inline: auto;
     margin-left: 0;
   }
+  @media (min-width: 1100px) {
+    .grid {
+      max-width: 1200px;
+      margin-left: auto;
+    }
+  }
   @media (min-width: 820px) {
     .grid {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 480px));
     }
     .wide {
       grid-column: 1 / -1;
@@ -255,6 +487,28 @@ import { url } from '../lib/url';
   }
   .danger:active {
     box-shadow: inset 0 0 0 2px var(--bad-fill), 0 0 0 var(--bad-fill);
+  }
+  .sub {
+    width: 100%;
+    max-width: 560px;
+  }
+  .sync-line {
+    color: var(--ink-2);
+  }
+  .confirm-soft {
+    display: grid;
+    gap: 0.8rem;
+    padding: 1.1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: var(--bg-2);
+  }
+  .file-btn {
+    position: relative;
+  }
+  .file-btn:focus-within {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
   }
   .confirm {
     display: grid;

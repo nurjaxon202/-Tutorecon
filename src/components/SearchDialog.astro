@@ -68,7 +68,7 @@ import { url } from '../lib/url';
     }
     const words = q.split(/\s+/);
     // Small tie-breakers so topics and lessons come before tools and FRQs.
-    const kindBoost: Record<string, number> = { Course: 6, Topic: 6, Unit: 5, Lesson: 5, Term: 4, Page: 4, Graph: 3, FRQ: 2 };
+    const kindBoost: Record<string, number> = { Course: 6, Topic: 6, Unit: 5, Lesson: 5, Term: 4, Page: 4, Formula: 3, Graph: 3, FRQ: 2 };
     const hits = index
       .map((e) => ({ e, n: words.reduce((sum, w) => (sum >= 0 && score(e, w) > 0 ? sum + score(e, w) : -1), 0) }))
       .map((h) => ({ ...h, n: h.n > 0 ? h.n + (kindBoost[h.e.k] ?? 0) : h.n }))

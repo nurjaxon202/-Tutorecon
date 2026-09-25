@@ -7,6 +7,7 @@ import { frqs } from '../data/frqs';
 import { glossary } from '../data/glossary';
 import { allTopics } from '../data/ced';
 import { url } from '../lib/url';
+import { accountsOn } from '../lib/accounts';
 ---
 <Doc title="About TutorEcon" eyebrow="About" description="What TutorEcon is, who runs it, and how the lessons are put together.">
   <p>{site.name} is a free study site for AP Microeconomics and AP Macroeconomics. It is built around one idea: economics graphs make more sense when you can move them. Most textbooks show a diagram you can only look at. Here you shift the curve yourself and read what happened to price and quantity.</p>
@@ -29,5 +30,5 @@ import { url } from '../lib/url';
   <p>{site.name} is not affiliated with or endorsed by the College Board. It is a study aid, not a replacement for your class, your teacher, or official practice exams.</p>
 
   <h2>Privacy</h2>
-  <p>No accounts, no ads, no tracking. Your progress stays in your browser. The <a href={url('/privacy/')}>privacy policy</a> has the details.</p>
+  <p>{accountsOn ? 'No ads and no tracking. Accounts are optional: your progress is saved in your browser, and signing in keeps a copy so you can use it on other devices.' : 'No accounts, no ads, no tracking. Your progress stays in your browser.'} The <a href={url('/privacy/')}>privacy policy</a> has the details.</p>
 </Doc>

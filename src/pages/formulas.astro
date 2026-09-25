@@ -1,0 +1,228 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { formulaGroups } from '../data/formulas';
+import { url } from '../lib/url';
+
+const total = formulaGroups.reduce((n, g) => n + g.items.length, 0);
+const micro = formulaGroups.filter((g) => g.course === 'micro');
+const macro = formulaGroups.filter((g) => g.course === 'macro');
+---
+<Base title="Formula sheet" description={`All ${total} formulas and rules for AP Microeconomics and AP Macroeconomics on one printable page, each with a short worked example.`}>
+  <PageBand
+    eyebrow="Reference"
+    title="Formula sheet"
+    lede={`All ${total} formulas and decision rules the two courses use, sorted by unit, most with a short worked example. Learn them well enough to use without looking.`}
+  >
+    <div class="btn-row no-print">
+      <button type="button" class="btn btn-secondary btn-small" data-print>Print this sheet</button>
+    </div>
+  </PageBand>
+
+  <div class="wrap sheet">
+    <nav class="toc no-print" aria-label="Units on this page">
+      <div>
+        <p class="toc-title">AP Micro</p>
+        <ul>{micro.map((g) => <li><a href={`#${g.id}`}>Unit {g.unit}: {g.title}</a></li>)}</ul>
+      </div>
+      <div>
+        <p class="toc-title">AP Macro</p>
+        <ul>
+          <li><a href="#ma1">Unit 1: Basic economic concepts</a></li>
+          {macro.map((g) => <li><a href={`#${g.id}`}>Unit {g.unit}: {g.title}</a></li>)}
+        </ul>
+      </div>
+    </nav>
+
+    <h2 class="course-title">AP Microeconomics</h2>
+    {micro.map((g) => (
+      <section class="group" id={g.id} aria-labelledby={`${g.id}-t`}>
+        <div class="group-head">
+          <h3 id={`${g.id}-t`}>Unit {g.unit}: {g.title}</h3>
+          <a class="no-print" href={url(`/learn/${g.lesson}/`)}>Read the lesson</a>
+        </div>
+        <dl class="rows">
+          {g.items.map((f) => (
+            <div class="row">
+              <dt>{f.name}</dt>
+              <dd class="f">{f.f}</dd>
+              {(f.note || f.ex) && (
+                <dd class="more">
+                  {f.note && <p>{f.note}</p>}
+                  {f.ex && <p class="ex"><span>Example.</span> {f.ex}</p>}
+                </dd>
+              )}
+            </div>
+          ))}
+        </dl>
+      </section>
+    ))}
+
+    <h2 class="course-title">AP Macroeconomics</h2>
+    <section class="group" id="ma1" aria-labelledby="ma1-t">
+      <div class="group-head">
+        <h3 id="ma1-t">Unit 1: Basic economic concepts</h3>
+      </div>
+      <p class="shared">AP Macro Unit 1 uses the same tools as AP Micro Units 1 and 2: <a href="#mi1">opportunity cost, comparative advantage, and terms of trade</a>, and <a href="#mi2">supply and demand</a>.</p>
+    </section>
+    {macro.map((g) => (
+      <section class="group" id={g.id} aria-labelledby={`${g.id}-t`}>
+        <div class="group-head">
+          <h3 id={`${g.id}-t`}>Unit {g.unit}: {g.title}</h3>
+          <a class="no-print" href={url(`/learn/${g.lesson}/`)}>Read the lesson</a>
+        </div>
+        <dl class="rows">
+          {g.items.map((f) => (
+            <div class="row">
+              <dt>{f.name}</dt>
+              <dd class="f">{f.f}</dd>
+              {(f.note || f.ex) && (
+                <dd class="more">
+                  {f.note && <p>{f.note}</p>}
+                  {f.ex && <p class="ex"><span>Example.</span> {f.ex}</p>}
+                </dd>
+              )}
+            </div>
+          ))}
+        </dl>
+      </section>
+    ))}
+  </div>
+</Base>
+
+<script>
+  document.querySelector('[data-print]')?.addEventListener('click', () => window.print());
+</script>
+
+<style>
+  .sheet {
+    display: grid;
+    gap: 1.5rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+    max-width: 1000px;
+    margin-left: 0;
+  }
+  @media (min-width: 1100px) {
+    .sheet {
+      max-width: 1200px;
+      margin-left: auto;
+    }
+  }
+  .sheet > * {
+    max-width: 1000px;
+  }
+  .toc {
+    display: grid;
+    gap: 1rem 3rem;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+  }
+  @media (min-width: 760px) {
+    .toc {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .toc-title {
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+  .toc ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .course-title {
+    margin-top: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--ink);
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem);
+  }
+  .group {
+    display: grid;
+    gap: 0.5rem;
+    scroll-margin-top: 80px;
+  }
+  .group-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .group-head h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+  }
+  .group-head a {
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+  .rows {
+    margin: 0;
+    border-top: 1px solid var(--line-strong);
+  }
+  .row {
+    display: grid;
+    gap: 0.35rem 1.5rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 760px) {
+    .row {
+      grid-template-columns: 14rem minmax(0, 1fr);
+    }
+    .row .more {
+      grid-column: 2;
+    }
+  }
+  .row dt {
+    font-weight: 700;
+  }
+  .row dd {
+    margin: 0;
+  }
+  .f {
+    justify-self: start;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .more {
+    display: grid;
+    gap: 0.25rem;
+    color: var(--ink-2);
+    font-size: 0.97rem;
+  }
+  .ex span {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .shared {
+    color: var(--ink-2);
+  }
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    .sheet {
+      padding-top: 0;
+    }
+    .row {
+      break-inside: avoid;
+      padding: 0.4rem 0;
+    }
+    .f {
+      border-color: #999;
+    }
+  }
+</style>

@@ -7,6 +7,7 @@ import { frqs } from '../data/frqs';
 import { glossary } from '../data/glossary';
 import { units } from '../data/units';
 import { graphList } from '../scripts/graphs/models';
+import { formulaGroups } from '../data/formulas';
 import { url } from '../lib/url';
 
 const tools = [
@@ -15,6 +16,8 @@ const tools = [
   { href: '/flashcards/', title: 'Flashcards', count: `${glossary.length} terms`, text: 'Every key term from the lessons, sorted by unit. Cards you know drop out of the deck.' },
   { href: '/graph-lab/', title: 'Graph lab', count: `${graphList.length} graphs`, text: 'Drag the curves in every graph the exam asks you to draw, from supply and demand to the Phillips curve.' },
   { href: '/mock-exam/', title: 'Mock exam', count: 'Pro', text: 'A timed multiple-choice exam drawn from both courses, scored by unit at the end.' },
+  { href: '/study-plan/', title: 'Study planner', count: 'Free', text: 'Enter your exam date and the days you can study. Get a day-by-day plan weighted by how much each unit counts.' },
+  { href: '/formulas/', title: 'Formula sheet', count: `${formulaGroups.reduce((n, g) => n + g.items.length, 0)} formulas`, text: 'Every formula and decision rule from both courses on one printable page, most with a worked example.' },
   { href: '/score-calculator/', title: 'Score calculator', count: 'Free', text: 'Turn a practice test into a weighted score and see what each point is worth.' },
 ];
 const titles = Object.fromEntries(units.map((u) => [u.slug, u.title]));
@@ -126,7 +129,7 @@ const titles = Object.fromEntries(units.map((u) => [u.slug, u.title]));
 </Base>
 
 <script>
-  import { store } from '../scripts/store';
+  import { dayKey, store } from '../scripts/store';
 
   // A short list of next steps, once the reader has some history in this browser.
   const box = document.querySelector<HTMLElement>('[data-resume]')!;
@@ -135,10 +138,11 @@ const titles = Object.fromEntries(units.map((u) => [u.slug, u.title]));
   const titles: Record<string, string> = JSON.parse(document.querySelector('[data-lesson-titles]')!.textContent!);
   const saved = store.get();
   const items: string[] = [];
+  if (saved.plan && saved.plan.exam > dayKey()) items.push(`<li><a href="${base}study-plan/">See today in your study plan</a></li>`);
   const started = Object.entries(saved.steps).find(([slug, step]) => step > 0 && !saved.done[slug] && titles[slug]);
   if (started) items.push(`<li><a href="${base}learn/${started[0]}/">Continue the lesson: ${titles[started[0]]}</a></li>`);
   const missed = Object.values(saved.qstats).filter((s) => s.l === 0).length;
-  if (missed) items.push(`<li><a href="${base}practice/?course=all&which=missed">Retry ${missed} question${missed === 1 ? '' : 's'} you missed last time</a></li>`);
+  if (missed) items.push(`<li><a href="${base}missed/">Review ${missed} question${missed === 1 ? '' : 's'} you missed last time</a></li>`);
   const answered = Object.keys(saved.qstats).length;
   if (answered && !missed) items.push(`<li><a href="${base}practice/?course=all&which=new">Try questions you have not seen yet (${answered} answered so far)</a></li>`);
   const frqCount = Object.keys(saved.frq).length;

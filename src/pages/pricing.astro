@@ -7,6 +7,7 @@ import { frqs } from '../data/frqs';
 import { glossary } from '../data/glossary';
 import { url } from '../lib/url';
 import { site } from '../site';
+import { accountsOn } from '../lib/accounts';
 
 const free = [
   `All ${units.length} lessons, covering every official topic in AP Micro and AP Macro`,
@@ -80,7 +81,7 @@ const pro = [
         </div>
         <div>
           <dt>Where is my Pro status kept?</dt>
-          <dd>Only in this browser's local storage, the same place your progress is saved. TutorEcon has no server and no accounts, so Pro does not follow you to another device.</dd>
+          <dd>{accountsOn ? 'In this browser’s local storage, the same place your progress is saved. If you are signed in, it is saved to your account too, so it follows you to other devices.' : 'Only in this browser’s local storage, the same place your progress is saved. Accounts are not switched on, so Pro does not follow you to another device.'}</dd>
         </div>
         <div>
           <dt>How do I cancel?</dt>

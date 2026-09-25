@@ -1,6 +1,7 @@
 ---
 import { url } from '../lib/url';
 import { site } from '../site';
+import { accountsOn } from '../lib/accounts';
 import Logo from './Logo.astro';
 
 const groups = [
@@ -19,6 +20,9 @@ const groups = [
       ['/practice/', 'Question bank'],
       ['/frq/', 'Free-response questions'],
       ['/flashcards/', 'Flashcards'],
+      ['/missed/', 'Missed and flagged questions'],
+      ['/study-plan/', 'Study planner'],
+      ['/formulas/', 'Formula sheet'],
       ['/graph-lab/', 'Graph lab'],
       ['/score-calculator/', 'Score calculator'],
       ['/mock-exam/', 'Mock exam (Pro)'],
@@ -30,7 +34,7 @@ const groups = [
     links: [
       ['/about/', 'About'],
       ['/pricing/', 'Pricing'],
-      ['/account/', 'Your data and settings'],
+      ...(accountsOn ? [['/sign-in/', 'Sign in'], ['/account/', 'Your account and data']] : [['/account/', 'Your data and settings']]),
       ['/privacy/', 'Privacy policy'],
       ['/cookies/', 'Cookie policy'],
       ['/terms/', 'Terms of use'],
@@ -50,7 +54,7 @@ const year = new Date().getFullYear();
           <span>{site.name}</span>
         </a>
         <p class="note">
-          Free review for AP Microeconomics and AP Macroeconomics, organized by the official course topics. No account, no ads, no tracking.
+          Free review for AP Microeconomics and AP Macroeconomics, organized by the official course topics. {accountsOn ? 'Accounts are optional. No ads, no tracking.' : 'No account needed, no ads, no tracking.'}
         </p>
         <p class="note">Found a mistake in a lesson or question? <a href={site.contactUrl}>Tell us on GitHub</a>.</p>
       </div>

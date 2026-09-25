@@ -1,0 +1,105 @@
+---
+// Shared layout for the sign-up, sign-in, and password pages. When the site
+// is built without an account service, the form is replaced by a plain note.
+import Base from '../layouts/Base.astro';
+import { accountsOn } from '../lib/accounts';
+import { url } from '../lib/url';
+
+interface Props {
+  title: string;
+  description: string;
+  lede?: string;
+  noindex?: boolean;
+}
+const { title, description, lede, noindex = false } = Astro.props;
+---
+<Base title={title} description={description} noindex={noindex}>
+  <div class="wrap auth">
+    <section class="auth-main" aria-labelledby="auth-title">
+      <h1 id="auth-title" class="auth-title">{title}</h1>
+      {lede && <p class="auth-lede">{lede}</p>}
+      {accountsOn ? (
+        <slot />
+      ) : (
+        <div class="off" data-accounts-off>
+          <h2 class="h3">Accounts are not switched on yet</h2>
+          <p>This copy of TutorEcon runs without an account service, so there is nowhere to keep accounts. You can still use every lesson, question, and tool without one, and your progress is saved in this browser as you go.</p>
+          <p>To move your progress to another device now, download it from <a href={url('/account/')}>Your data</a> and load the file on the other device.</p>
+        </div>
+      )}
+    </section>
+
+    <aside class="auth-aside" aria-labelledby="aside-title">
+      <h2 id="aside-title" class="h3">What an account keeps</h2>
+      <ul>
+        <li><strong>Your email address,</strong> so you can sign in and reset your password.</li>
+        <li><strong>Your password,</strong> stored by our account service only as a one-way hash. No one at TutorEcon can see it.</li>
+        <li><strong>Your study progress,</strong> the same record listed on <a href={url('/account/')}>Your data</a>.</li>
+      </ul>
+      <p>Nothing else: no name, school, birthday, or payment details. You can delete the account at any time, and the <a href={url('/privacy/')}>privacy policy</a> explains the rest.</p>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .auth {
+    display: grid;
+    gap: 2.5rem;
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    padding-bottom: 5rem;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .auth {
+      grid-template-columns: minmax(0, 460px) minmax(0, 360px);
+      gap: 4rem;
+      justify-content: center;
+    }
+  }
+  .auth-main {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .auth-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.6rem);
+    line-height: 1.1;
+  }
+  .auth-lede {
+    color: var(--ink-2);
+    font-size: 1.08rem;
+    margin-top: -0.5rem;
+  }
+  .off {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+  }
+  .auth-aside {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line-strong);
+    color: var(--ink-2);
+  }
+  @media (min-width: 900px) {
+    .auth-aside {
+      margin-top: 4.5rem;
+    }
+  }
+  .auth-aside h2 {
+    color: var(--ink);
+  }
+  .auth-aside ul {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+  .auth-aside strong {
+    color: var(--ink);
+  }
+</style>
