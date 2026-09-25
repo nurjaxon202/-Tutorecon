@@ -262,9 +262,18 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
   document.querySelector('[data-start]')?.addEventListener('click', (e) => {
     e.preventDefault();
+    const behavior: ScrollBehavior = reduce.matches ? 'auto' : 'smooth';
+    if (shown === 0) {
+      // Line the progress bar up under the site header, with the first step right below it.
+      const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
+      const barHeight = document.querySelector<HTMLElement>('.lesson-bar')?.offsetHeight ?? 0;
+      window.scrollTo({ top: article.getBoundingClientRect().top + window.scrollY - header - barHeight, behavior });
+      steps[0]?.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
+      return;
+    }
     const step = shown >= total ? check : steps[shown];
     const target = step?.querySelector<HTMLElement>('h2') ?? article;
-    target.scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'start' });
+    target.scrollIntoView({ behavior, block: 'start' });
   });
 
   paint();
