@@ -1,0 +1,382 @@
+---
+// A course hub: the exam at a glance, then every unit and official topic,
+// each linked to its lesson section and its practice questions.
+import Base from '../layouts/Base.astro';
+import { getCourse, examFormat, type CourseId } from '../data/ced';
+import { questions } from '../data/questions';
+import { frqs, frqPoints } from '../data/frqs';
+import { units as lessons } from '../data/units';
+import { lesson } from '../lib/lessons';
+import { url } from '../lib/url';
+
+interface Props {
+  id: CourseId;
+}
+const course = getCourse(Astro.props.id);
+const prefix = course.id === 'micro' ? 'mi' : 'ma';
+const inCourse = questions.filter((q) => q.topics.some((t) => t.startsWith(prefix)));
+const countTopic = (id: string) => questions.filter((q) => q.topics.includes(id)).length;
+const countUnit = (n: number) => questions.filter((q) => q.topics.some((t) => t.startsWith(`${prefix}${n}.`))).length;
+const courseFrqs = frqs.filter((f) => f.course === course.id);
+const topicCount = course.units.reduce((n, u) => n + u.topics.length, 0);
+const lessonInfo = (slug: string) => {
+  const u = lessons.find((x) => x.slug === slug)!;
+  return { title: u.title, minutes: lesson(slug).minutes };
+};
+const other = course.id === 'micro' ? getCourse('macro') : getCourse('micro');
+const topicIds = course.units.flatMap((u) => u.topics.map((t) => t.id));
+---
+<Base title={course.name} description={`${course.name}: all ${course.units.length} units and ${topicCount} official topics, with lessons, ${inCourse.length} practice questions, and ${courseFrqs.length} free-response questions.`}>
+  <section class="page-band">
+    <div class="wrap head">
+      <div class="head-text">
+        <p class="eyebrow">Course</p>
+        <h1 class="page-title">{course.name}</h1>
+        <p class="lede">{course.blurb}</p>
+        <p class="facts">
+          {course.units.length} units · {topicCount} official topics · {inCourse.length} practice questions · {courseFrqs.length} free-response questions
+        </p>
+        <div class="btn-row">
+          <a class="btn" href={url(`/learn/${course.units[0].lessons[0]}/`)}>Start with Unit 1</a>
+          <a class="btn btn-secondary" href={url(`/practice/?course=${course.id}`)}>Practice {course.short}</a>
+        </div>
+      </div>
+      <div class="mine" data-mine hidden>
+        <p class="mine-title">Your {course.short} progress</p>
+        <p data-mine-text></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap layout">
+    <nav class="toc" aria-label="Units">
+      <p class="toc-title">Units</p>
+      <ol>
+        {course.units.map((u) => (
+          <li><a href={`#unit-${u.n}`}><span class="toc-n">{u.n}</span>{u.title}</a></li>
+        ))}
+        <li><a href="#exam"><span class="toc-n">·</span>The exam</a></li>
+        <li><a href="#frqs"><span class="toc-n">·</span>Free-response practice</a></li>
+      </ol>
+    </nav>
+
+    <div class="main">
+      {course.units.map((u) => (
+        <section class="unit" id={`unit-${u.n}`} aria-labelledby={`unit-${u.n}-title`}>
+          <header class="unit-head">
+            <p class="unit-label">Unit {u.n} · {u.weight} of the multiple-choice section</p>
+            <h2 id={`unit-${u.n}-title`} class="h2">{u.title}</h2>
+            <p class="unit-links">
+              {u.lessons.map((slug, k) => {
+                const l = lessonInfo(slug);
+                return (
+                  <>
+                    {k > 0 && <span class="sep"> and </span>}
+                    <a href={url(`/learn/${slug}/`)}>Read the lesson: {l.title}</a> <span class="min">({l.minutes} min)</span>
+                  </>
+                );
+              })}
+            </p>
+          </header>
+          <table class="topics">
+            <thead>
+              <tr>
+                <th scope="col">Topic</th>
+                <th scope="col" class="num">Questions</th>
+                <th scope="col" class="num">Your accuracy</th>
+              </tr>
+            </thead>
+            <tbody>
+              {u.topics.map((t) => (
+                <tr>
+                  <td>
+                    <span class="code">{t.code}</span>
+                    <a href={url(`/learn/${t.lesson}/#${t.anchor}`)}>{t.title}</a>
+                  </td>
+                  <td class="num">
+                    <a href={url(`/practice/?course=${course.id}&unit=${u.n}&topic=${t.id}`)} aria-label={`Practice ${countTopic(t.id)} questions on ${t.title}`}>{countTopic(t.id)}</a>
+                  </td>
+                  <td class="num acc" data-acc={t.id}>Not yet</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p class="unit-foot">
+            <a href={url(`/practice/?course=${course.id}&unit=${u.n}`)}>Practice all {countUnit(u.n)} Unit {u.n} questions</a>
+            {courseFrqs.filter((f) => f.units.includes(u.n)).length > 0 && (
+              <>
+                <span class="sep"> · </span>
+                {courseFrqs.filter((f) => f.units.includes(u.n)).length} free-response question{courseFrqs.filter((f) => f.units.includes(u.n)).length === 1 ? '' : 's'}
+              </>
+            )}
+          </p>
+        </section>
+      ))}
+
+      <section class="unit" id="exam" aria-labelledby="exam-title">
+        <h2 id="exam-title" class="h2">The {course.name} exam</h2>
+        <table class="topics exam-table">
+          <thead>
+            <tr><th scope="col">Section</th><th scope="col">Questions</th><th scope="col">Time</th><th scope="col" class="num">Share of score</th></tr>
+          </thead>
+          <tbody>
+            {examFormat.sections.map((s) => (
+              <tr><td>{s.name}</td><td>{s.detail}</td><td>{s.time}</td><td class="num">{s.weight}</td></tr>
+            ))}
+          </tbody>
+        </table>
+        <ul class="notes">
+          {examFormat.notes.map((n) => <li>{n}</li>)}
+        </ul>
+        <p class="muted small">Source: the College Board’s course and exam description for {course.name}. <a href={url('/score-calculator/')}>See how each point counts</a>.</p>
+      </section>
+
+      <section class="unit" id="frqs" aria-labelledby="frq-title">
+        <h2 id="frq-title" class="h2">Free-response practice</h2>
+        <ul class="frq-list">
+          {courseFrqs.map((f) => (
+            <li>
+              <a href={url(`/frq/${f.id}/`)}>{f.title}</a>
+              <span class="muted">{f.kind === 'long' ? 'Long' : 'Short'}, {frqPoints(f)} points · Unit{f.units.length > 1 ? 's' : ''} {f.units.join(', ')}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="other">Taking both courses? <a href={url(other.path)}>Go to {other.name}</a>.</p>
+      </section>
+    </div>
+  </div>
+
+  <script type="application/json" data-course-topics set:html={JSON.stringify({ prefix, topics: topicIds, units: course.units.map((u) => u.lessons) })} />
+  <script type="application/json" data-topic-questions set:html={JSON.stringify(Object.fromEntries(topicIds.map((id) => [id, questions.filter((q) => q.topics.includes(id)).map((q) => q.id)])))} />
+</Base>
+
+<script>
+  import { store } from '../scripts/store';
+  const info = JSON.parse(document.querySelector('[data-course-topics]')!.textContent!) as { prefix: string; topics: string[]; units: string[][] };
+  const byTopic: Record<string, string[]> = JSON.parse(document.querySelector('[data-topic-questions]')!.textContent!);
+  const sync = () => {
+    const saved = store.get();
+    let tries = 0;
+    let right = 0;
+    const seen = new Set<string>();
+    for (const id of info.topics) {
+      let a = 0;
+      let c = 0;
+      for (const q of byTopic[id]) {
+        const st = saved.qstats[q];
+        if (!st) continue;
+        a += st.a;
+        c += st.c;
+        if (!seen.has(q)) {
+          seen.add(q);
+          tries += st.a;
+          right += st.c;
+        }
+      }
+      const cell = document.querySelector<HTMLElement>(`[data-acc="${id}"]`);
+      if (!cell) continue;
+      cell.textContent = a ? `${Math.round((c / a) * 100)}%` : 'Not yet';
+      cell.classList.toggle('low', a >= 3 && c / a < 0.6);
+      cell.classList.toggle('high', a >= 3 && c / a >= 0.8);
+    }
+    const lessonsDone = [...new Set(info.units.flat())].filter((s) => saved.done[s]).length;
+    const box = document.querySelector<HTMLElement>('[data-mine]')!;
+    box.hidden = !tries && !lessonsDone;
+    document.querySelector('[data-mine-text]')!.textContent = `${seen.size} questions answered, ${tries ? Math.round((right / tries) * 100) : 0}% correct. ${lessonsDone} lesson${lessonsDone === 1 ? '' : 's'} marked done.`;
+  };
+  window.addEventListener('tutorecon:change', sync);
+  sync();
+</script>
+
+<style>
+  .head {
+    display: grid;
+    gap: 1.5rem;
+    align-items: end;
+  }
+  @media (min-width: 960px) {
+    .head {
+      grid-template-columns: 1fr 300px;
+    }
+  }
+  .head-text {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .facts {
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+  .head .btn-row {
+    margin-top: 0.5rem;
+  }
+  .mine {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+  }
+  .mine-title {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .layout {
+    display: grid;
+    gap: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+    align-items: start;
+  }
+  @media (min-width: 1000px) {
+    .layout {
+      grid-template-columns: 230px minmax(0, 1fr);
+      gap: 3.5rem;
+    }
+    .toc {
+      position: sticky;
+      top: 84px;
+    }
+  }
+  .toc-title {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--line);
+  }
+  .toc a {
+    display: grid;
+    grid-template-columns: 1.4rem 1fr;
+    gap: 0.35rem;
+    padding: 0.35rem 0 0.35rem 0.8rem;
+    color: var(--ink-2);
+    text-decoration: none;
+    line-height: 1.35;
+  }
+  .toc a:hover {
+    color: var(--ink);
+  }
+  .toc-n {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-3);
+  }
+  @media (max-width: 999px) {
+    .toc ol {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 1rem;
+      border-left: 0;
+    }
+    .toc a {
+      padding: 0.2rem 0;
+    }
+  }
+  .main {
+    display: grid;
+    gap: 3rem;
+    min-width: 0;
+  }
+  .unit {
+    display: grid;
+    gap: 1rem;
+    scroll-margin-top: 84px;
+  }
+  .unit-head {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .unit-label {
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .unit-links {
+    font-weight: 500;
+  }
+  .min,
+  .sep {
+    color: var(--ink-3);
+  }
+  .topics {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .topics th,
+  .topics td {
+    text-align: left;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .topics th {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink-2);
+    border-bottom-color: var(--line-strong);
+  }
+  .topics .num {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    width: 1%;
+  }
+  .code {
+    display: inline-block;
+    min-width: 2.4rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  .acc {
+    color: var(--ink-3);
+  }
+  .acc:global(.low) {
+    color: var(--bad);
+    font-weight: 600;
+  }
+  .acc:global(.high) {
+    color: var(--good);
+    font-weight: 600;
+  }
+  .unit-foot {
+    font-weight: 500;
+  }
+  .exam-table td:first-child {
+    font-weight: 600;
+  }
+  .notes {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.35rem;
+    color: var(--ink-2);
+  }
+  .frq-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .frq-list li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .frq-list a {
+    font-weight: 600;
+  }
+  .other {
+    margin-top: 0.5rem;
+  }
+  @media (max-width: 560px) {
+    .topics th:nth-child(3),
+    .topics td:nth-child(3) {
+      display: none;
+    }
+  }
+</style>

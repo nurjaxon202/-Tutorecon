@@ -1,0 +1,231 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { url } from '../lib/url';
+---
+<Base title="Score calculator" description="See how the AP Microeconomics and Macroeconomics exams weight each section, and turn a practice test into a weighted percentage.">
+  <PageBand
+    eyebrow="Exam tools"
+    title="Score calculator"
+    lede="Enter a practice test result to see your weighted score the way the exam counts it. Both AP Micro and AP Macro use the same weights."
+  />
+
+  <div class="wrap calc">
+    <form class="inputs" data-calc aria-labelledby="calc-title">
+      <h2 id="calc-title" class="h3">Your practice test</h2>
+      <div class="field">
+        <label for="mcq">Multiple-choice questions correct <span class="range">(0 to 60)</span></label>
+        <input id="mcq" class="input" type="number" min="0" max="60" step="1" value="42" inputmode="numeric" data-in="mcq" />
+      </div>
+      <div class="field">
+        <label for="long">Long free-response points <span class="range">(0 to 10)</span></label>
+        <input id="long" class="input" type="number" min="0" max="10" step="1" value="6" inputmode="numeric" data-in="long" />
+      </div>
+      <div class="field">
+        <label for="short1">First short free-response points <span class="range">(0 to 5)</span></label>
+        <input id="short1" class="input" type="number" min="0" max="5" step="1" value="3" inputmode="numeric" data-in="short1" />
+      </div>
+      <div class="field">
+        <label for="short2">Second short free-response points <span class="range">(0 to 5)</span></label>
+        <input id="short2" class="input" type="number" min="0" max="5" step="1" value="3" inputmode="numeric" data-in="short2" />
+      </div>
+      <p class="error-text" data-error aria-live="polite"></p>
+    </form>
+
+    <section class="output" aria-labelledby="out-title" aria-live="polite">
+      <h2 id="out-title" class="h3">Weighted score</h2>
+      <p class="big" data-total>0%</p>
+      <div class="bar" aria-hidden="true">
+        <span class="bar-mcq" data-bar-mcq></span>
+        <span class="bar-frq" data-bar-frq></span>
+      </div>
+      <dl class="split">
+        <div><dt>From multiple choice</dt><dd data-out-mcq>0 of 66.7 points</dd></div>
+        <div><dt>From free response</dt><dd data-out-frq>0 of 33.3 points</dd></div>
+      </dl>
+      <p class="note">
+        The College Board sets the cut points for each 1 to 5 score after every exam and does not publish them in advance, so this page does not guess your 1 to 5 score. Use the weighted percentage to compare practice tests over time.
+      </p>
+    </section>
+
+    <section class="worth" aria-labelledby="worth-title">
+      <h2 id="worth-title" class="h2">What each point is worth</h2>
+      <table>
+        <thead>
+          <tr><th scope="col">Part of the exam</th><th scope="col">Share of your score</th><th scope="col">Each point is worth</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Multiple choice: 60 questions</td><td>66.7%</td><td>1.11% per question</td></tr>
+          <tr><td>Long free-response question: 10 points</td><td>16.7%</td><td>1.67% per point</td></tr>
+          <tr><td>Short free-response question: 5 points</td><td>8.3%</td><td>1.67% per point</td></tr>
+          <tr><td>Short free-response question: 5 points</td><td>8.3%</td><td>1.67% per point</td></tr>
+        </tbody>
+      </table>
+      <p>Two things follow from this:</p>
+      <ul>
+        <li>Every free-response point counts 1.5 times as much as one multiple-choice question, whether it comes from the long question or a short one.</li>
+        <li>A correctly labeled graph is usually worth its own point, so a clean, labeled graph is some of the cheapest credit on the exam.</li>
+      </ul>
+      <p class="muted small">Weights come from the College Board’s course and exam descriptions: Section I is 66.7% of the score, Section II is 33.3%, and within Section II the long question counts for half and each short question for a quarter. Practice with the <a href={url('/practice/')}>question bank</a> and <a href={url('/frq/')}>free-response questions</a>.</p>
+    </section>
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-calc]')!;
+  const max = { mcq: 60, long: 10, short1: 5, short2: 5 } as const;
+  const get = (k: keyof typeof max) => {
+    const el = form.querySelector<HTMLInputElement>(`[data-in="${k}"]`)!;
+    const v = Number(el.value);
+    const ok = el.value !== '' && Number.isFinite(v) && v >= 0 && v <= max[k];
+    el.setAttribute('aria-invalid', String(!ok));
+    return ok ? v : null;
+  };
+  const set = (sel: string, text: string) => (document.querySelector<HTMLElement>(sel)!.textContent = text);
+  const update = () => {
+    const mcq = get('mcq');
+    const long = get('long');
+    const s1 = get('short1');
+    const s2 = get('short2');
+    if (mcq === null || long === null || s1 === null || s2 === null) {
+      set('[data-error]', 'Each box needs a whole number within the range shown.');
+      return;
+    }
+    set('[data-error]', '');
+    const fromMcq = (mcq / 60) * (200 / 3);
+    const fromFrq = ((long / 10) * 0.5 + (s1 / 5) * 0.25 + (s2 / 5) * 0.25) * (100 / 3);
+    const total = fromMcq + fromFrq;
+    set('[data-total]', `${total.toFixed(1)}%`);
+    set('[data-out-mcq]', `${fromMcq.toFixed(1)} of 66.7 points`);
+    set('[data-out-frq]', `${fromFrq.toFixed(1)} of 33.3 points`);
+    document.querySelector<HTMLElement>('[data-bar-mcq]')!.style.width = `${fromMcq}%`;
+    document.querySelector<HTMLElement>('[data-bar-frq]')!.style.width = `${fromFrq}%`;
+  };
+  form.addEventListener('input', update);
+  update();
+</script>
+
+<style>
+  .calc {
+    display: grid;
+    gap: 2.5rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .calc {
+      grid-template-columns: 360px minmax(0, 1fr);
+      column-gap: 3rem;
+    }
+    .worth {
+      grid-column: 1 / -1;
+    }
+  }
+  .inputs {
+    display: grid;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+  }
+  .range {
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .output {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 60ch;
+  }
+  .big {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 2.4rem + 2vw, 4rem);
+    font-weight: 650;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .bar {
+    display: flex;
+    height: 14px;
+    border-radius: 7px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .bar span {
+    display: block;
+    height: 100%;
+    transition: width 0.25s ease;
+  }
+  .bar-mcq {
+    background: var(--brand-fill);
+  }
+  .bar-frq {
+    background: var(--orange);
+  }
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 0;
+  }
+  .split dt {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--ink-2);
+  }
+  .split div:first-child dt::before,
+  .split div:last-child dt::before {
+    content: '';
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 2px;
+    background: var(--brand-fill);
+  }
+  .split div:last-child dt::before {
+    background: var(--orange);
+  }
+  .split dd {
+    margin: 0.15rem 0 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .note {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+  .worth {
+    display: grid;
+    gap: 1rem;
+    max-width: 75ch;
+  }
+  .worth table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .worth th,
+  .worth td {
+    text-align: left;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .worth th {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-2);
+    border-bottom-color: var(--line-strong);
+  }
+  .worth ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+</style>

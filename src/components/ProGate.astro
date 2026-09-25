@@ -41,7 +41,7 @@ const { feature } = Astro.props;
     align-items: start;
     padding: clamp(1.5rem, 1.2rem + 1.5vw, 2.4rem);
     max-width: 760px;
-    border-radius: 24px;
+    border-radius: 12px;
     box-shadow: 0 5px 0 #070b16, var(--shadow-lg);
   }
   @media (min-width: 640px) {
@@ -55,7 +55,7 @@ const { feature } = Astro.props;
     place-items: center;
     width: 3.6rem;
     height: 3.6rem;
-    border-radius: 16px;
+    border-radius: 10px;
     background: var(--sun);
     color: #0b1220;
     box-shadow: 0 4px 0 var(--sun-lip);
@@ -67,14 +67,12 @@ const { feature } = Astro.props;
   }
   .pro-kicker {
     font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-weight: 700;
     color: var(--sun);
   }
   .pro-title {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
     line-height: 1.1;
   }

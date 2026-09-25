@@ -166,6 +166,7 @@ function mount(root: HTMLElement) {
     const choice = Number(picked.value);
     const right = choice === q.answer;
     results.set(id, right);
+    store.recordAnswer(id, right);
     card.classList.add('is-done');
     card.querySelectorAll<HTMLInputElement>('input[type=radio]').forEach((r) => (r.disabled = true));
     card.querySelector(`[data-opt="${q.answer}"]`)?.classList.add('is-correct');
@@ -191,7 +192,7 @@ function mount(root: HTMLElement) {
 
   cards.forEach((card) => {
     card.querySelector<HTMLButtonElement>('[data-check]')!.addEventListener('click', () => check(card));
-    // A to D (or 1 to 4) picks an answer; Enter checks it.
+    // A to E (or 1 to 5) picks an answer; Enter checks it.
     card.addEventListener('keydown', (e) => {
       if (e.altKey || e.ctrlKey || e.metaKey || card.classList.contains('is-done')) return;
       const key = e.key.toLowerCase();

@@ -1,0 +1,216 @@
+---
+// Site search. The index loads the first time the dialog opens.
+import { url } from '../lib/url';
+---
+<dialog class="search-dialog" data-search-dialog aria-labelledby="search-title" data-index={url('/search.json')}>
+  <form method="dialog" class="search-form" role="search">
+    <h2 id="search-title" class="visually-hidden">Search TutorEcon</h2>
+    <div class="search-row">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2" /><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
+      <label for="site-search" class="visually-hidden">Search topics, terms, graphs, and questions</label>
+      <input id="site-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search topics, terms, graphs, FRQs" aria-describedby="search-status" data-search-input />
+      <button type="submit" class="close" aria-label="Close search">Esc</button>
+    </div>
+    <p id="search-status" class="status" aria-live="polite" data-search-status>Try “elasticity”, “monopoly”, or “4.6”.</p>
+    <ul class="results" data-search-results></ul>
+  </form>
+</dialog>
+
+<script>
+  interface Entry {
+    t: string;
+    s: string;
+    u: string;
+    k: string;
+    x?: string;
+  }
+  const dialog = document.querySelector<HTMLDialogElement>('[data-search-dialog]')!;
+  const input = dialog.querySelector<HTMLInputElement>('[data-search-input]')!;
+  const list = dialog.querySelector<HTMLUListElement>('[data-search-results]')!;
+  const status = dialog.querySelector<HTMLElement>('[data-search-status]')!;
+  let index: Entry[] | null = null;
+  let loading: Promise<void> | null = null;
+  let opener: HTMLElement | null = null;
+
+  const load = () =>
+    (loading ??= fetch(dialog.dataset.index!)
+      .then((r) => r.json())
+      .then((data: Entry[]) => {
+        index = data;
+        render();
+      })
+      .catch(() => {
+        status.textContent = 'Search could not load. Check your connection and try again.';
+      }));
+
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const score = (e: Entry, q: string) => {
+    const t = e.t.toLowerCase();
+    if (t === q) return 100;
+    if (t.startsWith(q)) return 80;
+    if (new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`).test(t)) return 60;
+    if (t.includes(q)) return 40;
+    if ((e.x ?? '').toLowerCase().includes(q)) return 30;
+    if (e.s.toLowerCase().includes(q)) return 10;
+    return 0;
+  };
+
+  const render = () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) {
+      list.innerHTML = '';
+      status.textContent = 'Try “elasticity”, “monopoly”, or “4.6”.';
+      return;
+    }
+    if (!index) {
+      status.textContent = 'Loading…';
+      return;
+    }
+    const words = q.split(/\s+/);
+    // Small tie-breakers so topics and lessons come before tools and FRQs.
+    const kindBoost: Record<string, number> = { Course: 6, Topic: 6, Unit: 5, Lesson: 5, Term: 4, Page: 4, Graph: 3, FRQ: 2 };
+    const hits = index
+      .map((e) => ({ e, n: words.reduce((sum, w) => (sum >= 0 && score(e, w) > 0 ? sum + score(e, w) : -1), 0) }))
+      .map((h) => ({ ...h, n: h.n > 0 ? h.n + (kindBoost[h.e.k] ?? 0) : h.n }))
+      .filter((h) => h.n > 0)
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 12);
+    status.textContent = hits.length ? `${hits.length === 12 ? 'Top 12' : hits.length} result${hits.length === 1 ? '' : 's'}` : 'No results. Try a shorter word.';
+    list.innerHTML = hits
+      .map(
+        ({ e }) =>
+          `<li><a href="${e.u}"><span class="kind">${esc(e.k)}</span><span class="text"><span class="title">${esc(e.t)}</span><span class="sub">${esc(e.s)}</span></span></a></li>`,
+      )
+      .join('');
+  };
+
+  const open = () => {
+    opener = document.activeElement as HTMLElement | null;
+    dialog.showModal();
+    input.select();
+    load();
+  };
+
+  document.querySelectorAll('[data-search-open]').forEach((b) => b.addEventListener('click', open));
+  document.addEventListener('keydown', (e) => {
+    const target = e.target as HTMLElement;
+    const typing = target.closest('input, textarea, select, [contenteditable="true"]');
+    if (dialog.open) return;
+    if ((e.key === '/' && !typing) || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) {
+      e.preventDefault();
+      open();
+    }
+  });
+  input.addEventListener('input', render);
+  dialog.addEventListener('close', () => opener?.focus());
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+  // Arrow keys move between the input and the results.
+  dialog.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    const links = [...list.querySelectorAll<HTMLAnchorElement>('a')];
+    if (!links.length) return;
+    e.preventDefault();
+    const i = links.indexOf(document.activeElement as HTMLAnchorElement);
+    if (e.key === 'ArrowDown') (links[i + 1] ?? links[0]).focus();
+    else if (i <= 0) input.focus();
+    else links[i - 1].focus();
+  });
+</script>
+
+<style>
+  .search-dialog {
+    width: min(640px, calc(100vw - 2 * var(--gutter)));
+    max-height: min(560px, calc(100vh - 6rem));
+    margin: 5rem auto auto;
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--bg);
+    color: var(--ink);
+    box-shadow: var(--shadow-lg);
+  }
+  .search-dialog::backdrop {
+    background: rgba(11, 18, 32, 0.45);
+  }
+  .search-form {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    max-height: inherit;
+  }
+  .search-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem 0.5rem 1rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-2);
+  }
+  .search-row input {
+    flex: 1;
+    min-height: 48px;
+    border: 0;
+    background: transparent;
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+  .search-row input:focus-visible {
+    outline: none;
+  }
+  .close {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: var(--bg-2);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .status {
+    padding: 0.6rem 1rem 0.2rem;
+    font-size: 0.88rem;
+    color: var(--ink-2);
+  }
+  .results {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0.5rem 0.6rem;
+    overflow-y: auto;
+  }
+  .results :global(a) {
+    display: grid;
+    grid-template-columns: 4.2rem 1fr;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.6rem 0.6rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .results :global(a:hover),
+  .results :global(a:focus-visible) {
+    background: var(--brand-tint);
+    outline: none;
+  }
+  .results :global(.kind) {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .results :global(.text) {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+  .results :global(.title) {
+    font-weight: 600;
+  }
+  .results :global(.sub) {
+    font-size: 0.88rem;
+    color: var(--ink-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

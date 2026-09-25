@@ -1,0 +1,123 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageBand from '../../components/PageBand.astro';
+import { frqs, frqPoints } from '../../data/frqs';
+import { courses } from '../../data/ced';
+import { url } from '../../lib/url';
+
+const groups = courses.map((c) => ({ course: c, list: frqs.filter((f) => f.course === c.id) }));
+---
+<Base title="Free-response questions" description={`${frqs.length} original AP Economics free-response questions in the exam format, each with a point-by-point scoring guide you can use to score yourself.`}>
+  <PageBand
+    eyebrow="Practice"
+    title="Free-response questions"
+    lede={`${frqs.length} original questions in the AP format, each with a point-by-point scoring guide. Write your answer on paper, draw your graphs by hand, then check off the points you earned.`}
+  />
+
+  <div class="wrap frq-index">
+    <section class="how" aria-labelledby="how-title">
+      <h2 id="how-title" class="h3">How the free-response section works</h2>
+      <p>Section II has three questions in one hour, including a 10-minute reading period. The first is a long question worth 10 points and half of the section. The other two are short questions worth 5 points each. The College Board suggests spending about half your time on the long question.</p>
+      <p>Readers score each point on its own. A graph earns its point only if it is correctly labeled, so always label both axes, every curve, and the equilibrium values the question asks for.</p>
+    </section>
+
+    {groups.map((g) => (
+      <section class="group" aria-labelledby={`g-${g.course.id}`}>
+        <h2 id={`g-${g.course.id}`} class="h2">{g.course.name}</h2>
+        <table class="frq-table">
+          <thead>
+            <tr>
+              <th scope="col">Question</th>
+              <th scope="col">Type</th>
+              <th scope="col">Units</th>
+              <th scope="col">Your score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {g.list.map((f) => (
+              <tr>
+                <td><a href={url(`/frq/${f.id}/`)}>{f.title}</a></td>
+                <td>{f.kind === 'long' ? 'Long' : 'Short'}, {frqPoints(f)} points</td>
+                <td>{f.units.join(', ')}</td>
+                <td class="score" data-frq-score={f.id}>Not tried</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    ))}
+  </div>
+</Base>
+
+<script>
+  import { store } from '../../scripts/store';
+  const sync = () => {
+    const saved = store.get().frq;
+    document.querySelectorAll<HTMLElement>('[data-frq-score]').forEach((el) => {
+      const r = saved[el.dataset.frqScore!];
+      el.textContent = r ? `${r.score} of ${r.total}` : 'Not tried';
+      el.classList.toggle('has-score', Boolean(r));
+    });
+  };
+  window.addEventListener('tutorecon:change', sync);
+  sync();
+</script>
+
+<style>
+  .frq-index {
+    display: grid;
+    gap: 3rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+  }
+  .how {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 70ch;
+    padding: 1.25rem 1.4rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+  }
+  .group {
+    display: grid;
+    gap: 1rem;
+  }
+  .frq-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .frq-table th,
+  .frq-table td {
+    text-align: left;
+    padding: 0.7rem 0.6rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .frq-table th {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-2);
+    border-bottom-color: var(--line-strong);
+  }
+  .frq-table td:first-child a {
+    font-weight: 600;
+  }
+  .frq-table td:not(:first-child) {
+    white-space: nowrap;
+    color: var(--ink-2);
+  }
+  .score.has-score {
+    color: var(--good);
+    font-weight: 600;
+  }
+  @media (max-width: 640px) {
+    .frq-table th:nth-child(3),
+    .frq-table td:nth-child(3) {
+      display: none;
+    }
+    .frq-table td:not(:first-child) {
+      white-space: normal;
+    }
+  }
+</style>

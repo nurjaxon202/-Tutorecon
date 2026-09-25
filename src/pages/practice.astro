@@ -1,162 +1,311 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageBand from '../components/PageBand.astro';
-import Quiz from '../components/Quiz.astro';
-import { questions, questionsFor } from '../data/questions';
-import { units, unitLabel } from '../data/units';
+import { questions } from '../data/questions';
+import { courses } from '../data/ced';
 import { url } from '../lib/url';
+
+// Everything the client needs to build filters without loading the bank.
+const topicInfo = Object.fromEntries(
+  courses.flatMap((c) => c.units.flatMap((u) => u.topics.map((t) => [t.id, { code: t.code, title: t.title, course: c.id, short: c.short, unit: u.n }]))),
+);
+const courseInfo = courses.map((c) => ({ id: c.id, short: c.short, units: c.units.map((u) => ({ n: u.n, title: u.title, topics: u.topics.map((t) => t.id) })) }));
+const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
 ---
-<Base title="Practice questions" description="Mixed AP Microeconomics and Macroeconomics practice questions, each with an explanation for every answer choice.">
+<Base title="Question bank" description={`${questions.length} original AP Microeconomics and Macroeconomics multiple-choice questions, filtered by official topic and difficulty, with an explanation for every answer choice.`}>
   <PageBand
     eyebrow="Practice"
-    title="Practice questions"
-    lede={`Ten questions drawn at random from all ${questions.length}. Filter by course, check each answer as you go, and draw a new set whenever you like.`}
+    title="Question bank"
+    lede={`${questions.length} original multiple-choice questions in the AP format, five choices each, with an explanation for every choice. Filter by course, unit, official topic, and difficulty.`}
   />
 
-  <div class="wrap practice-grid">
-    <div class="practice-main">
-      <Quiz questions={questions} saveAs="mixed" sample={10} title="Mixed review" intro="Each question shows which unit it comes from, so you know where to look if you miss it." />
-    </div>
+  <div class="wrap bank" data-bank data-src={url('/questions.json')}>
+    <form class="builder" data-builder aria-labelledby="builder-title">
+      <h2 id="builder-title" class="h3">Build a practice set</h2>
 
-    <aside class="practice-side">
-      <section class="panel side-card" aria-labelledby="by-unit">
-        <h2 id="by-unit" class="h3">Practice by unit</h2>
-        <ul>
-          {units.map((u) => (
-            <li>
-              <a class:list={['side-link', `course-${u.course}`]} href={url(`/learn/${u.slug}/#practice`)} data-unit={u.slug}>
-                <span class="side-n" aria-hidden="true">{u.apUnit}</span>
-                <span class="side-text">
-                  <span class="side-title">{u.title}</span>
-                  <span class="side-label">{unitLabel(u)}</span>
-                </span>
-                <span class="side-score" data-score>{questionsFor(u.slug).length} Qs</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section class="panel side-card pro-card">
-        <p class="eyebrow">Pro</p>
-        <h2 class="h3">Ready for timed practice?</h2>
-        <p class="muted">The mock exam gives you 20 questions and 25 minutes, then breaks your score down by unit.</p>
-        <a class="btn btn-secondary btn-small" href={url('/mock-exam/')}>Open the mock exam</a>
-      </section>
-    </aside>
+      <fieldset class="field-group">
+        <legend>Course</legend>
+        <div class="seg seg-wide">
+          <label><input type="radio" name="course" value="micro" checked /><span>AP Micro</span></label>
+          <label><input type="radio" name="course" value="macro" /><span>AP Macro</span></label>
+          <label><input type="radio" name="course" value="all" /><span>Both</span></label>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="f-unit">Unit</label>
+        <select id="f-unit" class="select" name="unit" data-unit-select></select>
+      </div>
+
+      <div class="field">
+        <label for="f-topic">Topic</label>
+        <select id="f-topic" class="select" name="topic" data-topic-select></select>
+      </div>
+
+      <fieldset class="field-group">
+        <legend>Difficulty</legend>
+        <div class="checks">
+          <label><input type="checkbox" name="level" value="1" checked /> Recall <span class="count">({levelCount(1)})</span></label>
+          <label><input type="checkbox" name="level" value="2" checked /> Apply <span class="count">({levelCount(2)})</span></label>
+          <label><input type="checkbox" name="level" value="3" checked /> Multi-step <span class="count">({levelCount(3)})</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="field-group">
+        <legend>Which questions</legend>
+        <div class="checks">
+          <label><input type="radio" name="which" value="all" checked /> All matching</label>
+          <label><input type="radio" name="which" value="new" /> Not answered yet</label>
+          <label><input type="radio" name="which" value="missed" /> Missed last time</label>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="f-size">Number of questions</label>
+        <select id="f-size" class="select" name="size">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+          <option value="0">All that match</option>
+        </select>
+      </div>
+
+      <p class="match" aria-live="polite" data-match>Loading questions…</p>
+      <button type="submit" class="btn btn-big" data-start disabled>Start practice</button>
+    </form>
+
+    <section class="session" data-session aria-live="off">
+      <div class="overview" data-overview>
+        <h2 class="h3">Your progress</h2>
+        <p class="muted" data-progress-text>Nothing answered yet. Results are saved in this browser only.</p>
+        <div data-weak hidden>
+          <h3 class="sub-title">Topics to work on</h3>
+          <p class="muted small">Your lowest accuracy among topics with at least three answers.</p>
+          <ol class="weak-list" data-weak-list></ol>
+        </div>
+        <div class="how">
+          <h3 class="sub-title">How the questions work</h3>
+          <ul>
+            <li>Each question has five choices, like the real exam.</li>
+            <li>Check each answer as you go. You see why your choice is right or wrong, and why the right answer is right.</li>
+            <li>Every question is tagged with its official topic, so a miss tells you exactly what to review.</li>
+            <li>Keyboard: <kbd>A</kbd> to <kbd>E</kbd> to choose, <kbd>Enter</kbd> to check and continue.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="runner" data-runner hidden>
+        <div class="run-head">
+          <p class="run-count" data-run-count></p>
+          <div class="run-track" aria-hidden="true"><span data-run-bar></span></div>
+          <button type="button" class="btn btn-secondary btn-small" data-exit>End set</button>
+        </div>
+        <form class="qcard run-card" data-card onsubmit="return false">
+          <fieldset>
+            <legend>
+              <span class="q-n" data-q-meta></span>
+              <span class="q-prompt" data-q-prompt tabindex="-1"></span>
+            </legend>
+            <div class="q-table" data-q-table hidden></div>
+            <div class="q-options" data-q-options></div>
+          </fieldset>
+          <div class="q-actions">
+            <button type="button" class="btn" data-check>Check answer</button>
+          </div>
+          <div class="q-feedback" data-feedback aria-live="polite"></div>
+        </form>
+      </div>
+
+      <div class="results" data-results hidden tabindex="-1">
+        <h2 class="h3" data-results-title></h2>
+        <p class="muted" data-results-text></p>
+        <table class="topic-table">
+          <thead><tr><th scope="col">Topic</th><th scope="col">Correct</th></tr></thead>
+          <tbody data-results-topics></tbody>
+        </table>
+        <div class="btn-row">
+          <button type="button" class="btn" data-retry-missed>Retry the ones I missed</button>
+          <button type="button" class="btn btn-secondary" data-again>New set, same filters</button>
+        </div>
+      </div>
+    </section>
   </div>
+
+  <script type="application/json" data-topic-info set:html={JSON.stringify(topicInfo)} />
+  <script type="application/json" data-course-info set:html={JSON.stringify(courseInfo)} />
 </Base>
 
 <script>
-  import { store } from '../scripts/store';
-  const sync = () => {
-    const quiz = store.get().quiz;
-    document.querySelectorAll<HTMLElement>('[data-unit]').forEach((a) => {
-      const r = quiz[a.dataset.unit!];
-      const el = a.querySelector<HTMLElement>('[data-score]');
-      if (r && el) el.textContent = `Best ${r.best} of ${r.total}`;
-    });
-  };
-  window.addEventListener('tutorecon:change', sync);
-  sync();
+  import { initPractice } from '../scripts/practice';
+  initPractice();
 </script>
 
 <style>
-  .lede {
-    max-width: 56ch;
-  }
-  .practice-grid {
+  .bank {
     display: grid;
-    gap: 2.5rem;
-    padding-top: 2.5rem;
+    gap: 2rem;
+    padding-top: 2rem;
     padding-bottom: 5rem;
     align-items: start;
   }
   @media (min-width: 1000px) {
-    .practice-grid {
-      grid-template-columns: minmax(0, 1fr) 340px;
+    .bank {
+      grid-template-columns: 330px minmax(0, 1fr);
       gap: 3rem;
     }
-    .practice-side {
+    .builder {
       position: sticky;
-      top: 96px;
+      top: 84px;
     }
   }
-  .practice-side {
+  .builder {
     display: grid;
-    gap: 1.25rem;
-  }
-  .side-card {
+    gap: 1.1rem;
     padding: 1.25rem;
-    display: grid;
-    gap: 0.75rem;
-    justify-items: start;
-  }
-  .side-card ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    display: grid;
-    gap: 0.2rem;
-  }
-  .side-link {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.6rem;
-    margin: 0 -0.6rem;
-    border-radius: 12px;
-    text-decoration: none;
-    color: var(--ink);
-  }
-  .side-link:hover {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
     background: var(--bg-2);
   }
-  .side-link:hover .side-title {
-    text-decoration: underline;
-  }
-  .side-n {
-    display: grid;
-    place-items: center;
-    width: 2.1rem;
-    height: 2.1rem;
-    border-radius: 10px;
-    background: var(--brand-fill);
-    color: #fff;
-    box-shadow: 0 3px 0 var(--brand-fill-lip);
-    font-family: var(--font-display);
-    font-weight: 800;
-  }
-  .course-micro .side-n {
-    background: var(--orange);
-    color: #0b1220;
-    box-shadow: 0 3px 0 var(--orange-lip);
-  }
-  .course-both .side-n {
-    background: var(--sun);
-    color: #0b1220;
-    box-shadow: 0 3px 0 var(--sun-lip);
-  }
-  .side-text {
-    display: grid;
-    gap: 0.05rem;
+  .field-group {
+    border: 0;
+    margin: 0;
+    padding: 0;
     min-width: 0;
   }
-  .side-title {
-    font-weight: 800;
+  .field-group legend {
+    padding: 0;
+    margin-bottom: 0.4rem;
+    font-weight: 700;
     font-size: 0.95rem;
-    line-height: 1.25;
   }
-  .side-label {
-    font-size: 0.78rem;
-    font-weight: 600;
+  .seg-wide {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .checks {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .checks label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 32px;
+    cursor: pointer;
+  }
+  .count {
     color: var(--ink-3);
+    font-size: 0.9rem;
   }
-  .side-score {
-    font-size: 0.76rem;
-    font-weight: 800;
+  .select:disabled {
+    opacity: 0.6;
+  }
+  .match {
+    font-weight: 600;
+  }
+  .builder .btn {
+    width: 100%;
+  }
+  .session {
+    min-width: 0;
+  }
+  .overview {
+    display: grid;
+    gap: 1rem;
+    max-width: 62ch;
+  }
+  .sub-title {
+    font-family: var(--font-text);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 0.75rem;
+  }
+  .weak-list {
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .weak-list :global(li) {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .weak-list :global(.pct) {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--bad);
+  }
+  .how ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.35rem;
     color: var(--ink-2);
+  }
+  .how kbd {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 0 0.3rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+  }
+  .run-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .run-count {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .run-track {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .run-track span {
+    display: block;
+    height: 100%;
+    background: var(--good-fill);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  .run-head .btn {
+    margin-bottom: 0;
+  }
+  .results {
+    display: grid;
+    gap: 1rem;
+    max-width: 62ch;
+  }
+  .results:focus {
+    outline: none;
+  }
+  .topic-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .topic-table th,
+  .topic-table td {
+    text-align: left;
+    padding: 0.55rem 0.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .topic-table th {
+    font-weight: 600;
+    color: var(--ink-2);
+    font-size: 0.9rem;
+  }
+  .topic-table :global(td:last-child) {
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
 </style>

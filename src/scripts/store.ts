@@ -38,9 +38,24 @@ export interface Saved {
   answered: Record<string, true>;
   /** How far the reader got in each lesson, as a section index. */
   steps: Record<string, number>;
+  /** Question bank history: attempts, correct answers, and whether the last try was right. */
+  qstats: Record<string, QStat>;
+  /** Free-response self-scores: points checked off out of the total. */
+  frq: Record<string, { score: number; total: number; at: number }>;
+  /** Flashcards marked as known. */
+  cards: Record<string, true>;
 }
 
-const empty = (): Saved => ({ done: {}, quiz: {}, exams: [], pro: null, xp: 0, streak: 0, lastDay: null, dayXp: 0, answered: {}, steps: {} });
+export interface QStat {
+  /** Attempts. */
+  a: number;
+  /** Correct attempts. */
+  c: number;
+  /** 1 if the most recent attempt was right, 0 if wrong. */
+  l: 0 | 1;
+}
+
+const empty = (): Saved => ({ done: {}, quiz: {}, exams: [], pro: null, xp: 0, streak: 0, lastDay: null, dayXp: 0, answered: {}, steps: {}, qstats: {}, frq: {}, cards: {} });
 
 const dayKey = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -132,6 +147,36 @@ export const store = {
     write(data);
     store.addXp(points);
     return points;
+  },
+
+  /** Record one answer to a bank question. */
+  recordAnswer(id: string, right: boolean): void {
+    const data = read();
+    const st = data.qstats[id] ?? { a: 0, c: 0, l: 0 };
+    st.a += 1;
+    if (right) st.c += 1;
+    st.l = right ? 1 : 0;
+    data.qstats[id] = st;
+    write(data);
+  },
+
+  saveFrq(id: string, score: number, total: number): void {
+    const data = read();
+    data.frq[id] = { score, total, at: Date.now() };
+    write(data);
+  },
+
+  setCard(term: string, known: boolean): void {
+    const data = read();
+    if (known) data.cards[term] = true;
+    else delete data.cards[term];
+    write(data);
+  },
+
+  resetCards(terms: string[]): void {
+    const data = read();
+    for (const t of terms) delete data.cards[t];
+    write(data);
   },
 
   getStep(slug: string): number {

@@ -3,21 +3,23 @@ import Base from '../layouts/Base.astro';
 import PageBand from '../components/PageBand.astro';
 import { units } from '../data/units';
 import { questions } from '../data/questions';
+import { frqs } from '../data/frqs';
+import { glossary } from '../data/glossary';
 import { url } from '../lib/url';
 import { site } from '../site';
 
 const free = [
-  `All ${units.length} units for AP Micro and AP Macro`,
-  'Every interactive graph and worked problem',
-  `All ${questions.length} practice questions with explanations`,
-  'The glossary and the graph lab',
-  'Progress saved in your browser, no account needed',
+  `All ${units.length} lessons, covering every official topic in AP Micro and AP Macro`,
+  `The full question bank: ${questions.length} questions with an explanation for every choice`,
+  `All ${frqs.length} free-response questions with scoring guides`,
+  `${glossary.length} flashcards, the glossary, and the graph lab`,
+  'The score calculator and your progress, saved in your browser',
 ];
 const pro = [
   'Everything in Free',
-  'Timed mock exams with a score for each unit',
+  'Timed mock exams: full length (60 questions, 70 minutes) or half length',
+  'A score for each unit after every mock exam, and a history of past scores',
   'Printable one-page review sheets for every unit',
-  'A history of your mock exam scores',
 ];
 ---
 <Base title="Pricing" description="TutorEcon is free to learn from. Pro adds timed mock exams and printable review sheets for $5 a month.">
@@ -71,24 +73,24 @@ const pro = [
 
     <section class="faq" aria-labelledby="faq-title">
       <h2 id="faq-title" class="h2">Questions about Pro</h2>
-      <div class="faq-list">
-        <details>
-          <summary>Will I be charged anything?</summary>
-          <p>No. Payments are not switched on, and the checkout only accepts Stripe's public test card numbers. Real card numbers are rejected before anything happens.</p>
-        </details>
-        <details>
-          <summary>Where is my Pro status kept?</summary>
-          <p>Only in this browser's local storage, the same place your progress is saved. TutorEcon has no server and no accounts, so Pro does not follow you to another device.</p>
-        </details>
-        <details>
-          <summary>How do I cancel?</summary>
-          <p>Go to <a href={url('/account/')}>Your data and settings</a> and choose "Cancel Pro". Clearing your browser's site data also removes it.</p>
-        </details>
-        <details>
-          <summary>What happens if real payments are switched on?</summary>
-          <p>The pricing, terms, and refund policy will be updated first, and the checkout will be handled by a payment provider so that card details never touch this site.</p>
-        </details>
-      </div>
+      <dl class="faq-list">
+        <div>
+          <dt>Will I be charged anything?</dt>
+          <dd>No. Payments are not switched on, and the checkout only accepts Stripe's public test card numbers. Real card numbers are rejected before anything happens.</dd>
+        </div>
+        <div>
+          <dt>Where is my Pro status kept?</dt>
+          <dd>Only in this browser's local storage, the same place your progress is saved. TutorEcon has no server and no accounts, so Pro does not follow you to another device.</dd>
+        </div>
+        <div>
+          <dt>How do I cancel?</dt>
+          <dd>Go to <a href={url('/account/')}>Your data and settings</a> and choose "Cancel Pro". Clearing your browser's site data also removes it.</dd>
+        </div>
+        <div>
+          <dt>What happens if real payments are switched on?</dt>
+          <dd>The pricing, terms, and refund policy will be updated first, and the checkout will be handled by a payment provider so that card details never touch this site.</dd>
+        </div>
+      </dl>
     </section>
   </div>
 </Base>
@@ -126,10 +128,9 @@ const pro = [
     align-content: start;
     justify-items: start;
     padding: clamp(1.5rem, 1.2rem + 1vw, 2.1rem);
-    border: 2px solid var(--line);
-    border-radius: 24px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
     background: var(--card);
-    box-shadow: 0 5px 0 var(--line);
   }
   .plan-pro {
     background: var(--bg);
@@ -148,7 +149,7 @@ const pro = [
   }
   .plan-name {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 1.7rem;
   }
   .plan-price {
@@ -158,10 +159,10 @@ const pro = [
   }
   .amount {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 3.8rem;
     line-height: 1;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.01em;
   }
   .per {
     color: var(--ink-2);
@@ -178,7 +179,7 @@ const pro = [
     display: grid;
     gap: 0.7rem;
     width: 100%;
-    border-top: 2px solid var(--line);
+    border-top: 1px solid var(--line);
   }
   .plan-list li {
     display: grid;
@@ -213,54 +214,20 @@ const pro = [
   }
   .faq-list {
     display: grid;
-    gap: 0.75rem;
-    margin-top: 1.25rem;
+    margin: 1.25rem 0 0;
+    border-top: 1px solid var(--line-strong);
   }
-  .faq details {
-    border: 2px solid var(--line);
-    border-radius: 16px;
-    background: var(--card);
-    box-shadow: 0 4px 0 var(--line);
+  .faq-list div {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
   }
-  .faq details[open] {
-    border-color: var(--brand);
-    box-shadow: 0 4px 0 var(--brand);
-  }
-  .faq summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    cursor: pointer;
-    padding: 1rem 1.2rem;
-    font-weight: 800;
+  .faq-list dt {
+    font-weight: 700;
     font-size: 1.05rem;
-    min-height: 44px;
-    list-style: none;
   }
-  .faq summary::-webkit-details-marker {
-    display: none;
-  }
-  .faq summary::after {
-    content: '+';
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 1.8rem;
-    height: 1.8rem;
-    border-radius: 9px;
-    background: var(--brand-tint);
-    color: var(--brand);
-    font-size: 1.25rem;
-    line-height: 1;
-  }
-  .faq details[open] summary::after {
-    content: '\2212';
-  }
-  .faq details p {
-    padding: 0 1.2rem 1.1rem;
-    font-size: 1.02rem;
+  .faq-list dd {
+    margin: 0.35rem 0 0;
     color: var(--ink-2);
-    max-width: 62ch;
+    max-width: 65ch;
   }
 </style>

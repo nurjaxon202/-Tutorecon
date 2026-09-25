@@ -11,16 +11,14 @@
   margin-left: 0.3em;
   padding: 0.05rem 0.45rem;
   min-height: 24px;
-  border: 2px solid var(--line-strong);
+  border: 1.5px solid var(--line-strong);
   border-radius: 7px;
   background: var(--card);
   color: var(--brand);
   font-family: var(--font-text);
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.4;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   cursor: pointer;
 }
 .sn-btn[aria-expanded='true'] {
@@ -38,7 +36,7 @@
 .sidenote strong {
   display: block;
   color: var(--ink);
-  font-weight: 800;
+  font-weight: 700;
   margin-bottom: 0.1rem;
 }
 .sn.is-open .sidenote {
@@ -61,9 +59,8 @@
     margin: 0.1rem -320px 0.9rem 0;
     padding: 0.75rem 0.9rem;
     background: var(--card);
-    border: 2px solid var(--line);
-    border-radius: 14px;
-    box-shadow: 0 3px 0 var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
   }
 }
 
@@ -73,7 +70,7 @@
   line-height: 1.6;
   padding: 1rem 1.2rem 1.05rem;
   border-radius: var(--radius);
-  border: 2px solid var(--line);
+  border: 1px solid var(--line);
   background: var(--card);
 }
 .callout-label {
@@ -81,9 +78,7 @@
   align-items: center;
   gap: 0.45rem;
   font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 700;
   margin-bottom: 0.35rem;
 }
 .callout-label::before {
@@ -123,17 +118,16 @@
   padding: clamp(1.1rem, 0.8rem + 1vw, 1.6rem);
   border-radius: var(--radius-lg);
   background: var(--card);
-  border: 2px solid var(--line);
-  box-shadow: 0 4px 0 var(--line);
+  border: 1px solid var(--line);
 }
 .worked .eyebrow {
   color: var(--orange-text);
 }
 .worked-title {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 1.5rem;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
   line-height: 1.15;
   margin-top: 0.35rem;
 }
@@ -155,7 +149,7 @@
   gap: 0.6rem;
 }
 .step {
-  border: 2px solid var(--line-strong);
+  border: 1.5px solid var(--line-strong);
   border-radius: var(--radius);
   background: var(--card);
   box-shadow: 0 3px 0 var(--line-strong);
@@ -167,7 +161,7 @@
   padding: 0.75rem 0.95rem;
   min-height: 52px;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 700;
   list-style: none;
 }
 .step summary::-webkit-details-marker {
@@ -177,10 +171,8 @@
   content: 'Show';
   margin-left: auto;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--brand);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 .step[open] summary::after {
   content: 'Hide';
@@ -192,10 +184,10 @@
   height: 2rem;
   border-radius: 10px;
   background: var(--bg-2);
-  border: 2px solid var(--line-strong);
+  border: 1.5px solid var(--line-strong);
   font-family: var(--font-text);
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 700;
   flex: none;
 }
 .step[open] {
@@ -264,9 +256,9 @@
 .quiz-keys kbd {
   font-family: var(--font-text);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 700;
   padding: 0.05rem 0.4rem;
-  border: 2px solid var(--line-strong);
+  border: 1.5px solid var(--line-strong);
   border-bottom-width: 3px;
   border-radius: 6px;
   background: var(--card);
@@ -293,10 +285,9 @@
 .qcard {
   position: relative;
   padding: clamp(1.1rem, 0.8rem + 1vw, 1.6rem);
-  border: 2px solid var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--card);
-  box-shadow: 0 4px 0 var(--line);
 }
 .qcard fieldset {
   border: 0;
@@ -313,19 +304,48 @@
 }
 .q-n,
 .q-unit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
   font-family: var(--font-text);
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.q-topic {
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--bg-2);
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 .q-prompt {
   font-family: var(--font-display);
-  font-size: 1.28rem;
-  line-height: 1.35;
-  font-weight: 700;
-  letter-spacing: -0.015em;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.q-table {
+  overflow-x: auto;
+  margin-bottom: 1.1rem;
+}
+.q-table table {
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  min-width: 60%;
+}
+.q-table th,
+.q-table td {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--line-strong);
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+.q-table th {
+  background: var(--bg-2);
+  font-weight: 600;
 }
 .q-options {
   display: grid;
@@ -339,20 +359,20 @@
   gap: 0.8rem;
   padding: 0.75rem 0.95rem;
   min-height: 56px;
-  border: 2px solid var(--line-strong);
+  border: 1.5px solid var(--line-strong);
   border-radius: var(--radius);
   background: var(--card);
-  box-shadow: 0 4px 0 var(--line-strong);
+  box-shadow: 0 3px 0 var(--line-strong);
   cursor: pointer;
   line-height: 1.4;
-  font-weight: 700;
+  font-weight: 500;
   transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 .q-opt:hover {
   background: var(--bg-2);
 }
 .q-opt:active {
-  transform: translateY(4px);
+  transform: translateY(3px);
   box-shadow: 0 0 0 var(--line-strong);
 }
 .q-opt input {
@@ -367,17 +387,17 @@
   width: 2.1rem;
   height: 2.1rem;
   border-radius: 9px;
-  border: 2px solid var(--line-strong);
+  border: 1.5px solid var(--line-strong);
   font-family: var(--font-text);
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--ink-3);
 }
 .q-opt:has(input:checked) {
   border-color: var(--brand);
   background: var(--brand-tint);
   color: var(--brand);
-  box-shadow: 0 4px 0 var(--brand);
+  box-shadow: 0 3px 0 var(--brand);
 }
 .q-opt:has(input:checked) .q-letter {
   border-color: var(--brand);
@@ -395,14 +415,14 @@
 }
 .is-done .q-opt:active {
   transform: none;
-  box-shadow: 0 4px 0 var(--line-strong);
+  box-shadow: 0 3px 0 var(--line-strong);
 }
 .q-opt.is-correct,
 .is-done .q-opt.is-correct {
   border-color: var(--good-fill);
   background: var(--good-tint);
   color: var(--good);
-  box-shadow: 0 4px 0 var(--good-fill);
+  box-shadow: 0 3px 0 var(--good-fill);
 }
 .q-opt.is-correct .q-letter,
 .q-opt.is-correct:has(input:checked) .q-letter {
@@ -415,7 +435,7 @@
   border-color: var(--bad-fill);
   background: var(--bad-tint);
   color: var(--bad);
-  box-shadow: 0 4px 0 var(--bad-fill);
+  box-shadow: 0 3px 0 var(--bad-fill);
 }
 .q-opt.is-wrong .q-letter,
 .q-opt.is-wrong:has(input:checked) .q-letter {
@@ -455,8 +475,8 @@
   gap: 0.55rem;
   font-family: var(--font-display);
   font-size: 1.35rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 .q-verdict svg {
   flex: none;
@@ -478,7 +498,7 @@
   color: #0b1220;
   font-family: var(--font-text);
   font-size: 0.85rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0;
   animation: xp-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4);
 }
@@ -492,18 +512,19 @@
   }
 }
 .q-msg {
-  font-weight: 800;
+  font-weight: 700;
   color: var(--bad);
 }
 .quiz-score {
   margin-top: 1.4rem;
-  padding: clamp(1.3rem, 1rem + 1vw, 1.8rem);
+  padding: clamp(1.2rem, 1rem + 1vw, 1.6rem);
+  border: 1px solid var(--line);
   border-radius: var(--radius-lg);
+  background: var(--bg-2);
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 1.3rem;
   align-items: center;
-  box-shadow: var(--shadow-lg);
 }
 .quiz-score .btn-row {
   grid-column: 1 / -1;
@@ -517,10 +538,10 @@
   stroke-width: 10;
 }
 .score-ring .track {
-  stroke: rgba(242, 244, 248, 0.14);
+  stroke: var(--line);
 }
 .score-ring .fill {
-  stroke: var(--sun);
+  stroke: var(--good-fill);
   stroke-linecap: round;
   transform: rotate(-90deg);
   transform-origin: center;
@@ -528,13 +549,13 @@
 }
 .score-ring text {
   fill: var(--ink);
-  font: 800 24px var(--font-display);
+  font: 700 24px var(--font-display);
 }
 .quiz-score-num {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.9rem;
-  letter-spacing: -0.03em;
+  font-weight: 650;
+  font-size: 1.6rem;
+  letter-spacing: -0.01em;
   line-height: 1.1;
 }
 .quiz-score p + p {

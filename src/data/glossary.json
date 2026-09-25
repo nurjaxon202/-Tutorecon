@@ -65,6 +65,41 @@
   "def": "A diagram of how money, resources, and goods move between households and firms through product and factor markets."
  },
  {
+  "unit": "foundations",
+  "term": "Market economy",
+  "def": "An economy in which prices and private choices mostly decide what is produced, how, and for whom."
+ },
+ {
+  "unit": "foundations",
+  "term": "Command economy",
+  "def": "An economy in which the government mostly decides what is produced, how, and for whom."
+ },
+ {
+  "unit": "foundations",
+  "term": "Positive statement",
+  "def": "A claim about how the world works that can be tested with evidence, whether or not it turns out true."
+ },
+ {
+  "unit": "foundations",
+  "term": "Normative statement",
+  "def": "A value judgment about what should be, which evidence alone cannot settle."
+ },
+ {
+  "unit": "foundations",
+  "term": "Marginal utility",
+  "def": "The extra satisfaction from consuming one more unit of a good."
+ },
+ {
+  "unit": "foundations",
+  "term": "Law of diminishing marginal utility",
+  "def": "Each additional unit of a good usually adds less satisfaction than the one before."
+ },
+ {
+  "unit": "foundations",
+  "term": "Utility-maximizing rule",
+  "def": "Spend the whole budget so that marginal utility per dollar is the same for every good."
+ },
+ {
   "unit": "supply-and-demand",
   "term": "Law of demand",
   "def": "All else equal, when the price of a good rises, the quantity demanded falls."
@@ -380,6 +415,31 @@
   "def": "A tax that takes a larger percentage of income from people with lower incomes."
  },
  {
+  "unit": "market-failure",
+  "term": "Proportional tax",
+  "def": "A tax that takes the same percentage of income from everyone. Also called a flat tax."
+ },
+ {
+  "unit": "market-failure",
+  "term": "Club good",
+  "def": "A good that is excludable but non-rival, like a streaming service."
+ },
+ {
+  "unit": "market-failure",
+  "term": "Lump-sum tax",
+  "def": "A tax of a fixed amount that does not change with output. It raises fixed cost and ATC but not marginal cost."
+ },
+ {
+  "unit": "market-failure",
+  "term": "Per-unit tax",
+  "def": "A tax charged on each unit produced or sold. It raises marginal cost and ATC."
+ },
+ {
+  "unit": "market-failure",
+  "term": "Antitrust policy",
+  "def": "Laws and enforcement that block harmful mergers and break up or penalize firms that abuse market power."
+ },
+ {
   "unit": "economic-indicators",
   "term": "Gross domestic product (GDP)",
   "def": "The market value of all final goods and services produced within a country in a given period."
@@ -458,6 +518,31 @@
   "unit": "economic-indicators",
   "term": "Business cycle",
   "def": "The pattern of expansion, peak, contraction, and trough in real GDP over time."
+ },
+ {
+  "unit": "economic-indicators",
+  "term": "Labor force participation rate",
+  "def": "The labor force as a percentage of the adult population."
+ },
+ {
+  "unit": "economic-indicators",
+  "term": "Deflation",
+  "def": "A fall in the general price level."
+ },
+ {
+  "unit": "economic-indicators",
+  "term": "Fisher equation",
+  "def": "Nominal interest rate = real interest rate + expected inflation."
+ },
+ {
+  "unit": "economic-indicators",
+  "term": "Shoe-leather costs",
+  "def": "The time and effort people spend holding less cash and making more trips or transfers to protect their money from inflation."
+ },
+ {
+  "unit": "economic-indicators",
+  "term": "Menu costs",
+  "def": "The cost to firms of changing their listed prices more often when inflation is high."
  },
  {
   "unit": "national-income",

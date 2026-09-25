@@ -1,0 +1,284 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { glossary } from '../data/glossary';
+import { units } from '../data/units';
+
+// One deck per lesson, in course order.
+const decks = units.map((u) => ({ slug: u.slug, title: u.title, n: glossary.filter((g) => g.unit === u.slug).length }));
+const cards = glossary.map((g) => ({ t: g.term, d: g.def, u: g.unit }));
+---
+<Base title="Flashcards" description={`${glossary.length} AP Economics flashcards, one per key term, sorted by unit. Mark each card as known or still learning.`}>
+  <PageBand
+    eyebrow="Practice"
+    title="Flashcards"
+    lede={`${glossary.length} cards, one for every key term in the lessons. Say the definition out loud before you flip. Cards you mark as known leave the deck; the rest come back until you know them.`}
+  />
+
+  <div class="wrap fc" data-fc>
+    <form class="deck-pick" data-deck-form>
+      <div class="field">
+        <label for="deck">Deck</label>
+        <select id="deck" class="select" data-deck>
+          <option value="all">All {glossary.length} terms</option>
+          {decks.map((d) => <option value={d.slug}>{d.title} ({d.n})</option>)}
+        </select>
+      </div>
+      <label class="check"><input type="checkbox" data-reverse /> Show the definition first</label>
+      <p class="deck-status" data-deck-status aria-live="polite"></p>
+      <button type="button" class="btn btn-secondary btn-small" data-reset>Reset this deck</button>
+    </form>
+
+    <section class="player" aria-label="Flashcard">
+      <div class="progress-line">
+        <p data-count></p>
+        <div class="track" aria-hidden="true"><span data-bar></span></div>
+      </div>
+
+      <button type="button" class="card-face" data-card aria-live="polite" aria-describedby="flip-hint">
+        <span class="side" data-side>Term</span>
+        <span class="face-text" data-front></span>
+        <span class="back" data-back hidden></span>
+      </button>
+      <p id="flip-hint" class="flip-hint">Click the card or press <kbd>Space</kbd> to flip.</p>
+
+      <div class="answer-row" data-answer-row hidden>
+        <button type="button" class="btn btn-secondary" data-again>Still learning <kbd>1</kbd></button>
+        <button type="button" class="btn" data-know>Know it <kbd>2</kbd></button>
+      </div>
+
+      <div class="done" data-done hidden>
+        <p class="done-title">You know every card in this deck.</p>
+        <p class="muted">Pick another deck, or put the known cards back to review them again.</p>
+      </div>
+    </section>
+  </div>
+
+  <script type="application/json" data-cards set:html={JSON.stringify(cards)} />
+</Base>
+
+<script>
+  import { store } from '../scripts/store';
+
+  interface Card {
+    t: string;
+    d: string;
+    u: string;
+  }
+  const all: Card[] = JSON.parse(document.querySelector('[data-cards]')!.textContent!);
+  const root = document.querySelector<HTMLElement>('[data-fc]')!;
+  const $ = <T extends HTMLElement = HTMLElement>(s: string) => root.querySelector<T>(s)!;
+  const deckSel = $<HTMLSelectElement>('[data-deck]');
+  const reverse = $<HTMLInputElement>('[data-reverse]');
+  const cardBtn = $<HTMLButtonElement>('[data-card]');
+  let queue: Card[] = [];
+  let deckSize = 0;
+  let flipped = false;
+
+  const shuffle = <T,>(a: T[]) => {
+    const b = [...a];
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  };
+  const deck = () => all.filter((c) => deckSel.value === 'all' || c.u === deckSel.value);
+
+  const build = () => {
+    const known = store.get().cards;
+    const d = deck();
+    deckSize = d.length;
+    queue = shuffle(d.filter((c) => !known[c.t]));
+    render();
+  };
+
+  const render = () => {
+    const known = deckSize - queue.length;
+    $('[data-count]').textContent = `${known} of ${deckSize} known`;
+    $('[data-bar]').style.transform = `scaleX(${deckSize ? known / deckSize : 0})`;
+    $('[data-deck-status]').textContent = `${queue.length} card${queue.length === 1 ? '' : 's'} left in this deck.`;
+    const empty = queue.length === 0;
+    $('[data-done]').hidden = !empty;
+    cardBtn.hidden = empty;
+    $('#flip-hint').hidden = empty;
+    $('[data-answer-row]').hidden = true;
+    if (empty) return;
+    const c = queue[0];
+    flipped = false;
+    const rev = reverse.checked;
+    $('[data-side]').textContent = rev ? 'Definition' : 'Term';
+    $('[data-front]').textContent = rev ? c.d : c.t;
+    $('[data-back]').textContent = rev ? c.t : c.d;
+    $('[data-back]').hidden = true;
+    cardBtn.classList.remove('is-flipped');
+    cardBtn.setAttribute('aria-label', `${rev ? 'Definition' : 'Term'}: ${rev ? c.d : c.t}. Press to flip.`);
+  };
+
+  const flip = () => {
+    if (!queue.length) return;
+    flipped = !flipped;
+    $('[data-back]').hidden = !flipped;
+    cardBtn.classList.toggle('is-flipped', flipped);
+    $('[data-answer-row]').hidden = !flipped;
+    const c = queue[0];
+    cardBtn.setAttribute('aria-label', flipped ? `${c.t}: ${c.d}` : `${reverse.checked ? c.d : c.t}. Press to flip.`);
+  };
+
+  const answer = (know: boolean) => {
+    if (!flipped) return;
+    const c = queue.shift()!;
+    if (know) store.setCard(c.t, true);
+    else queue.splice(Math.min(queue.length, 3), 0, c);
+    render();
+    if (queue.length) cardBtn.focus();
+  };
+
+  cardBtn.addEventListener('click', flip);
+  $('[data-know]').addEventListener('click', () => answer(true));
+  $('[data-again]').addEventListener('click', () => answer(false));
+  deckSel.addEventListener('change', build);
+  reverse.addEventListener('change', render);
+  $('[data-reset]').addEventListener('click', () => {
+    store.resetCards(deck().map((c) => c.t));
+    build();
+  });
+  document.addEventListener('keydown', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.closest('input, select, textarea, dialog') || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === ' ' && t !== cardBtn) {
+      e.preventDefault();
+      flip();
+    } else if (e.key === '1') answer(false);
+    else if (e.key === '2') answer(true);
+  });
+  build();
+</script>
+
+<style>
+  .fc {
+    display: grid;
+    gap: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .fc {
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 3rem;
+    }
+  }
+  .deck-pick {
+    display: grid;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+  }
+  .check {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    cursor: pointer;
+  }
+  .deck-status {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+  .deck-pick .btn {
+    justify-self: start;
+  }
+  .player {
+    display: grid;
+    gap: 1rem;
+    max-width: 680px;
+  }
+  .progress-line {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: center;
+    font-weight: 600;
+  }
+  .track {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .track span {
+    display: block;
+    height: 100%;
+    background: var(--good-fill);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  .card-face {
+    display: grid;
+    align-content: center;
+    gap: 1rem;
+    min-height: 300px;
+    padding: 2rem clamp(1.25rem, 1rem + 2vw, 2.5rem);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    box-shadow: 0 3px 0 var(--line-strong);
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: var(--ink);
+  }
+  .card-face:hover {
+    border-color: var(--control);
+  }
+  .card-face.is-flipped {
+    background: var(--bg-2);
+  }
+  .side {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+  .face-text {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem);
+    font-weight: 650;
+    line-height: 1.25;
+  }
+  .back {
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    font-size: 1.15rem;
+    line-height: 1.55;
+  }
+  .flip-hint {
+    font-size: 0.9rem;
+    color: var(--ink-2);
+  }
+  kbd {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0 0.3rem;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+  }
+  .answer-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .done {
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--good-tint);
+  }
+  .done-title {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 650;
+  }
+</style>

@@ -2,8 +2,9 @@
 import Base from '../../layouts/Base.astro';
 import Quiz from '../../components/Quiz.astro';
 import GraphThumb from '../../components/GraphThumb.astro';
-import { units, unitLabel, courseName } from '../../data/units';
-import { questionsFor } from '../../data/questions';
+import { units } from '../../data/units';
+import { questionsFor, checkFor } from '../../data/questions';
+import { courses } from '../../data/ced';
 import { termsFor, termSlug } from '../../data/glossary';
 import { unitThumb } from '../../data/thumbs';
 import { shortTitle } from '../../data/short';
@@ -17,7 +18,19 @@ export function getStaticPaths() {
 const { slug } = Astro.params;
 const unit = units.find((u) => u.slug === slug)!;
 const { Content, headings, minutes, graphs, worked } = lesson(slug!);
-const qs = questionsFor(slug!);
+const qs = checkFor(slug!);
+const bank = questionsFor(slug!).length;
+// Where this lesson sits in each course, and which official topics each section teaches.
+const homes = courses.flatMap((c) => c.units.filter((u) => u.lessons.includes(slug!)).map((u) => ({ course: c, n: u.n })));
+const topicTags: Record<string, string[]> = {};
+for (const c of courses) {
+  for (const u of c.units) {
+    for (const t of u.topics) {
+      if (t.lesson !== slug) continue;
+      (topicTags[t.anchor] ??= []).push(`${c.short} ${t.code}`);
+    }
+  }
+}
 const terms = termsFor(slug!);
 const i = units.indexOf(unit);
 const prev = units[i - 1];
@@ -30,24 +43,21 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     <div class="wrap hero-grid">
       <div class="hero-text">
         <nav class="crumbs" aria-label="Breadcrumb">
-          <a href={url('/learn/')}>All units</a>
-          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          <span aria-current="page">{unitLabel(unit)}</span>
+          {homes.map((h, k) => (
+            <>
+              {k > 0 && <span class="sep" aria-hidden="true">·</span>}
+              <a href={url(`${h.course.path}#unit-${h.n}`)}>{h.course.short} Unit {h.n}</a>
+            </>
+          ))}
         </nav>
-        <div class="title-row">
-          <span class="unit-badge" aria-hidden="true">{unit.apUnit}</span>
-          <div>
-            <p class="course">{courseName[unit.course]}</p>
-            <h1 class="page-title">{unit.title}</h1>
-          </div>
-        </div>
+        <h1 class="page-title">{unit.title}</h1>
         <p class="lede">{unit.summary}</p>
         <ul class="meta">
-          <li><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M10 5.5V10l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>{minutes} min</li>
-          <li>{plural(headings.length, 'step')}</li>
+          <li>{minutes} min read</li>
+          <li>{plural(headings.length, 'section')}</li>
           {graphs.length > 0 && <li>{plural(graphs.length, 'live graph')}</li>}
           {worked > 0 && <li>{plural(worked, 'worked problem')}</li>}
-          <li>{plural(qs.length, 'question')}</li>
+          <li>{plural(bank, 'practice question')}</li>
         </ul>
         <div class="btn-row">
           <a class="btn btn-big" href="#lesson" data-start>Start lesson <span class="arrow" aria-hidden="true">&rarr;</span></a>
@@ -84,6 +94,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
   <div class="wrap">
     <article class="lesson" id="lesson" style={`--unit-n: '${unit.apUnit}'`} data-lesson={slug} data-steps={headings.length}>
+      <script type="application/json" data-topic-tags set:html={JSON.stringify(topicTags)} />
       <div class="prose lesson-prose" data-prose>
         <Content />
       </div>
@@ -110,8 +121,11 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
             unitCheck
             eyebrow="Unit check"
             title="Show what you know"
-            intro={`Answer ${qs.length === 1 ? 'the question' : `all ${qs.length} questions`} to finish the unit. Every choice has its own explanation, and each first correct answer earns 10 XP.`}
+            intro={`Answer all ${qs.length} to finish the unit. Every choice has its own explanation, and each first correct answer earns 10 XP.`}
           />
+          <p class="more-practice">
+            <a href={url(`/practice/?course=${homes[0].course.id}&unit=${homes[0].n}`)}>Practice {homes[0].course.short} Unit {homes[0].n} in the question bank</a>, or try a <a href={url('/frq/')}>free-response question</a>.
+          </p>
         </div>
 
         <div class="done-row">
@@ -152,6 +166,18 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   const toc = document.querySelector<HTMLDetailsElement>('[data-toc]');
   const modeBtn = document.querySelector<HTMLButtonElement>('[data-mode-toggle]')!;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Label each section with the official topics it teaches.
+  const tags: Record<string, string[]> = JSON.parse(document.querySelector('[data-topic-tags]')?.textContent ?? '{}');
+  for (const [anchor, labels] of Object.entries(tags)) {
+    const h = document.getElementById(anchor);
+    if (!h) continue;
+    const p = document.createElement('p');
+    p.className = 'topic-tags';
+    p.setAttribute('aria-label', 'Course topics');
+    p.innerHTML = labels.map((l) => `<span>${l}</span>`).join('');
+    h.insertAdjacentElement('afterend', p);
+  }
 
   // Group the lesson into steps, one per section heading.
   const steps: HTMLElement[] = [];
@@ -306,16 +332,37 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 </script>
 
 <style>
+  .lesson-prose :global(.topic-tags) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .lesson-prose :global(.topic-tags span) {
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: var(--bg-2);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .more-practice {
+    margin-top: 1.25rem;
+    font-weight: 500;
+  }
+  .crumbs .sep {
+    color: var(--ink-3);
+  }
+
   /* Hero */
   .lesson-hero {
     --accent: var(--brand-fill);
     --accent-lip: var(--brand-fill-lip);
     --accent-ink: #fff;
     padding-block: clamp(2rem, 1.5rem + 3vw, 4rem);
-    background:
-      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--accent) 16%, transparent) 1px, transparent 0) 0 0 / 22px 22px,
-      linear-gradient(180deg, color-mix(in srgb, var(--accent) 9%, var(--bg)), var(--bg));
-    border-bottom: 2px solid var(--line);
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
   }
   .course-micro {
     --accent: var(--orange);
@@ -367,19 +414,17 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     place-items: center;
     width: clamp(64px, 50px + 3vw, 86px);
     height: clamp(64px, 50px + 3vw, 86px);
-    border-radius: 22px;
+    border-radius: 12px;
     background: var(--accent);
     color: var(--accent-ink);
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     font-size: clamp(2rem, 1.5rem + 1.5vw, 2.8rem);
     box-shadow: 0 6px 0 var(--accent-lip);
   }
   .course {
     font-size: 0.82rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-weight: 700;
     color: var(--ink-3);
     margin-bottom: 0.25rem;
   }
@@ -389,7 +434,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   .meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.25rem 0.5rem;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -397,14 +442,14 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   .meta li {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.7rem;
-    border-radius: 10px;
-    background: var(--card);
-    border: 2px solid var(--line);
-    font-size: 0.88rem;
-    font-weight: 700;
+    font-size: 0.95rem;
+    font-weight: 500;
     color: var(--ink-2);
+  }
+  .meta li + li::before {
+    content: '·';
+    margin-right: 0.5rem;
+    color: var(--ink-3);
   }
   .hero-art {
     display: none;
@@ -415,7 +460,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
       padding: 1.2rem;
       border-radius: var(--radius-lg);
       background: var(--card);
-      border: 2px solid var(--line);
+      border: 1px solid var(--line);
       box-shadow: var(--shadow-lg);
     }
   }
@@ -430,7 +475,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     top: 72px;
     z-index: 30;
     background: var(--bg);
-    border-bottom: 2px solid var(--line);
+    border-bottom: 1px solid var(--line);
   }
   .bar-inner {
     display: flex;
@@ -442,7 +487,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
-    font-weight: 800;
+    font-weight: 700;
     white-space: nowrap;
   }
   .bar-n {
@@ -467,13 +512,12 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     height: 100%;
     border-radius: 8px;
     background: var(--good-fill);
-    background-image: linear-gradient(transparent 22%, rgba(255, 255, 255, 0.35) 22%, rgba(255, 255, 255, 0.35) 44%, transparent 44%);
     transform-origin: left;
     transform: scaleX(0);
     transition: transform 0.6s cubic-bezier(0.3, 0.9, 0.3, 1.1);
   }
   .bar-count {
-    font-weight: 800;
+    font-weight: 700;
     font-size: 0.92rem;
     color: var(--ink-3);
     white-space: nowrap;
@@ -488,10 +532,10 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     min-height: 42px;
     padding: 0.35rem 0.75rem;
     border-radius: 12px;
-    border: 2px solid var(--line-strong);
+    border: 1.5px solid var(--line-strong);
     background: var(--card);
     box-shadow: 0 3px 0 var(--line-strong);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 0.92rem;
     cursor: pointer;
     list-style: none;
@@ -508,7 +552,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     display: grid;
     gap: 0.6rem;
     background: var(--card);
-    border: 2px solid var(--line);
+    border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
   }
@@ -541,9 +585,9 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     width: 1.7rem;
     height: 1.7rem;
     border-radius: 8px;
-    border: 2px solid var(--line-strong);
+    border: 1.5px solid var(--line-strong);
     font-size: 0.8rem;
-    font-weight: 800;
+    font-weight: 700;
   }
   .toc-panel a:global(.is-done) span {
     background: var(--good-fill);
@@ -623,7 +667,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     padding: 1.6rem 1rem;
     border-radius: var(--radius-lg);
     background: var(--bg-2);
-    border: 2px solid var(--line);
+    border: 1px solid var(--line);
     text-align: center;
     max-width: 680px;
   }
@@ -646,7 +690,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   .terms {
     padding: clamp(1.3rem, 1rem + 1vw, 2rem);
     border-radius: var(--radius-lg);
-    border: 2px solid var(--line);
+    border: 1px solid var(--line);
     background: var(--card);
   }
   .terms .eyebrow {
@@ -664,14 +708,14 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   }
   .term {
     padding: 0.8rem 0;
-    border-bottom: 2px solid var(--line);
+    border-bottom: 1px solid var(--line);
     scroll-margin-top: 150px;
   }
   .term:target {
     background: var(--sun-tint);
   }
   .term dt {
-    font-weight: 800;
+    font-weight: 700;
   }
   .term dd {
     margin: 0.2rem 0 0;
@@ -708,16 +752,14 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     display: grid;
     gap: 0.35rem;
     padding: 1.2rem 1.35rem;
-    border: 2px solid var(--line);
+    border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     background: var(--card);
-    box-shadow: 0 4px 0 var(--line);
     text-decoration: none;
     transition: transform 0.12s ease, box-shadow 0.12s ease;
   }
   .pager-link:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 0 var(--line);
   }
   .pager-next {
     text-align: right;
@@ -731,15 +773,13 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   }
   .pager-dir {
     font-size: 0.85rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    font-weight: 700;
   }
   .pager-title {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 1.35rem;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     line-height: 1.2;
   }
 </style>

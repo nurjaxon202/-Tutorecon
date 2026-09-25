@@ -105,18 +105,17 @@ const letters = [...new Set(terms.map((t) => t.term[0].toUpperCase()))];
     gap: 0.4rem;
     padding: 0.85rem 0;
     background: var(--bg);
-    border-bottom: 2px solid var(--line);
+    border-bottom: 1px solid var(--line);
   }
   .letters a {
     display: inline-grid;
     place-items: center;
     min-width: 2.4rem;
     min-height: 2.4rem;
-    border: 2px solid var(--line);
+    border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--card);
-    box-shadow: 0 3px 0 var(--line);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 0.95rem;
     color: var(--ink);
     text-decoration: none;
@@ -155,12 +154,12 @@ const letters = [...new Set(terms.map((t) => t.term[0].toUpperCase()))];
     place-items: center;
     width: 3.4rem;
     height: 3.4rem;
-    border-radius: 14px;
+    border-radius: 10px;
     background: var(--brand-fill);
     color: #fff;
     box-shadow: 0 4px 0 var(--brand-fill-lip);
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 1.75rem;
   }
   @media (min-width: 820px) {
@@ -171,10 +170,9 @@ const letters = [...new Set(terms.map((t) => t.term[0].toUpperCase()))];
   }
   .letter-group dl {
     margin: 0;
-    border: 2px solid var(--line);
-    border-radius: 20px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
     background: var(--card);
-    box-shadow: 0 4px 0 var(--line);
     overflow: hidden;
   }
   .entry {
@@ -184,7 +182,7 @@ const letters = [...new Set(terms.map((t) => t.term[0].toUpperCase()))];
     scroll-margin-top: 150px;
   }
   .entry + .entry {
-    border-top: 2px solid var(--line);
+    border-top: 1px solid var(--line);
   }
   @media (min-width: 820px) {
     .entry {
@@ -196,7 +194,7 @@ const letters = [...new Set(terms.map((t) => t.term[0].toUpperCase()))];
   }
   .entry dt {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 1.1rem;
     line-height: 1.25;
   }
@@ -228,7 +226,7 @@ const letters = [...new Set(terms.map((t) => t.term[0].toUpperCase()))];
     padding: 0.12rem 0.5rem;
     border-radius: 7px;
     font-size: 0.76rem;
-    font-weight: 800;
+    font-weight: 700;
     background: var(--brand-tint);
     color: var(--brand);
   }
