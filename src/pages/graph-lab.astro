@@ -1,0 +1,167 @@
+---
+import Base from '../layouts/Base.astro';
+import Graph from '../components/Graph.astro';
+import { graphList } from '../scripts/graphs/models';
+import { units, unitLabel, getUnit } from '../data/units';
+import { url } from '../lib/url';
+
+const order = (slug: string) => units.findIndex((u) => u.slug === slug);
+const list = [...graphList].sort((a, b) => order(a.unit) - order(b.unit));
+---
+<Base title="Graph lab" description="Every interactive economics graph on TutorEcon in one place: supply and demand, price controls, taxes, cost curves, monopoly, AD-AS, the money market, and more.">
+  <header class="wrap page-head">
+    <p class="eyebrow">Graph lab</p>
+    <h1 class="page-title">Every graph, ready to move</h1>
+    <p class="lede">
+      Pick a diagram and change it until the pattern makes sense. Each one links back to the unit that explains it.
+    </p>
+  </header>
+
+  <div class="wrap lab">
+    <nav class="lab-nav" aria-label="Graphs">
+      <label class="field lab-select">
+        <span class="label">Choose a graph</span>
+        <select class="select" data-lab-select>
+          {list.map((g) => <option value={g.key}>{g.label}</option>)}
+        </select>
+      </label>
+      <ol class="lab-list">
+        {list.map((g) => (
+          <li>
+            <a href={`#${g.key}`} data-lab-link={g.key}>
+              <span>{g.label}</span>
+              <span class="mono lab-unit">{unitLabel(getUnit(g.unit)!)}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+
+    <div class="lab-stage">
+      {list.map((g) => {
+        const u = getUnit(g.unit)!;
+        return (
+          <section class="lab-panel" id={g.key} data-lab-panel={g.key} aria-label={g.label}>
+            <Graph model={g.key} />
+            <p class="lab-link">
+              Explained in <a href={url(`/learn/${u.slug}/`)}>{unitLabel(u)}: {u.title}</a>
+            </p>
+          </section>
+        );
+      })}
+    </div>
+  </div>
+</Base>
+
+<script>
+  const panels = document.querySelectorAll<HTMLElement>('[data-lab-panel]');
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-lab-link]');
+  const select = document.querySelector<HTMLSelectElement>('[data-lab-select]');
+  const keys = [...panels].map((p) => p.dataset.labPanel!);
+
+  const show = (key: string, focus = false) => {
+    if (!keys.includes(key)) key = keys[0];
+    panels.forEach((p) => (p.hidden = p.dataset.labPanel !== key));
+    links.forEach((a) => {
+      if (a.dataset.labLink === key) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+    if (select) select.value = key;
+    if (focus) document.getElementById(key)?.querySelector<HTMLElement>('input, button')?.focus({ preventScroll: true });
+  };
+
+  links.forEach((a) =>
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      history.replaceState(null, '', `#${a.dataset.labLink}`);
+      show(a.dataset.labLink!);
+    }),
+  );
+  select?.addEventListener('change', () => {
+    history.replaceState(null, '', `#${select.value}`);
+    show(select.value);
+  });
+  window.addEventListener('hashchange', () => show(location.hash.slice(1)));
+  document.documentElement.classList.add('lab-js');
+  show(location.hash.slice(1));
+</script>
+
+<style>
+  .page-head {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    display: grid;
+    gap: 0.9rem;
+  }
+  .lede {
+    max-width: 56ch;
+  }
+  .lab {
+    display: grid;
+    gap: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+    align-items: start;
+  }
+  @media (min-width: 1000px) {
+    .lab {
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 2.5rem;
+    }
+    .lab-nav {
+      position: sticky;
+      top: 1.5rem;
+    }
+    .lab-select {
+      display: none;
+    }
+  }
+  @media (max-width: 999px) {
+    .lab-list {
+      display: none;
+    }
+  }
+  .lab-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--rule);
+  }
+  .lab-list a {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.45rem 0 0.45rem 0.9rem;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    text-decoration: none;
+    color: var(--ink-2);
+    line-height: 1.3;
+  }
+  .lab-list a:hover {
+    color: var(--ink);
+  }
+  .lab-list a[aria-current] {
+    color: var(--ink);
+    font-weight: 620;
+    border-left-color: var(--ink);
+  }
+  .lab-unit {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 400;
+    color: var(--ink-3);
+  }
+  .lab-stage {
+    display: grid;
+    gap: 2rem;
+    min-width: 0;
+  }
+  .lab-panel[hidden] {
+    display: none;
+  }
+  .lab-link {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+  }
+</style>

@@ -1,0 +1,150 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## Demand
+
+**Demand** is the list of quantities buyers are willing and able to buy at each possible price. The <mark>law of demand</mark> says that when the price of a good rises, the quantity demanded falls, all else equal. Three reasons:
+
+- **Substitution effect**: a higher price makes other goods relatively cheaper, so some buyers switch.
+- **Income effect**: a higher price means your income buys less, so you buy less.
+- **Diminishing marginal utility**: each extra unit is worth a bit less to you, so you only buy more if the price falls.
+
+A change in the good's own price moves you **along** the demand curve. That is a change in **quantity demanded**. Anything else that changes how much people want at every price **shifts** the whole curve. That is a change in **demand**.
+
+The five things that shift demand are easy to remember as TRIBE:
+
+- **Tastes and preferences.** A study says a product is healthy, or it goes viral.
+- **Related goods.** If the price of a **substitute** (like apple juice for orange juice) rises, demand for this good rises. If the price of a **complement** (like printers and ink) rises, demand for this good falls.
+- **Income.** For a **normal good**, higher income raises demand. For an **inferior good** (like instant noodles or bus rides for some people), higher income lowers demand.
+- **Buyers.** More buyers in the market means more demand.
+- **Expectations.** If people expect the price to rise next month, they buy more now.
+
+## Supply
+
+**Supply** is the list of quantities sellers are willing and able to sell at each price. The **law of supply** says that when the price rises, the quantity supplied rises. A higher price makes it worth producing units that cost more to make.
+
+Again, a change in the good's own price is a move along the curve. These things shift the whole supply curve:
+
+- **Input costs.** Cheaper wages, materials, or energy shift supply right.
+- **Technology.** Better methods lower costs and shift supply right.
+- **Taxes and subsidies.** A tax on producers shifts supply left; a subsidy shifts it right.
+- **Prices of other goods the seller could make.** If corn gets more profitable, some farmers switch away from wheat, so wheat supply shifts left.
+- **Expectations.** If sellers expect higher prices later, they may hold back supply now.
+- **Number of sellers.** More firms means more supply.
+
+<Callout kind="mistake">
+A change in a good's own price never shifts its own supply or demand curve. "The price of coffee rose, so demand for coffee fell" is wrong. The quantity demanded fell. The curve did not move.
+</Callout>
+
+## Equilibrium
+
+Put the two curves together and you get the market. At the <mark>equilibrium price</mark>, the quantity buyers want equals the quantity sellers offer. If the price is higher, sellers offer more than buyers want, a **surplus**, and sellers cut prices. If the price is lower, buyers want more than is available, a **shortage**, and the price gets bid up.
+
+Try the news events below. Each one shifts a curve. Watch what happens to price and quantity, then read the note on the right.
+
+<Graph model="market-oj" caption="The faded dashed line is where the curve started. Drag either handle to shift a curve yourself." />
+
+Here is every single and double shift in one table. When both curves move, one of price or quantity always depends on which shift is larger.
+
+<div class="table-scroll">
+
+| What happens | Price | Quantity |
+| --- | --- | --- |
+| Demand increases | Rises | Rises |
+| Demand decreases | Falls | Falls |
+| Supply increases | Falls | Rises |
+| Supply decreases | Rises | Falls |
+| Demand and supply both increase | Depends | Rises |
+| Demand and supply both decrease | Depends | Falls |
+| Demand increases, supply decreases | Rises | Depends |
+| Demand decreases, supply increases | Falls | Depends |
+
+</div>
+
+<Callout kind="exam">
+When you draw a shift on the AP exam, label the axes (P and Q), label both the original and new curves (for example D₁ and D₂), show the direction of the shift with an arrow, and mark the old and new equilibrium price and quantity on the axes.
+</Callout>
+
+## Elasticity
+
+Elasticity measures how strongly one thing responds to another. The one you will use most is the **price elasticity of demand**:
+
+<div class="formula">Price elasticity of demand = |% change in quantity demanded ÷ % change in price|</div>
+
+- If the result is **greater than 1**, demand is **elastic**: buyers react a lot.
+- If it is **less than 1**, demand is **inelastic**: buyers react a little.
+- If it equals 1, demand is **unit elastic**.
+- A vertical demand curve is **perfectly inelastic** (0). A horizontal one is **perfectly elastic**.
+
+Demand is more elastic when there are many close substitutes, when the good takes a large share of your budget, when it is a luxury rather than a necessity, and when buyers have more time to adjust. Insulin is inelastic. One brand of bottled water is very elastic.
+
+To get the same answer whether price goes up or down, economists use the **midpoint method**: divide each change by the average of the starting and ending values.
+
+### The total revenue test
+
+Elasticity tells a seller what a price change will do to **total revenue** (price times quantity):
+
+- If demand is **elastic**, raising the price lowers total revenue, because quantity falls by a bigger percentage.
+- If demand is **inelastic**, raising the price raises total revenue.
+- If demand is unit elastic, total revenue does not change.
+
+<Worked title="Using the midpoint method" prompt="A café raises the price of a smoothie from $4 to $6, and daily sales fall from 100 to 60. Is demand elastic or inelastic? What happened to total revenue?">
+  <Step n={1} title="Percentage change in quantity">
+    The change is 60 − 100 = −40. The average quantity is (100 + 60) ÷ 2 = 80. So the percentage change is −40 ÷ 80 = −50%.
+  </Step>
+  <Step n={2} title="Percentage change in price">
+    The change is $6 − $4 = $2. The average price is $5. So the percentage change is 2 ÷ 5 = 40%.
+  </Step>
+  <Step n={3} title="Elasticity">
+    50% ÷ 40% = 1.25. That is greater than 1, so demand is elastic in this price range.
+  </Step>
+  <Step n={4} title="Check with total revenue">
+    Before: $4 × 100 = $400. After: $6 × 60 = $360. Revenue fell when price rose, which is exactly what the total revenue test predicts for elastic demand.
+  </Step>
+</Worked>
+
+### Other elasticities
+
+- **Income elasticity of demand** is the % change in quantity demanded divided by the % change in income. Positive for normal goods, negative for inferior goods.
+- **Cross-price elasticity** is the % change in quantity demanded of one good divided by the % change in the price of another. Positive for substitutes, negative for complements.
+- **Price elasticity of supply** measures how much quantity supplied responds to price. Supply is more elastic when producers have more time to adjust and when spare capacity is easy to use.
+
+## Consumer and producer surplus
+
+**Consumer surplus** is the difference between what buyers are willing to pay and what they actually pay. On a graph it is the area below the demand curve and above the price. **Producer surplus** is the difference between the price sellers receive and the lowest price they would accept, the area above the supply curve and below the price.
+
+<Graph model="market-basic" caption="Total surplus, consumer plus producer, is largest at the free-market equilibrium. That is why economists call it allocatively efficient." />
+
+In the orange juice market at equilibrium, consumer surplus is ½ × 40 × ($10 − $6) = $80 million, and producer surplus is ½ × 40 × ($6 − $2) = $80 million. Shift a curve and the areas change.
+
+## Price ceilings and price floors
+
+Governments sometimes set a legal maximum or minimum price.
+
+A <mark>price ceiling</mark> is a maximum price. It only matters, or **binds**, if it is set below equilibrium. Rent control is the classic example. At the lower price, renters want more apartments than landlords offer, so there is a **shortage**. Fewer apartments get rented than at equilibrium, and the trades that no longer happen are a **deadweight loss**.
+
+<Graph model="ceiling-rent" caption="Move the ceiling above the equilibrium rent of $1,200 and the shortage disappears, because the ceiling no longer binds." />
+
+A **price floor** is a minimum price. It binds only if it is set above equilibrium. A minimum wage is a price floor in the labor market. In this simple competitive model, a binding minimum wage means more people want jobs than employers want to fill, which shows up as unemployment.
+
+<Graph model="floor-wage" caption="In the labor market, employers are the buyers and workers are the sellers." />
+
+Real labor markets are messier than this model. Studies disagree about how much actual minimum wage increases reduce employment, partly because some employers have the power to set wages. You will see why that matters in the factor markets unit.
+
+## Taxes and who really pays them
+
+A per-unit tax on sellers shifts supply up by the amount of the tax. Buyers end up paying more, sellers end up keeping less, and fewer units are sold. The government collects the tax on every unit that is still sold, and the units that are no longer traded become a deadweight loss.
+
+The key idea is **tax incidence**: who actually bears the tax does not depend on who writes the check to the government. It depends on elasticity. **The side of the market that is less elastic pays more of the tax.** Use the second slider below to make buyers less responsive and watch their share climb.
+
+<Graph model="tax-incidence" caption="Buyers pay the top price, sellers keep the bottom price, and the gap between them is the tax." />
+
+A **subsidy** works the other way: it shifts supply down, lowers the price buyers pay, raises the price sellers receive, and increases the quantity traded. It also creates a deadweight loss, because it encourages trades worth less to buyers than they cost to make.
+
+## Trade and tariffs
+
+If the **world price** of a good is below a country's domestic equilibrium price, opening to trade lets buyers purchase at the world price. Domestic consumers gain, domestic producers sell less, and the difference between what is demanded and what is produced at home is filled by imports. Consumer surplus rises by more than producer surplus falls, so total surplus goes up.
+
+A **tariff** is a tax on imports. It raises the domestic price above the world price, which increases domestic production, reduces consumption and imports, and brings in revenue for the government. It also creates deadweight loss. A **quota**, a limit on the quantity of imports, has similar effects, but the extra money from the higher price goes to whoever holds the import licenses rather than to the government.

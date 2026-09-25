@@ -1,0 +1,198 @@
+---
+import Base from '../../layouts/Base.astro';
+import { unitLabel } from '../../data/units';
+import { questionsFor } from '../../data/questions';
+import { allLessons } from '../../lib/lessons';
+import { url } from '../../lib/url';
+
+const lessons = allLessons();
+const groups = [
+  { title: 'Start here', note: 'Unit 1 is the same in both AP courses.', list: lessons.filter((l) => l.unit.course === 'both') },
+  { title: 'AP Microeconomics', note: 'How individual markets, firms, and consumers make choices.', list: lessons.filter((l) => l.unit.course === 'micro') },
+  { title: 'AP Macroeconomics', note: 'Output, jobs, prices, money, and trade for the whole economy.', list: lessons.filter((l) => l.unit.course === 'macro') },
+];
+---
+<Base title="All units" description="Every TutorEcon unit for AP Microeconomics and AP Macroeconomics, with interactive graphs and practice questions.">
+  <header class="wrap page-head">
+    <p class="eyebrow">Learn</p>
+    <h1 class="page-title">All units</h1>
+    <p class="lede">
+      The units follow the order of the AP course outlines. Your progress shows here once you mark a unit as done or
+      finish its practice questions.
+    </p>
+    <p class="progress mono" data-overall hidden></p>
+  </header>
+
+  <div class="wrap groups">
+    {groups.map((g) => (
+      <section class="group" aria-labelledby={`g-${g.title}`}>
+        <div class="group-head">
+          <h2 id={`g-${g.title}`} class="h2">{g.title}</h2>
+          <p class="muted">{g.note}</p>
+        </div>
+        <ol class="unit-list">
+          {g.list.map((l) => (
+            <li>
+              <a class="unit-row" href={url(`/learn/${l.unit.slug}/`)} data-unit={l.unit.slug}>
+                <span class="unit-n mono" aria-hidden="true">{l.unit.apUnit}</span>
+                <span class="unit-main">
+                  <span class="unit-label mono">{unitLabel(l.unit)}</span>
+                  <span class="unit-title">{l.unit.title}</span>
+                  <span class="unit-sum">{l.unit.summary}</span>
+                  <span class="unit-meta mono">
+                    About {l.minutes} min · {l.graphs.length} graph{l.graphs.length === 1 ? '' : 's'} · {questionsFor(l.unit.slug).length} questions
+                  </span>
+                </span>
+                <span class="unit-status mono" data-status>Not started</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))}
+  </div>
+</Base>
+
+<script>
+  import { store } from '../../scripts/store';
+  const sync = () => {
+    const saved = store.get();
+    let done = 0;
+    const rows = document.querySelectorAll<HTMLElement>('[data-unit]');
+    rows.forEach((row) => {
+      const slug = row.dataset.unit!;
+      const el = row.querySelector<HTMLElement>('[data-status]')!;
+      const quiz = saved.quiz[slug];
+      const isDone = Boolean(saved.done[slug]);
+      if (isDone) done++;
+      el.classList.toggle('is-done', isDone);
+      el.textContent = isDone
+        ? quiz ? `Done · ${quiz.best}/${quiz.total}` : 'Done'
+        : quiz ? `Quiz ${quiz.best}/${quiz.total}` : 'Not started';
+    });
+    const overall = document.querySelector<HTMLElement>('[data-overall]');
+    if (overall && (done > 0 || Object.keys(saved.quiz).length > 0)) {
+      overall.hidden = false;
+      overall.textContent = `${done} of ${rows.length} units marked done`;
+    }
+  };
+  window.addEventListener('tutorecon:change', sync);
+  sync();
+</script>
+
+<style>
+  .page-head {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    padding-bottom: 1rem;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .lede {
+    max-width: 56ch;
+  }
+  .progress {
+    font-size: 0.85rem;
+    color: var(--good);
+  }
+  .groups {
+    display: grid;
+    gap: 3.5rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+  }
+  .group {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 960px) {
+    .group {
+      grid-template-columns: 280px 1fr;
+      gap: 3rem;
+    }
+  }
+  .group-head {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+  }
+  .unit-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1.5px solid var(--ink);
+  }
+  .unit-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem 1.25rem;
+    padding: 1.25rem 0.25rem;
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+    align-items: start;
+  }
+  @media (min-width: 640px) {
+    .unit-row {
+      grid-template-columns: auto 1fr auto;
+    }
+  }
+  .unit-row:hover .unit-title {
+    text-decoration: underline;
+  }
+  .unit-n {
+    display: inline-grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    font-size: 1.05rem;
+    font-weight: 500;
+    background: var(--paper-raised);
+  }
+  .unit-main {
+    display: grid;
+    gap: 0.3rem;
+  }
+  .unit-label,
+  .unit-meta {
+    font-size: 0.75rem;
+    color: var(--ink-2);
+    letter-spacing: 0.02em;
+  }
+  .unit-label {
+    text-transform: uppercase;
+  }
+  .unit-title {
+    font-family: var(--font-display);
+    font-weight: 720;
+    font-stretch: 108%;
+    font-variation-settings: 'wdth' 108;
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+  .unit-sum {
+    font-family: var(--font-body);
+    color: var(--ink-2);
+    max-width: 60ch;
+  }
+  .unit-status {
+    grid-column: 2;
+    justify-self: start;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  @media (min-width: 640px) {
+    .unit-status {
+      grid-column: 3;
+    }
+  }
+  .unit-status.is-done {
+    border-color: var(--good);
+    color: var(--good);
+    background: var(--good-bg);
+  }
+</style>

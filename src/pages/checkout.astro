@@ -1,0 +1,434 @@
+---
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import { url } from '../lib/url';
+import { site } from '../site';
+---
+<Base title="Pro checkout (demo)" description="A demo checkout for TutorEcon Pro. No payment is taken." noindex>
+  <div class="wrap checkout-wrap">
+    <div class="notice notice-demo demo-banner" role="note">
+      <strong>This is a demo checkout. No card is charged.</strong>
+      <span>
+        Payments are not switched on. Card details are checked in your browser and then thrown away; nothing is sent or saved.
+        Only test cards work, such as <span class="mono nowrap">4242 4242 4242 4242</span>. Please do not enter a real card.
+      </span>
+    </div>
+
+    <div class="checkout" data-checkout-root>
+      <section class="summary" aria-labelledby="summary-title">
+        <a class="back" href={url('/pricing/')}>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          Back to pricing
+        </a>
+        <div class="merchant">
+          <Logo size={28} />
+          <span>{site.name}</span>
+        </div>
+        <h1 id="summary-title" class="summary-title">Subscribe to {site.name} Pro</h1>
+        <p class="summary-price"><span class="amount">${site.pro.price}.00</span><span class="per">per month</span></p>
+        <dl class="lines">
+          <div><dt>{site.name} Pro, monthly</dt><dd class="mono">${site.pro.price}.00</dd></div>
+          <div class="muted"><dt>Mock exams and review sheets</dt><dd>Included</dd></div>
+          <div class="total"><dt>Charged today (demo)</dt><dd class="mono">$0.00</dd></div>
+        </dl>
+      </section>
+
+      <section class="pay" aria-labelledby="pay-title">
+        <form class="pay-form" novalidate data-checkout autocomplete="off" aria-describedby="pay-note">
+          <div class="pay-head">
+            <h2 id="pay-title" class="h3">Pay with card</h2>
+            <button type="button" class="btn btn-secondary btn-small" data-fill>Fill in the test card</button>
+          </div>
+          <p id="pay-note" class="hint">All fields are required.</p>
+
+          <div class="field">
+            <label for="cc-number">Card number</label>
+            <div class="with-brand">
+              <input id="cc-number" class="input mono" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="1234 1234 1234 1234" maxlength="23" aria-describedby="cc-number-error cc-brand" aria-invalid="false" />
+              <span id="cc-brand" class="brand mono" aria-live="polite"></span>
+            </div>
+            <p id="cc-number-error" class="error-text" data-error="number"></p>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="cc-exp">Expiry date <span class="muted">(MM / YY)</span></label>
+              <input id="cc-exp" class="input mono" inputmode="numeric" autocomplete="off" placeholder="MM / YY" maxlength="7" aria-describedby="cc-exp-error" aria-invalid="false" />
+              <p id="cc-exp-error" class="error-text" data-error="exp"></p>
+            </div>
+            <div class="field">
+              <label for="cc-cvc">Security code</label>
+              <input id="cc-cvc" class="input mono" inputmode="numeric" autocomplete="off" placeholder="CVC" maxlength="4" aria-describedby="cc-cvc-error" aria-invalid="false" />
+              <p id="cc-cvc-error" class="error-text" data-error="cvc"></p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="cc-name">Name on card</label>
+            <input id="cc-name" class="input" autocomplete="off" spellcheck="false" aria-describedby="cc-name-error" aria-invalid="false" />
+            <p id="cc-name-error" class="error-text" data-error="name"></p>
+          </div>
+
+          <div class="consent">
+            <label class="check">
+              <input type="checkbox" id="cc-consent" aria-describedby="cc-consent-error" />
+              <span>
+                I agree to the <a href={url('/terms/')}>Terms of use</a> and understand this checkout is a demo: no payment is
+                taken, and Pro is saved only in this browser.
+              </span>
+            </label>
+            <p id="cc-consent-error" class="error-text" data-error="consent"></p>
+          </div>
+
+          <p class="error-text form-error" data-error="form" role="alert"></p>
+
+          <button type="submit" class="btn pay-btn" data-submit>
+            <span data-submit-label>Start Pro (demo, $0 charged)</span>
+          </button>
+          <p class="hint center">Test cards: <span class="mono">4242 4242 4242 4242</span> (Visa), <span class="mono">5555 5555 5555 4444</span> (Mastercard). Any future date and any 3 digits work.</p>
+        </form>
+
+        <div class="success" data-success hidden tabindex="-1">
+          <p class="eyebrow">Demo complete</p>
+          <h2 class="h2">Pro is on in this browser.</h2>
+          <p>No money moved. Here is what a receipt would show:</p>
+          <dl class="receipt">
+            <div><dt>Plan</dt><dd>{site.name} Pro, monthly</dd></div>
+            <div><dt>Card</dt><dd class="mono" data-receipt-card></dd></div>
+            <div><dt>Amount charged</dt><dd class="mono">$0.00 (demo)</dd></div>
+            <div><dt>Date</dt><dd class="mono" data-receipt-date></dd></div>
+          </dl>
+          <div class="btn-row">
+            <a class="btn" href={url('/mock-exam/')}>Take a mock exam</a>
+            <a class="btn btn-secondary" href={url('/review/')}>Open review sheets</a>
+          </div>
+          <p class="hint">You can cancel Pro any time from <a href={url('/account/')}>Your data and settings</a>.</p>
+        </div>
+        <noscript><p class="notice">The demo checkout needs JavaScript to run.</p></noscript>
+      </section>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { store } from '../scripts/store';
+
+  // Stripe's published test numbers. Anything else is refused.
+  const TEST_CARDS: Record<string, string> = {
+    '4242424242424242': 'Visa',
+    '4000056655665556': 'Visa debit',
+    '5555555555554444': 'Mastercard',
+    '2223003122003222': 'Mastercard',
+    '378282246310005': 'American Express',
+    '6011111111111117': 'Discover',
+  };
+
+  const form = document.querySelector<HTMLFormElement>('[data-checkout]')!;
+  const num = document.getElementById('cc-number') as HTMLInputElement;
+  const exp = document.getElementById('cc-exp') as HTMLInputElement;
+  const cvc = document.getElementById('cc-cvc') as HTMLInputElement;
+  const name = document.getElementById('cc-name') as HTMLInputElement;
+  const consent = document.getElementById('cc-consent') as HTMLInputElement;
+  const brandEl = document.getElementById('cc-brand')!;
+  const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+  const submitLabel = form.querySelector<HTMLElement>('[data-submit-label]')!;
+  const success = document.querySelector<HTMLElement>('[data-success]')!;
+
+  const digits = (s: string) => s.replace(/\D/g, '');
+  const brandOf = (d: string) =>
+    /^3[47]/.test(d) ? 'American Express' : /^4/.test(d) ? 'Visa' : /^(5[1-5]|2[2-7])/.test(d) ? 'Mastercard' : /^6(011|5)/.test(d) ? 'Discover' : '';
+  const luhn = (d: string) => {
+    let sum = 0;
+    for (let i = 0; i < d.length; i++) {
+      let n = Number(d[d.length - 1 - i]);
+      if (i % 2 === 1) {
+        n *= 2;
+        if (n > 9) n -= 9;
+      }
+      sum += n;
+    }
+    return d.length >= 12 && sum % 10 === 0;
+  };
+
+  const setError = (key: string, msg: string, input?: HTMLInputElement) => {
+    const el = form.querySelector<HTMLElement>(`[data-error="${key}"]`);
+    if (el) el.textContent = msg;
+    input?.setAttribute('aria-invalid', String(Boolean(msg)));
+  };
+
+  num.addEventListener('input', () => {
+    const d = digits(num.value).slice(0, 19);
+    const amex = /^3[47]/.test(d);
+    num.value = amex
+      ? [d.slice(0, 4), d.slice(4, 10), d.slice(10, 15)].filter(Boolean).join(' ')
+      : d.replace(/(.{4})/g, '$1 ').trim();
+    brandEl.textContent = brandOf(d);
+    setError('number', '', num);
+  });
+  exp.addEventListener('input', (e) => {
+    const d = digits(exp.value).slice(0, 4);
+    const deleting = (e as InputEvent).inputType?.startsWith('delete');
+    exp.value = d.length >= 3 || (d.length === 2 && !deleting) ? `${d.slice(0, 2)} / ${d.slice(2)}` : d;
+    setError('exp', '', exp);
+  });
+  cvc.addEventListener('input', () => {
+    cvc.value = digits(cvc.value).slice(0, 4);
+    setError('cvc', '', cvc);
+  });
+  name.addEventListener('input', () => setError('name', '', name));
+  consent.addEventListener('change', () => setError('consent', ''));
+
+  form.querySelector('[data-fill]')?.addEventListener('click', () => {
+    const next = new Date();
+    const yy = String((next.getFullYear() + 2) % 100).padStart(2, '0');
+    num.value = '4242 4242 4242 4242';
+    brandEl.textContent = 'Visa';
+    exp.value = `12 / ${yy}`;
+    cvc.value = '123';
+    if (!name.value) name.value = 'Test Student';
+    ['number', 'exp', 'cvc', 'name'].forEach((k) => setError(k, ''));
+    [num, exp, cvc, name].forEach((i) => i.setAttribute('aria-invalid', 'false'));
+    consent.focus();
+  });
+
+  const validate = () => {
+    let first: HTMLElement | null = null;
+    const fail = (key: string, msg: string, input: HTMLInputElement) => {
+      setError(key, msg, input);
+      first ??= input;
+    };
+    const d = digits(num.value);
+    const amex = /^3[47]/.test(d);
+    if (!d) fail('number', 'Enter a card number.', num);
+    else if (!luhn(d)) fail('number', 'That card number is not valid. Check the digits.', num);
+    else if (!TEST_CARDS[d]) fail('number', 'This demo only accepts test cards, such as 4242 4242 4242 4242. Real cards are refused.', num);
+
+    const m = exp.value.match(/^(\d{2}) \/ (\d{2})$/);
+    if (!m) fail('exp', 'Enter the expiry date as MM / YY.', exp);
+    else {
+      const month = Number(m[1]);
+      const year = 2000 + Number(m[2]);
+      const now = new Date();
+      if (month < 1 || month > 12) fail('exp', 'The month must be between 01 and 12.', exp);
+      else if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) fail('exp', 'That card has expired. Use a date in the future.', exp);
+    }
+
+    const need = amex ? 4 : 3;
+    if (digits(cvc.value).length !== need) fail('cvc', `Enter the ${need}-digit security code.`, cvc);
+    if (!name.value.trim()) fail('name', 'Enter the name on the card.', name);
+    if (!consent.checked) {
+      setError('consent', 'Tick the box to confirm you understand this is a demo.');
+      first ??= consent;
+    }
+    return first as HTMLElement | null;
+  };
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    setError('form', '');
+    const bad = validate();
+    if (bad) {
+      setError('form', 'Fix the highlighted fields to continue.');
+      bad.focus();
+      return;
+    }
+    const d = digits(num.value);
+    const label = `${TEST_CARDS[d]} ending ${d.slice(-4)} (test card)`;
+    submit.disabled = true;
+    submitLabel.textContent = 'Processing demo payment';
+    window.setTimeout(() => {
+      store.startPro();
+      form.reset();
+      brandEl.textContent = '';
+      form.hidden = true;
+      success.hidden = false;
+      document.querySelector('[data-receipt-card]')!.textContent = label;
+      document.querySelector('[data-receipt-date]')!.textContent = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+      success.focus();
+    }, 900);
+  });
+</script>
+
+<style>
+  .checkout-wrap {
+    padding-top: 1.5rem;
+    padding-bottom: 5rem;
+  }
+  .demo-banner {
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+  .nowrap {
+    white-space: nowrap;
+  }
+  .checkout {
+    display: grid;
+    gap: 2.5rem;
+    max-width: 1040px;
+    margin: 2rem auto 0;
+  }
+  @media (min-width: 880px) {
+    .checkout {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+  .summary {
+    display: grid;
+    gap: 1.1rem;
+    align-content: start;
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+    text-decoration: none;
+    justify-self: start;
+    min-height: 32px;
+  }
+  .back:hover {
+    color: var(--ink);
+  }
+  .merchant {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 120%;
+    font-variation-settings: 'wdth' 120;
+  }
+  .summary-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink-2);
+    font-family: var(--font-ui);
+  }
+  .summary-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .amount {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 118%;
+    font-variation-settings: 'wdth' 118;
+    font-size: 2.6rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .per {
+    color: var(--ink-2);
+  }
+  .lines,
+  .receipt {
+    margin: 0.5rem 0 0;
+    border-top: 1px solid var(--rule);
+  }
+  .lines div,
+  .receipt div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .lines dd,
+  .receipt dd {
+    margin: 0;
+    text-align: right;
+  }
+  .lines .total {
+    font-weight: 700;
+    border-bottom: 0;
+  }
+  .receipt dt {
+    color: var(--ink-2);
+  }
+  .pay {
+    padding: 1.5rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-lg);
+    background: var(--paper-raised);
+    box-shadow: var(--shadow);
+  }
+  .pay-form {
+    display: grid;
+    gap: 1.1rem;
+  }
+  .pay-form[hidden] {
+    display: none;
+  }
+  .pay-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .with-brand {
+    position: relative;
+  }
+  .with-brand .input {
+    padding-right: 7.5rem;
+  }
+  @media (max-width: 480px) {
+    .with-brand .input {
+      padding-right: 5.5rem;
+    }
+    .brand {
+      font-size: 0.7rem;
+    }
+  }
+  .brand {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.78rem;
+    color: var(--ink-2);
+    pointer-events: none;
+  }
+  .row {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+  }
+  .consent {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.65rem;
+    align-items: start;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    cursor: pointer;
+  }
+  .check input {
+    margin-top: 0.15rem;
+  }
+  .pay-btn {
+    width: 100%;
+    min-height: 50px;
+    font-size: 1.02rem;
+  }
+  .center {
+    text-align: center;
+  }
+  .success {
+    display: grid;
+    gap: 1rem;
+  }
+  .success[hidden] {
+    display: none;
+  }
+  .success:focus {
+    outline: none;
+  }
+</style>

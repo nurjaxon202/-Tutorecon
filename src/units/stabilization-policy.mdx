@@ -1,0 +1,84 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## Using fiscal and monetary policy together
+
+Both kinds of policy shift aggregate demand, but they work through different channels and have different side effects.
+
+- **Expansionary fiscal policy** raises AD directly, but government borrowing can push up real interest rates and crowd out private investment.
+- **Expansionary monetary policy** raises AD by lowering interest rates, which encourages investment rather than crowding it out.
+
+Economists call the combination the **policy mix**. If fiscal policy is expansionary and monetary policy is contractionary at the same time, they work against each other: the effect on output is uncertain, but interest rates clearly rise.
+
+## The Phillips curve
+
+In the short run, there is a trade-off between inflation and unemployment. When AD rises, output grows, firms hire more people, unemployment falls, and prices rise faster. The **short-run Phillips curve** (SRPC) shows this: a downward-sloping curve with the unemployment rate on the horizontal axis and the inflation rate on the vertical axis.
+
+In the long run, the trade-off disappears. Once workers and firms expect the higher inflation, they build it into wages and prices, and unemployment returns to its natural rate. So the <mark>long-run Phillips curve</mark> (LRPC) is vertical at the natural rate of unemployment, just as LRAS is vertical at full-employment output.
+
+<Graph model="phillips" caption="Moves along the SRPC come from shifts in AD. Shifts of the SRPC come from changes in expected inflation or from supply shocks." />
+
+The Phillips curve and the AD-AS model tell the same story in different units:
+
+<div class="table-scroll">
+
+| AD-AS model | Phillips curve |
+| --- | --- |
+| AD shifts right | Move up and to the left along the SRPC |
+| AD shifts left | Move down and to the right along the SRPC |
+| SRAS shifts left (supply shock) | SRPC shifts right |
+| SRAS shifts right | SRPC shifts left |
+| LRAS shifts right | LRPC shifts left (lower natural rate) |
+| Economy at LRAS | Economy on the LRPC |
+
+</div>
+
+<Callout kind="exam">
+If a question says the economy is in long-run equilibrium, the point on the Phillips curve graph must sit where the SRPC crosses the LRPC. Label the natural rate of unemployment on the horizontal axis.
+</Callout>
+
+## Money growth and inflation
+
+The **quantity theory of money** starts from an identity:
+
+<div class="formula">M × V = P × Y</div>
+
+M is the money supply, V is the **velocity of money** (how many times a dollar is spent in a year), P is the price level, and Y is real output. P × Y is nominal GDP.
+
+If velocity is fairly stable and real output is set in the long run by resources and technology, then faster growth in the money supply shows up as a higher price level. That is why economists say that in the long run, sustained high inflation is caused by the money supply growing much faster than output. It also means money is **neutral** in the long run: changing the money supply changes prices, not real output.
+
+<Worked title="Using the quantity theory" prompt="The money supply is $2 trillion, velocity is 5, and real output is $5 trillion. What is the price level? If the money supply rises 10% and V and Y stay the same, what happens to the price level?">
+  <Step n={1} title="Solve for P">
+    M × V = $2 trillion × 5 = $10 trillion. Divide by Y: $10 trillion ÷ $5 trillion = 2. The price level is 2.
+  </Step>
+  <Step n={2} title="Apply the increase">
+    M rises to $2.2 trillion, so M × V = $11 trillion. With Y at $5 trillion, P = 2.2. The price level rises 10%, the same as the money supply.
+  </Step>
+</Worked>
+
+## Deficits and debt
+
+A **budget deficit** is the gap in a single year when government spending is greater than tax revenue. A **budget surplus** is the reverse. The **national debt** is the total of all past deficits minus surpluses, so a deficit adds to the debt each year it occurs.
+
+To cover a deficit, the government borrows in the loanable funds market. As you saw in the financial sector unit, that raises the real interest rate and can **crowd out** private investment. Less investment means less capital, which can slow long-run growth. Interest payments on a large debt also take up part of the budget that could go to other uses.
+
+## Economic growth
+
+**Economic growth** is a sustained increase in real GDP per capita. On a graph it appears as the PPC shifting outward and LRAS shifting right.
+
+Growth comes from:
+
+- **Physical capital**: more and better machines, buildings, and infrastructure.
+- **Human capital**: the skills and knowledge of workers, built through education and training.
+- **Technology**: better ways of combining resources.
+- **Natural resources.**
+
+Most long-run growth comes from rising **productivity**, meaning more output per worker hour. Policies that support growth include spending on education, research, and infrastructure; tax rules that encourage saving and investment; and stable institutions such as property rights and the rule of law.
+
+Growth adds up quickly. The **rule of 70** estimates how long it takes something to double: divide 70 by the annual growth rate. At 2% growth, real GDP per capita doubles in about 35 years. At 7%, it doubles in about 10.
+
+<Callout kind="mistake">
+Expansionary fiscal or monetary policy shifts AD, not LRAS. It can close a recessionary gap, but it does not raise the economy's long-run capacity. Only changes in resources, productivity, and technology shift LRAS, though policies that boost investment in capital or education can do that over time.
+</Callout>

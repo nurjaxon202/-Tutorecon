@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
+---
+<Base title="Page not found" noindex>
+  <div class="wrap nf">
+    <p class="eyebrow">Error 404</p>
+    <h1 class="page-title">This page is not on the curve.</h1>
+    <p class="lede">The link may be old, or the address may have a typo. Try one of these instead.</p>
+    <div class="btn-row">
+      <a class="btn" href={url('/learn/')}>See all units</a>
+      <a class="btn btn-secondary" href={url('/')}>Go to the home page</a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .nf {
+    padding-block: clamp(3rem, 2rem + 5vw, 7rem);
+    display: grid;
+    gap: 1.1rem;
+    justify-items: start;
+  }
+</style>

@@ -1,0 +1,27 @@
+---
+import Doc from '../layouts/Doc.astro';
+import { site } from '../site';
+---
+<Doc title="Accessibility" eyebrow="Policies" updated={site.policiesUpdated} description="How TutorEcon is built to work for everyone, and how to report a problem.">
+  <p>{site.name} aims to meet the Web Content Accessibility Guidelines (WCAG) 2.2 at level AA. Economics leans heavily on graphs, so we have put particular care into making the diagrams usable without seeing or dragging them.</p>
+
+  <h2>What we have done</h2>
+  <ul>
+    <li>Every page can be used with a keyboard alone, with a visible focus outline and a "Skip to content" link.</li>
+    <li>Every interactive graph has standard sliders, buttons, and checkboxes that do the same job as dragging.</li>
+    <li>Next to each graph, a written summary states the current values in words, such as the equilibrium price and quantity. Screen readers hear it after you stop adjusting a control.</li>
+    <li>Text and controls meet AA color contrast in both the light and dark themes. Curves are told apart by label as well as color.</li>
+    <li>Animations are short and switch off when your device asks for reduced motion.</li>
+    <li>Forms have visible labels, error messages that say how to fix the problem, and no time limits except the optional mock exam timer.</li>
+    <li>Pages reflow to a single column on narrow screens and at high zoom levels.</li>
+  </ul>
+
+  <h2>Known limitations</h2>
+  <ul>
+    <li>The written summaries describe the key values on each graph, but not every visual detail of the drawing.</li>
+    <li>The mock exam has a 25-minute timer. If you need more time, the practice questions have no time limit.</li>
+  </ul>
+
+  <h2>Report a problem</h2>
+  <p>If something on the site does not work for you, please <a href={site.contactUrl}>open an issue on GitHub</a> and describe the page, what you were trying to do, and the device or assistive technology you use.</p>
+</Doc>

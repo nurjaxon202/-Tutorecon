@@ -1,0 +1,318 @@
+---
+import Base from '../layouts/Base.astro';
+import Graph from '../components/Graph.astro';
+import Quiz from '../components/Quiz.astro';
+import { units, unitLabel } from '../data/units';
+import { questions } from '../data/questions';
+import { glossary } from '../data/glossary';
+import { allLessons } from '../lib/lessons';
+import { url } from '../lib/url';
+import { site } from '../site';
+
+const lessons = allLessons();
+const graphCount = new Set(lessons.flatMap((l) => l.graphs)).size;
+const workedCount = lessons.reduce((n, l) => n + l.worked, 0);
+const sample = questions.filter((q) => q.id === 'sd3');
+const foundations = units.find((u) => u.course === 'both')!;
+const micro = units.filter((u) => u.course === 'micro');
+const macro = units.filter((u) => u.course === 'macro');
+---
+<Base>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <div>
+          <p class="eyebrow">Free lessons for AP Micro and AP Macro</p>
+          <h1 class="display">Learn economics by <span class="hl">moving the graphs</span> yourself.</h1>
+        </div>
+        <div class="hero-side">
+          <p class="lede">
+            {units.length} units that follow the AP courses. The diagrams respond when you drag them or click a news
+            event, and every practice question explains the wrong answers as well as the right one.
+          </p>
+          <div class="btn-row">
+            <a class="btn" href={url('/learn/foundations/')}>Start with Unit 1</a>
+            <a class="btn btn-secondary" href={url('/learn/')}>See all units</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-graph">
+        <Graph model="market-oj" variant="hero" ratio={0.84} title="Try it: the market for orange juice" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section rule-top">
+    <div class="wrap inside">
+      <div class="inside-copy">
+        <p class="eyebrow">What a unit looks like</p>
+        <h2 class="h2">Read a little, try it, check yourself.</h2>
+        <p class="lede">
+          Each unit is one page you can finish in a sitting. Short explanations come first, then an interactive graph for
+          the idea you just read, a worked problem you open one step at a time, and a set of practice questions at the end.
+        </p>
+        <dl class="facts">
+          <div><dt class="mono">{units.length}</dt><dd>units, matched to the AP course outlines</dd></div>
+          <div><dt class="mono">{graphCount}</dt><dd>interactive graphs across the lessons</dd></div>
+          <div><dt class="mono">{workedCount}</dt><dd>worked problems with step-by-step answers</dd></div>
+          <div><dt class="mono">{questions.length}</dt><dd>practice questions with an explanation for every choice</dd></div>
+          <div><dt class="mono">{glossary.length}</dt><dd>terms in a searchable glossary</dd></div>
+        </dl>
+      </div>
+      <div class="inside-demo">
+        <Quiz
+          questions={sample}
+          saveAs="home-sample"
+          title="Try one question"
+          intro="This one trips a lot of people up. Pick an answer and check it."
+          headingLevel="h3"
+          numbered={false}
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="section rule-top course-map" aria-labelledby="map-title">
+    <div class="wrap">
+      <div class="map-head">
+        <p class="eyebrow">The course</p>
+        <h2 id="map-title" class="h2">Start at Unit 1, then take the course you need.</h2>
+      </div>
+
+      <a class="map-first" href={url(`/learn/${foundations.slug}/`)}>
+        <span class="map-n mono">1</span>
+        <span>
+          <span class="map-label mono">{unitLabel(foundations)}</span>
+          <span class="map-title">{foundations.title}</span>
+          <span class="map-sum">{foundations.summary}</span>
+        </span>
+      </a>
+
+      <div class="map-cols">
+        {[
+          { name: 'AP Microeconomics', list: micro },
+          { name: 'AP Macroeconomics', list: macro },
+        ].map((c) => (
+          <div>
+            <h3 class="map-course">{c.name}</h3>
+            <ol class="map-list">
+              {c.list.map((u) => (
+                <li>
+                  <a href={url(`/learn/${u.slug}/`)}>
+                    <span class="map-n mono">{u.apUnit}</span>
+                    <span class="map-title">{u.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section rule-top">
+    <div class="wrap pro-teaser">
+      <div>
+        <p class="eyebrow">TutorEcon Pro</p>
+        <h2 class="h2">Timed mock exams and printable review sheets.</h2>
+      </div>
+      <div class="pro-side">
+        <p>
+          Every lesson, graph, and practice question stays free. Pro adds a timed mixed exam with a score breakdown by
+          unit, and one-page review sheets you can print before a test. ${site.pro.price} a month.
+        </p>
+        <p class="muted small">Payments are not switched on yet. The checkout is a working demo and never charges a card.</p>
+        <a class="btn btn-secondary" href={url('/pricing/')}>Compare plans</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-top: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+    padding-bottom: clamp(3rem, 2rem + 4vw, 5.5rem);
+  }
+  .hero-copy {
+    display: grid;
+    gap: 1.75rem;
+    align-items: end;
+    margin-bottom: clamp(2rem, 1.5rem + 2vw, 3rem);
+  }
+  @media (min-width: 960px) {
+    .hero-copy {
+      grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
+      gap: 3rem;
+    }
+  }
+  .hero-copy .eyebrow {
+    margin-bottom: 1.1rem;
+  }
+  .hero-side {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .hero-side .lede {
+    max-width: 40ch;
+  }
+
+  .inside {
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .inside {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 4rem;
+    }
+  }
+  .inside-copy {
+    display: grid;
+    gap: 1.1rem;
+  }
+  .facts {
+    margin: 0.75rem 0 0;
+    display: grid;
+    border-top: 1px solid var(--rule);
+  }
+  .facts div {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .facts dt {
+    font-size: 1.35rem;
+    font-weight: 500;
+  }
+  .facts dd {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  .small {
+    font-size: 0.9rem;
+  }
+
+  .map-head {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .map-first {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.25rem;
+    align-items: start;
+    padding: 1.25rem;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius-lg);
+    background: var(--paper-raised);
+    text-decoration: none;
+    max-width: 760px;
+  }
+  .map-first:hover .map-title {
+    text-decoration: underline;
+  }
+  .map-first > span:last-child {
+    display: grid;
+    gap: 0.3rem;
+  }
+  .map-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-2);
+  }
+  .map-sum {
+    color: var(--ink-2);
+    font-family: var(--font-body);
+  }
+  .map-n {
+    display: inline-grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 500;
+    background: var(--paper);
+    flex: none;
+  }
+  .map-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.12rem;
+    line-height: 1.25;
+  }
+  .map-cols {
+    display: grid;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  @media (min-width: 820px) {
+    .map-cols {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+  }
+  .map-course {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-2);
+    margin-bottom: 0.5rem;
+  }
+  .map-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .map-list a {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+  }
+  .map-list a:hover .map-title {
+    text-decoration: underline;
+  }
+  .map-list .map-n {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.9rem;
+    border-width: 1px;
+  }
+
+  .pro-teaser {
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .pro-teaser {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+  }
+  .pro-side {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+  }
+  .pro-side .btn {
+    font-family: var(--font-ui);
+  }
+</style>

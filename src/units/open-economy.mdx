@@ -1,0 +1,91 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## The balance of payments
+
+The **balance of payments** records every transaction between one country and the rest of the world. It has two main parts.
+
+The **current account** covers trade in goods and services, plus income and transfers:
+
+- **Balance of trade**: exports minus imports of goods and services.
+- **Net investment income**: interest and dividends earned on assets abroad, minus what foreigners earn on assets here.
+- **Net transfers**: money sent abroad with nothing given in return, such as remittances to family or foreign aid.
+
+The **capital and financial account** covers the buying and selling of assets: stocks, bonds, real estate, factories, and bank deposits. If a German company buys a factory in Ohio, money flows into the US and the US financial account records an inflow.
+
+Because every purchase from abroad has to be paid for somehow, the two accounts balance. <mark>A current account deficit is matched by a financial account surplus</mark>: if a country buys more goods and services from the world than it sells, the difference is covered by selling assets to foreigners or borrowing from them.
+
+<Worked title="Sorting transactions into the right account" prompt="Classify each for the United States: (a) a US student buys a laptop made in Taiwan; (b) a Brazilian pension fund buys US government bonds; (c) a US worker sends money home to family in Mexico; (d) a US firm receives dividends from shares it owns in a French company.">
+  <Step n={1} title="(a) The laptop">
+    An import of a good, so it goes in the current account, as a negative entry in the balance of trade.
+  </Step>
+  <Step n={2} title="(b) The bond purchase">
+    A foreign purchase of a US asset, so it goes in the financial account as an inflow of money to the US.
+  </Step>
+  <Step n={3} title="(c) The money sent home">
+    A transfer with nothing received in return, so it goes in the current account as a negative net transfer.
+  </Step>
+  <Step n={4} title="(d) The dividends">
+    Income earned on an asset abroad, so it goes in the current account as positive net investment income.
+  </Step>
+</Worked>
+
+## Exchange rates
+
+An **exchange rate** is the price of one currency in terms of another. If one euro costs $1.20, the euro-dollar exchange rate is $1.20 per euro.
+
+- A currency **appreciates** when it buys more of another currency.
+- A currency **depreciates** when it buys less.
+
+If the euro rises from $1.20 to $1.30, the euro has appreciated and the dollar has depreciated. They always move in opposite directions against each other.
+
+In a flexible exchange rate system, currencies are priced in the **foreign exchange market** by supply and demand. The graph below shows the market for euros, priced in dollars.
+
+- **Demand for euros** comes from people who need euros: Americans buying European goods, visiting Europe, or buying European assets.
+- **Supply of euros** comes from people who have euros and want dollars: Europeans buying American goods, visiting the US, or buying American assets.
+
+<Graph model="forex" caption="The vertical axis is the price of one euro in dollars. A higher point means a stronger euro and a weaker dollar." />
+
+<Callout kind="exam">
+Always check which currency is on the horizontal axis. In the market for euros, a rightward shift of demand means the **euro appreciates**. The same event, shown in the market for dollars, would be a rightward shift in the **supply of dollars**, because Americans sell dollars to get euros.
+</Callout>
+
+### What moves exchange rates
+
+- **Tastes**: if foreigners want more of a country's goods, demand for its currency rises and it appreciates.
+- **Relative incomes**: if a country's income rises faster than its partners', it buys more imports, supplies more of its currency, and the currency depreciates.
+- **Relative price levels**: if a country's inflation is higher, its goods become less competitive, and its currency tends to depreciate.
+- **Relative real interest rates**: higher real interest rates attract foreign savers. Demand for the currency rises and it appreciates.
+- **Speculation**: if traders expect a currency to rise, they buy it now, which pushes it up.
+
+## How exchange rates affect trade
+
+A stronger currency makes a country's exports more expensive for foreigners and imports cheaper for its own residents. So when a currency **appreciates**, net exports fall and AD shifts left. When it **depreciates**, net exports rise and AD shifts right.
+
+## Policy in an open economy
+
+Monetary and fiscal policy spill over into the foreign exchange market through interest rates.
+
+**Expansionary monetary policy**: the Fed buys bonds → US interest rates fall → foreign savers want fewer US assets, so demand for dollars falls → the dollar depreciates → US exports get cheaper and imports get more expensive → net exports rise → AD rises further. In an open economy, the exchange rate channel **reinforces** monetary policy.
+
+**Expansionary fiscal policy**: the government runs a larger deficit → it borrows more, and real interest rates rise → foreign savers want more US assets, so demand for dollars rises → the dollar appreciates → net exports fall. In an open economy, this channel **partly offsets** fiscal policy.
+
+<div class="table-scroll">
+
+| Policy | Interest rate | Capital flow into the country | Currency | Net exports |
+| --- | --- | --- | --- | --- |
+| Expansionary monetary | Falls | Falls | Depreciates | Rise |
+| Contractionary monetary | Rises | Rises | Appreciates | Fall |
+| Expansionary fiscal (deficit) | Rises | Rises | Appreciates | Fall |
+
+</div>
+
+<Callout kind="mistake">
+A strong currency is not automatically good for a country, and a weak one is not automatically bad. Appreciation helps importers and travelers going abroad, but it hurts exporters and domestic firms competing with imports. Depreciation does the reverse.
+</Callout>
+
+## Real interest rates and capital flows
+
+Savings move to where they earn the highest real return, adjusted for risk. If real interest rates in the US rise relative to other countries, foreign savers send funds to the US. In the US loanable funds market, that inflow shows up as an increase in supply, which pushes the real interest rate back down. In the source country, supply of loanable funds falls. This is how global capital markets tie countries' interest rates together.

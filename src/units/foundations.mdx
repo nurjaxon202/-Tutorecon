@@ -1,0 +1,122 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## Scarcity forces choices
+
+People want more than the world can produce. There are only so many hours in a day, so many workers, so much land and machinery. That gap between unlimited wants and limited resources is <mark>scarcity</mark>, and it is the reason economics exists.
+
+Economists sort the resources used to make things into four **factors of production**:
+
+- **Land**: natural resources such as soil, water, oil, and minerals.
+- **Labor**: human effort, physical or mental.
+- **Capital**: tools, machines, and buildings made to produce other goods. Money is not capital in this sense.
+- **Entrepreneurship**: the work of combining the other three and taking the risk of starting something.
+
+Because resources are scarce, every society has to answer three questions: what to produce, how to produce it, and who gets it. A **market economy** answers them mostly through prices and private choices. A **command economy** answers them through government planning. Every real country is a **mixed economy** somewhere between the two.
+
+**Microeconomics** studies the choices of individual households, firms, and markets. **Macroeconomics** studies the economy as a whole: total output, unemployment, inflation, and growth.
+
+## Opportunity cost
+
+Every choice has a cost, even when no money changes hands. The <mark>opportunity cost</mark> of a choice is the value of the next best alternative you give up.
+
+Say you spend Saturday afternoon studying for your economics test. The other options were a four-hour shift at a café paying $15 an hour, or going to a friend's party. If the shift was your next best option, the opportunity cost of studying is the $60 you would have earned. The party is not added on top, because you could only have done one of those things.
+
+<Callout kind="mistake">
+Opportunity cost is the single next best alternative, not the sum of everything you could have done instead.
+</Callout>
+
+**Sunk costs** are costs you have already paid and cannot get back. They should not affect your next decision. If a concert ticket was non-refundable and you now feel sick, the price of the ticket is gone either way. The only question is whether going is worth more to you than staying home.
+
+## The production possibilities curve
+
+A **production possibilities curve** (PPC) shows every combination of two goods an economy can make when it uses all its resources fully and efficiently, with its current technology.
+
+The graph below uses consumer goods (things people use now, like clothing and food) and capital goods (machines and tools that make future production possible). Drag the point, or use the news buttons, and read what each position means.
+
+<Graph model="ppc" caption="Points on the curve are efficient. Points inside are possible but waste resources. Points outside cannot be reached today." />
+
+Three kinds of points matter:
+
+- **On the curve**: the economy is productively efficient. To make more of one good it must make less of the other.
+- **Inside the curve**: some resources are idle or misused, as happens in a recession. The economy could produce more of both goods.
+- **Outside the curve**: unattainable with today's resources and technology.
+
+### Why the curve bows outward
+
+Resources are not equally good at making everything. A factory built for cars is poor at growing wheat. When an economy moves from making mostly capital goods toward consumer goods, it first shifts the resources best suited to consumer goods. As it keeps going, it has to use resources that are less suited, so each extra unit of consumer goods costs more capital goods than the last. This is the **law of increasing opportunity cost**, and it gives the PPC its bowed shape.
+
+If resources were equally suited to both goods, the opportunity cost would stay the same and the PPC would be a straight line. Switch the graph to "Constant" to see it.
+
+### What shifts the curve
+
+The whole curve shifts outward when an economy gets more or better resources, or better technology. That outward shift is **economic growth**. It shifts inward after a disaster, war, or loss of resources. Moving along the curve is not growth; it is a different choice with the same resources.
+
+The choice between the two goods also affects the future. An economy that makes more capital goods today gives up some consumption now, but it builds machines and tools that let the curve shift out faster later.
+
+<Callout kind="exam">
+Unemployment or a recession is shown as a point inside the PPC, not as an inward shift. The curve itself only moves when the economy's resources or technology change.
+</Callout>
+
+## Comparative advantage and trade
+
+A producer has an **absolute advantage** in a good if it can make more of it with the same resources. It has a <mark>comparative advantage</mark> if it can make the good at a lower opportunity cost. Trade depends on comparative advantage, not absolute advantage.
+
+Take two countries. The table shows how much one worker can produce in a day.
+
+<div class="table-scroll">
+
+| Output per worker per day | Wheat (tons) | Cloth (bolts) |
+| --- | --- | --- |
+| Country X | 60 | 20 |
+| Country Y | 30 | 15 |
+
+</div>
+
+Country X has an absolute advantage in both goods. Trade still helps both countries, because their opportunity costs are different:
+
+<div class="table-scroll">
+
+| Opportunity cost | 1 ton of wheat costs | 1 bolt of cloth costs |
+| --- | --- | --- |
+| Country X | 1/3 bolt of cloth | 3 tons of wheat |
+| Country Y | 1/2 bolt of cloth | 2 tons of wheat |
+
+</div>
+
+Country X gives up less cloth to make wheat (1/3 is less than 1/2), so it has the comparative advantage in wheat. Country Y gives up less wheat to make cloth (2 is less than 3), so it has the comparative advantage in cloth. If each **specializes** in its comparative advantage and they trade, both can consume combinations outside their own PPCs.
+
+The **terms of trade** must fall between the two countries' opportunity costs. Here, any price between 2 and 3 tons of wheat per bolt of cloth benefits both. At 2.5 tons per bolt, Country Y sells cloth for more wheat than it could make itself (2.5 instead of 2), and Country X buys cloth for less wheat than it would cost to make (2.5 instead of 3).
+
+<Callout kind="exam" title="Exam tip: output and input tables">
+When a table shows **output** (how much can be made), put the other good's number on top: the opportunity cost of cloth for X is 60 ÷ 20 = 3 wheat. When a table shows **input** (hours or workers needed per unit), flip it and put the other good's number on the bottom.
+</Callout>
+
+<Worked title="Finding comparative advantage from an input table" prompt="Ana needs 2 hours to bake a cake and 1 hour to knit a scarf. Ben needs 3 hours to bake a cake and 3 hours to knit a scarf. Who should bake, who should knit, and what price for a cake (in scarves) helps both?">
+  <Step n={1} title="Find each person's opportunity cost of a cake">
+    In an input table, divide by the other good's time. Ana: one cake takes 2 hours, which could have made 2 scarves, so a cake costs her 2 scarves. Ben: one cake takes 3 hours, which could have made 1 scarf, so a cake costs him 1 scarf.
+  </Step>
+  <Step n={2} title="Find each person's opportunity cost of a scarf">
+    Flip the numbers. A scarf costs Ana 1/2 cake. A scarf costs Ben 1 cake.
+  </Step>
+  <Step n={3} title="Assign comparative advantage">
+    Ben has the lower opportunity cost for cakes (1 scarf versus 2), so Ben should bake. Ana has the lower opportunity cost for scarves (1/2 cake versus 1), so Ana should knit. Notice that Ana is faster at both, which is absolute advantage, and it does not decide who does what.
+  </Step>
+  <Step n={4} title="Find terms of trade that help both">
+    The price of a cake must be between the two opportunity costs: more than 1 scarf, so Ben gains, and less than 2 scarves, so Ana gains. A price of 1.5 scarves per cake works.
+  </Step>
+</Worked>
+
+## Thinking at the margin
+
+Most real decisions are not all or nothing. They are about a little more or a little less: one more hour of study, one more worker, one more slice of pizza. Economists call this **marginal analysis**.
+
+The rule is simple. Keep doing something as long as the **marginal benefit** of one more unit is at least as large as its **marginal cost**. Stop when the next unit would cost more than it is worth.
+
+If the first slice of pizza is worth $5 to you, the second $3, and the third $1.50, and each slice costs $2, you should buy two. The third slice would give you $1.50 of benefit for $2 of cost.
+
+## The circular flow
+
+The **circular flow model** shows how money, goods, and resources move through an economy. Households own the factors of production and sell them to firms in **factor markets**, earning wages, rent, interest, and profit. Firms use those factors to make goods and services, which they sell to households in **product markets**. The money households earn from factor markets is the money they spend in product markets, so spending by one group is income for another. Macroeconomics adds government, banks, and other countries to this loop.

@@ -1,0 +1,17 @@
+---
+// A worked problem: the reader tries it first, then opens one step at a time.
+interface Props {
+  title: string;
+  prompt: string;
+}
+const { title, prompt } = Astro.props;
+---
+<section class="worked" aria-label={`Worked problem: ${title}`}>
+  <p class="eyebrow">Worked problem</p>
+  <p class="worked-title">{title}</p>
+  <p class="worked-prompt">{prompt}</p>
+  <p class="worked-hint">Try it on paper first, then open the steps one at a time.</p>
+  <div class="worked-steps">
+    <slot />
+  </div>
+</section>

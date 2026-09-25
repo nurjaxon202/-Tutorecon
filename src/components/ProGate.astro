@@ -1,0 +1,55 @@
+---
+// Shows its content only when Pro is on in this browser. The check runs in
+// <head> (see Base.astro) so there is no flash of the wrong state.
+import { url } from '../lib/url';
+
+interface Props {
+  feature: string;
+}
+const { feature } = Astro.props;
+---
+<div class="pro-locked panel" data-pro-locked>
+  <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8" /></svg>
+  <h2 class="h3">{feature} are part of Pro</h2>
+  <p class="muted">
+    Pro costs $5 a month once payments are switched on. For now the checkout is a demo that takes no payment, so you can
+    turn Pro on with a test card and try everything.
+  </p>
+  <div class="btn-row">
+    <a class="btn" href={url('/checkout/')}>Try the Pro checkout</a>
+    <a class="btn btn-secondary" href={url('/pricing/')}>Compare plans</a>
+  </div>
+</div>
+<div class="pro-unlocked" data-pro-unlocked>
+  <slot />
+</div>
+
+<style>
+  .pro-locked {
+    display: grid;
+    gap: 0.9rem;
+    justify-items: start;
+    padding: 1.75rem;
+    max-width: 640px;
+  }
+  .pro-locked p {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+  }
+  :global(:root[data-pro='on']) .pro-locked {
+    display: none;
+  }
+  :global(:root:not([data-pro='on'])) .pro-unlocked {
+    display: none;
+  }
+</style>
+
+<script>
+  import { store } from '../scripts/store';
+  const sync = () => {
+    if (store.isPro()) document.documentElement.dataset.pro = 'on';
+    else delete document.documentElement.dataset.pro;
+  };
+  window.addEventListener('tutorecon:change', sync);
+  sync();
+</script>

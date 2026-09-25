@@ -1,0 +1,108 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## Financial assets
+
+People hold wealth in different forms. Each form trades off three things: **liquidity** (how easily it can be used to buy things), **rate of return**, and **risk**.
+
+- **Money** is the most liquid asset but earns little or nothing.
+- **Stocks** are shares of ownership in a company. They can pay dividends and rise in value, but they can also fall.
+- **Bonds** are loans to a company or government. The borrower promises to pay interest and repay the amount borrowed on a set date.
+
+### Bond prices and interest rates move in opposite directions
+
+Say you own a bond that pays $50 a year and cost $1,000, a 5% return. Then interest rates rise and new bonds pay 10%. Nobody will pay $1,000 for your bond when a new $1,000 bond pays $100 a year. To sell it you have to cut the price until its $50 payment is a competitive return. So <mark>when interest rates rise, the prices of existing bonds fall</mark>, and when rates fall, bond prices rise.
+
+## What money is
+
+**Money** is anything widely accepted as payment. It has three functions:
+
+- **Medium of exchange**: you can trade it for goods, so you do not have to find someone who has what you want and wants what you have.
+- **Unit of account**: prices are measured in it, so you can compare values.
+- **Store of value**: it holds value over time, so you can save.
+
+The money supply is measured in groups. **M1** is the most liquid money: currency in circulation and checkable deposits. **M2** adds less liquid "near-monies" such as savings deposits, small time deposits, and money market funds. In 2020 the US Federal Reserve moved savings deposits into M1 in its official data, so if a question depends on the definition, use the one your course gives you.
+
+<Callout kind="mistake">
+Credit cards are not money. Using one creates a loan that you pay back later with money. Your checking account balance is money; your credit limit is not.
+</Callout>
+
+## How banks create money
+
+Banks keep only a fraction of deposits in reserve and lend out the rest. This is **fractional reserve banking**. When the borrower spends the loan, the money ends up deposited in another bank, which lends out part of it again. Each round adds new deposits, which is new money.
+
+- **Required reserves** = deposits × the reserve requirement.
+- **Excess reserves** = total reserves − required reserves. This is the amount a bank can lend.
+- The **money multiplier** = 1 ÷ reserve requirement. It gives the maximum total change in deposits from new excess reserves.
+
+<Worked title="Following a deposit through the banking system" prompt="Someone deposits $1,000 in cash into a bank. The reserve requirement is 10%. How much can this bank lend, and what is the maximum change in the money supply from loans?">
+  <Step n={1} title="Required and excess reserves">
+    Required reserves are 10% × $1,000 = $100. The other $900 is excess reserves, so the bank can lend up to $900.
+  </Step>
+  <Step n={2} title="The money multiplier">
+    1 ÷ 0.10 = 10.
+  </Step>
+  <Step n={3} title="Maximum change from new loans">
+    $900 × 10 = $9,000 of new money created through lending.
+  </Step>
+  <Step n={4} title="Why not $10,000?">
+    The original $1,000 was already money when it was cash. Depositing it only changed its form from currency to a checking balance, so it does not add to the money supply. If the Fed had instead bought a $1,000 bond from the bank, all $1,000 would be new excess reserves, and the maximum change would be $10,000.
+  </Step>
+</Worked>
+
+The real multiplier is smaller than this maximum, because people hold some cash and banks sometimes keep extra reserves.
+
+## The money market
+
+The **money market** shows how the nominal interest rate is set in the short run.
+
+- **Money demand** slopes down. The nominal interest rate is the opportunity cost of holding money instead of an interest-paying bond, so when rates are high people hold less money. Money demand shifts right when the price level or real GDP rises, because people need more money for transactions.
+- **Money supply** is vertical. It is set by the central bank and does not depend on the interest rate.
+
+<Graph model="money-market" caption="Drag the money supply line, or try the Fed's actions. A bigger money supply lowers the nominal interest rate." />
+
+## Monetary policy
+
+The **Federal Reserve** (the Fed) is the central bank of the United States. **Monetary policy** is its use of tools to change the money supply and interest rates.
+
+In a **limited-reserves** system, the tools are:
+
+- **Open market operations**: buying or selling government bonds. When the Fed buys bonds, it pays with new reserves, so the money supply grows. This is the tool AP questions use most.
+- **The discount rate**: the interest rate the Fed charges banks for short-term loans.
+- **The reserve requirement**: the share of deposits banks must hold.
+
+Today the Fed operates with **ample reserves**. Banks hold so many reserves that small changes in supply do not move rates, so the Fed steers short-term rates mainly by setting the **interest it pays on reserves**. Raising that rate makes banks less willing to lend at low rates, which pushes market rates up.
+
+<div class="table-scroll">
+
+| Goal | Expansionary (fight a recession) | Contractionary (fight inflation) |
+| --- | --- | --- |
+| Open market operations | Buy bonds | Sell bonds |
+| Discount rate | Lower it | Raise it |
+| Reserve requirement | Lower it | Raise it |
+| Interest on reserves | Lower it | Raise it |
+| Effect on interest rates | Fall | Rise |
+| Effect on AD | Shifts right | Shifts left |
+
+</div>
+
+<Callout kind="exam">
+Write monetary policy as a chain, and do not skip links: Fed buys bonds → money supply rises → nominal interest rate falls → investment and interest-sensitive consumption rise → AD shifts right → real GDP and the price level rise.
+</Callout>
+
+## The loanable funds market
+
+The **loanable funds market** brings together savers and borrowers, and it sets the **real** interest rate.
+
+- **Supply** comes from saving by households, firms, and governments running surpluses, and from foreign savers.
+- **Demand** comes from borrowing: mainly firms that want to invest, and governments that run deficits.
+
+<Graph model="loanable-funds" caption="When the government borrows more, it competes with private borrowers for the same funds." />
+
+When the government runs a deficit and borrows, demand for loanable funds rises and the real interest rate goes up. Higher rates discourage some private investment. That is **crowding out**, and it is one reason economists debate how much deficit spending actually adds to the economy over time.
+
+<Callout kind="mistake">
+The money market uses the **nominal** interest rate, and money supply is set by the central bank. The loanable funds market uses the **real** interest rate, and supply comes from saving. Use the market the question asks for, and label the axis correctly.
+</Callout>

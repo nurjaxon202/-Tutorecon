@@ -1,0 +1,91 @@
+---
+import type { Question } from '../data/questions';
+import { getUnit } from '../data/units';
+
+interface Props {
+  questions: Question[];
+  /** Where to save the score. Use a unit slug, or 'mixed'. */
+  saveAs: string;
+  title?: string;
+  intro?: string;
+  /** Show a random set of this many questions, with a course filter. */
+  sample?: number;
+  headingLevel?: 'h2' | 'h3';
+  /** Show "Question 1 of 6" labels. */
+  numbered?: boolean;
+}
+const {
+  questions,
+  saveAs,
+  title = 'Check your understanding',
+  intro = 'Pick an answer, then check it. Every choice has its own explanation, so a wrong answer still teaches you something.',
+  sample,
+  headingLevel = 'h2',
+  numbered = true,
+} = Astro.props;
+const Heading = headingLevel;
+const letters = ['A', 'B', 'C', 'D', 'E'];
+const data = Object.fromEntries(
+  questions.map((q) => [q.id, { answer: q.answer, why: q.options.map((o) => o.why), unit: q.unit }]),
+);
+const id = `quiz-${saveAs}`;
+---
+<section class="quiz" data-quiz data-save={saveAs} data-sample={sample} aria-labelledby={`${id}-title`}>
+  <div class="quiz-head">
+    <p class="eyebrow">Practice</p>
+    <Heading id={`${id}-title`} class="h2">{title}</Heading>
+    <p class="muted">{intro}</p>
+    <p class="quiz-best mono" data-best hidden></p>
+  </div>
+
+  {sample && (
+    <div class="quiz-filter">
+      <fieldset class="ctl-choice">
+        <legend>Questions from</legend>
+        <div class="seg">
+          <label><input type="radio" name={`${id}-course`} value="all" checked data-course /><span>All units</span></label>
+          <label><input type="radio" name={`${id}-course`} value="micro" data-course /><span>AP Micro</span></label>
+          <label><input type="radio" name={`${id}-course`} value="macro" data-course /><span>AP Macro</span></label>
+        </div>
+      </fieldset>
+      <button type="button" class="btn btn-secondary btn-small" data-new-set>New set of questions</button>
+    </div>
+  )}
+
+  <ol class="quiz-list">
+    {questions.map((q, i) => {
+      const unit = getUnit(q.unit);
+      return (
+        <li class="qcard" data-q={q.id} data-course={unit?.course}>
+          <fieldset>
+            <legend>
+              {numbered && <span class="q-n mono" data-qn>Question {i + 1} of {questions.length}</span>}
+              {sample && unit && <span class="q-unit mono">{unit.title}</span>}
+              <span class="q-prompt">{q.prompt}</span>
+            </legend>
+            <div class="q-options">
+              {q.options.map((o, j) => (
+                <label class="q-opt" data-opt={j}>
+                  <input type="radio" name={`${id}-${q.id}`} value={j} />
+                  <span class="q-letter mono" aria-hidden="true">{letters[j]}</span>
+                  <span class="q-text">{o.text}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <div class="q-actions">
+            <button type="button" class="btn btn-small" data-check>Check answer</button>
+          </div>
+          <div class="q-feedback" data-feedback aria-live="polite"></div>
+        </li>
+      );
+    })}
+  </ol>
+
+  <div class="quiz-score" data-score aria-live="polite" hidden></div>
+  <script type="application/json" data-quiz-data set:html={JSON.stringify(data)} />
+</section>
+
+<script>
+  import '../scripts/quiz';
+</script>

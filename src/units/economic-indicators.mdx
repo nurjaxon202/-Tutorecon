@@ -1,0 +1,120 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## Gross domestic product
+
+<mark>Gross domestic product</mark> (GDP) is the market value of all final goods and services produced within a country in a given period, usually a year or a quarter. Every word in that definition does work:
+
+- **Market value**: goods are counted at their prices, so apples and laptops can be added together.
+- **Final**: only goods sold to their end user count. The flour a bakery buys is an **intermediate good**; counting it and the bread would count the flour twice.
+- **Produced**: only new production counts. Selling a used car or a house built ten years ago adds nothing to this year's GDP. The dealer's fee does count, because it is a service provided this year.
+- **Within a country**: a Toyota plant in Kentucky adds to US GDP, even though the company is Japanese.
+
+GDP does **not** include:
+
+- **Financial transactions** such as buying stocks or bonds. They move ownership around; nothing new is made.
+- **Transfer payments** such as Social Security or unemployment benefits. Government sends money, but receives no good or service in return.
+- **Non-market work** such as cooking at home or volunteering.
+- **The underground economy**: illegal or unreported activity.
+
+### The expenditure approach
+
+Everything produced is bought by someone. Adding up spending by the four groups of buyers gives GDP:
+
+<div class="formula">GDP = C + I + G + (X − M)</div>
+
+- **C, consumption**: household spending on goods and services. The largest part of US GDP.
+- **I, gross private investment**: business spending on machines and buildings, all new home construction, and changes in business inventories. In macroeconomics, "investment" never means buying stocks.
+- **G, government purchases**: goods and services bought by all levels of government. Transfer payments are not included.
+- **X − M, net exports**: exports minus imports. Imports are subtracted because they were counted in C, I, or G but not produced here.
+
+Because every dollar spent is a dollar of someone's income, GDP can also be measured by adding up incomes (the **income approach**): wages, rent, interest, and profit.
+
+<Worked title="Calculating GDP from a list" prompt="An economy has consumption of $800 billion, investment of $200 billion, government purchases of $300 billion, transfer payments of $150 billion, exports of $120 billion, and imports of $170 billion. Purchases of stocks total $90 billion. What is GDP?">
+  <Step n={1} title="Drop what does not belong">
+    Transfer payments ($150B) and stock purchases ($90B) are not purchases of newly produced goods or services. Leave them out.
+  </Step>
+  <Step n={2} title="Find net exports">
+    X − M = $120B − $170B = −$50B.
+  </Step>
+  <Step n={3} title="Add it up">
+    GDP = $800B + $200B + $300B − $50B = $1,250 billion.
+  </Step>
+</Worked>
+
+## Real and nominal GDP
+
+**Nominal GDP** is measured at current prices. It can rise because the economy made more, or just because prices went up. **Real GDP** is measured at the prices of a fixed **base year**, so it only changes when output changes. Real GDP is the measure economists use to track growth.
+
+The **GDP deflator** is a price index that compares the two:
+
+<div class="formula">GDP deflator = (nominal GDP ÷ real GDP) × 100<br />Real GDP = (nominal GDP ÷ GDP deflator) × 100</div>
+
+If nominal GDP is $22 trillion and the deflator is 110, real GDP is $22 ÷ 110 × 100 = $20 trillion in base-year dollars.
+
+**Real GDP per capita**, real GDP divided by population, is a rough measure of living standards. It misses a lot: leisure time, the quality of the environment, how income is shared, and unpaid work at home.
+
+## Unemployment
+
+To be counted as **unemployed**, a person must be 16 or older, not have a job, and have actively looked for work in the past four weeks. The **labor force** is everyone who is employed or unemployed. People who are not working and not looking, such as full-time students, retirees, and stay-at-home parents, are **not in the labor force**.
+
+<div class="formula">Unemployment rate = (unemployed ÷ labor force) × 100<br />Labor force participation rate = (labor force ÷ adult population) × 100</div>
+
+<Worked title="Unemployment and participation rates" prompt="A country has an adult population of 250 million. 150 million are employed, 10 million are unemployed, and the rest are not in the labor force. Find the unemployment rate and labor force participation rate.">
+  <Step n={1} title="Find the labor force">
+    Labor force = employed + unemployed = 150 + 10 = 160 million.
+  </Step>
+  <Step n={2} title="Unemployment rate">
+    10 ÷ 160 × 100 = 6.25%.
+  </Step>
+  <Step n={3} title="Labor force participation rate">
+    160 ÷ 250 × 100 = 64%.
+  </Step>
+</Worked>
+
+<Callout kind="mistake">
+**Discouraged workers**, who want a job but have stopped looking, are not counted as unemployed. They are outside the labor force. So the official rate can understate how hard it is to find work. It also counts part-time workers who want full-time jobs as employed.
+</Callout>
+
+### Three types of unemployment
+
+- **Frictional**: people between jobs or just entering the workforce, taking time to find a good match. Always present, and partly healthy.
+- **Structural**: a mismatch between workers' skills or locations and the jobs available, often caused by technology or shifts in what the economy makes. Travel agents replaced by booking websites are an example.
+- **Cyclical**: caused by a downturn in the business cycle, when spending falls and firms cut jobs.
+
+The <mark>natural rate of unemployment</mark> is frictional plus structural unemployment. When cyclical unemployment is zero, the economy is at **full employment**, even though the unemployment rate is not zero.
+
+## Inflation
+
+**Inflation** is a rise in the general price level. **Deflation** is a fall in the general price level. **Disinflation** means inflation is still positive but slowing down, for example from 6% to 3%.
+
+The **consumer price index** (CPI) tracks the cost of a fixed basket of goods and services a typical household buys:
+
+<div class="formula">CPI = (cost of basket in current year ÷ cost of basket in base year) × 100<br />Inflation rate = ((CPI this year − CPI last year) ÷ CPI last year) × 100</div>
+
+If the basket cost $200 in the base year and $210 this year, CPI is 105 and prices have risen 5%.
+
+The CPI tends to overstate inflation somewhat. It does not fully capture people switching to cheaper substitutes, improvements in quality, or new products.
+
+### Who wins and who loses from unexpected inflation
+
+When inflation is higher than people expected:
+
+- **Lenders and savers lose**, because they are repaid in money that buys less.
+- **Borrowers with fixed interest rates gain**, for the same reason.
+- **People on fixed incomes** lose purchasing power.
+
+The **real interest rate** takes inflation out of the nominal rate:
+
+<div class="formula">Real interest rate = nominal interest rate − inflation rate</div>
+
+If a bank loan charges 7% and inflation turns out to be 4%, the lender's real return is only 3%.
+
+## The business cycle
+
+Real GDP does not grow smoothly. It moves through a **business cycle**: an **expansion** in which output and employment rise, a **peak**, a **contraction** (a recession if it is long and deep enough) in which output falls and unemployment rises, and a **trough**, before the next expansion. Over decades, the cycle moves around a rising long-run trend line that shows the economy's growing capacity.
+
+<Callout kind="exam">
+Expect to link the indicators together. During a recession, real GDP falls, cyclical unemployment rises, and inflation usually slows. During a boom above full employment, unemployment falls below its natural rate and inflation tends to rise.
+</Callout>

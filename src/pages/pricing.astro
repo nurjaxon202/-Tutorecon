@@ -1,0 +1,224 @@
+---
+import Base from '../layouts/Base.astro';
+import { units } from '../data/units';
+import { questions } from '../data/questions';
+import { url } from '../lib/url';
+import { site } from '../site';
+
+const free = [
+  `All ${units.length} units for AP Micro and AP Macro`,
+  'Every interactive graph and worked problem',
+  `All ${questions.length} practice questions with explanations`,
+  'The glossary and the graph lab',
+  'Progress saved in your browser, no account needed',
+];
+const pro = [
+  'Everything in Free',
+  'Timed mock exams with a score for each unit',
+  'Printable one-page review sheets for every unit',
+  'A history of your mock exam scores',
+];
+---
+<Base title="Pricing" description="TutorEcon is free to learn from. Pro adds timed mock exams and printable review sheets for $5 a month.">
+  <header class="wrap page-head">
+    <p class="eyebrow">Pricing</p>
+    <h1 class="page-title">Free to learn. Pro for exam prep.</h1>
+    <p class="lede">Nothing in the lessons is locked. Pro is for the weeks before a test, when you want timed practice and something to print.</p>
+  </header>
+
+  <div class="wrap">
+    <div class="notice notice-demo" role="note">
+      <strong>Payments are not switched on.</strong>
+      <span>The Pro checkout is a working demo. It only accepts a test card, never charges anyone, and keeps nothing you type.</span>
+    </div>
+
+    <div class="plans">
+      <section class="plan" aria-labelledby="plan-free">
+        <h2 id="plan-free" class="plan-name">Free</h2>
+        <p class="plan-price"><span class="amount">$0</span></p>
+        <p class="plan-for">For learning each unit and practicing as you go.</p>
+        <ul class="plan-list">
+          {free.map((f) => (
+            <li>
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+        <a class="btn btn-secondary" href={url('/learn/')}>Start learning</a>
+      </section>
+
+      <section class="plan plan-pro" aria-labelledby="plan-pro">
+        <div class="plan-top">
+          <h2 id="plan-pro" class="plan-name">Pro</h2>
+          <span class="tag">Demo checkout</span>
+        </div>
+        <p class="plan-price"><span class="amount">${site.pro.price}</span><span class="per">per month</span></p>
+        <p class="plan-for">For the run-up to the AP exam or a unit test.</p>
+        <ul class="plan-list">
+          {pro.map((f) => (
+            <li>
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+        <a class="btn" href={url('/checkout/')} data-pro-cta>Try the Pro checkout</a>
+        <p class="plan-note" data-pro-note hidden>Pro is already on in this browser. <a href={url('/account/')}>Manage it</a>.</p>
+      </section>
+    </div>
+
+    <section class="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title" class="h2">Questions about Pro</h2>
+      <div class="faq-list">
+        <details>
+          <summary>Will I be charged anything?</summary>
+          <p>No. Payments are not switched on, and the checkout only accepts Stripe's public test card numbers. Real card numbers are rejected before anything happens.</p>
+        </details>
+        <details>
+          <summary>Where is my Pro status kept?</summary>
+          <p>Only in this browser's local storage, the same place your progress is saved. TutorEcon has no server and no accounts, so Pro does not follow you to another device.</p>
+        </details>
+        <details>
+          <summary>How do I cancel?</summary>
+          <p>Go to <a href={url('/account/')}>Your data and settings</a> and choose "Cancel Pro". Clearing your browser's site data also removes it.</p>
+        </details>
+        <details>
+          <summary>What happens if real payments are switched on?</summary>
+          <p>The pricing, terms, and refund policy will be updated first, and the checkout will be handled by a payment provider so that card details never touch this site.</p>
+        </details>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import { store } from '../scripts/store';
+  if (store.isPro()) {
+    document.querySelector<HTMLElement>('[data-pro-note]')!.hidden = false;
+    const cta = document.querySelector<HTMLAnchorElement>('[data-pro-cta]');
+    if (cta) cta.hidden = true;
+  }
+</script>
+
+<style>
+  .page-head {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    padding-bottom: 2rem;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .lede {
+    max-width: 52ch;
+  }
+  .plans {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 820px) {
+    .plans {
+      grid-template-columns: 1fr 1fr;
+      max-width: 980px;
+    }
+  }
+  .plan {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    justify-items: start;
+    padding: 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    background: var(--paper-raised);
+  }
+  .plan-pro {
+    border: 1.5px solid var(--ink);
+    box-shadow: var(--shadow);
+  }
+  .plan-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+  }
+  .plan-name {
+    font-weight: 780;
+    font-stretch: 115%;
+    font-variation-settings: 'wdth' 115;
+    font-size: 1.5rem;
+  }
+  .plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .amount {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 120%;
+    font-variation-settings: 'wdth' 120;
+    font-size: 3rem;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .per {
+    color: var(--ink-2);
+  }
+  .plan-for {
+    color: var(--ink-2);
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+  }
+  .plan-list {
+    list-style: none;
+    margin: 0.25rem 0 0.5rem;
+    padding: 0;
+    display: grid;
+    gap: 0.55rem;
+    width: 100%;
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+  }
+  .plan-list li {
+    display: grid;
+    grid-template-columns: 16px 1fr;
+    gap: 0.6rem;
+    align-items: start;
+  }
+  .plan-list svg {
+    margin-top: 0.2rem;
+    color: var(--good);
+  }
+  .plan-note {
+    font-size: 0.95rem;
+    color: var(--good);
+    font-weight: 600;
+  }
+  .faq {
+    max-width: 760px;
+    padding-block: 4rem 5rem;
+  }
+  .faq-list {
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  .faq details {
+    border-bottom: 1px solid var(--rule);
+  }
+  .faq summary {
+    cursor: pointer;
+    padding: 1rem 0;
+    font-weight: 650;
+    font-size: 1.05rem;
+    min-height: 44px;
+  }
+  .faq details p {
+    padding-bottom: 1rem;
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    color: var(--ink-2);
+    max-width: 62ch;
+  }
+</style>
