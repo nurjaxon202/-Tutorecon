@@ -4,18 +4,18 @@ import GraphThumb from '../components/GraphThumb.astro';
 import { url } from '../lib/url';
 ---
 <Base title="Page not found" noindex>
-  <section class="nf on-board">
+  <section class="nf">
     <div class="wrap nf-grid">
       <div class="nf-copy">
         <p class="eyebrow">Error 404</p>
         <h1 class="page-title">This page is off the curve.</h1>
         <p class="lede">The link may be old, or the address may have a typo. Try one of these instead.</p>
         <div class="btn-row">
-          <a class="btn" href={url('/learn/')}>See all units</a>
-          <a class="btn btn-secondary" href={url('/')}>Go to the home page</a>
+          <a class="btn btn-big" href={url('/learn/')}>See all units</a>
+          <a class="btn btn-secondary btn-big" href={url('/')}>Go to the home page</a>
         </div>
       </div>
-      <div class="nf-art" aria-hidden="true">
+      <div class="nf-art card" aria-hidden="true">
         <GraphThumb model="ppc" state={{ x: 118, y: 96 }} width={380} height={300} />
       </div>
     </div>
@@ -24,11 +24,10 @@ import { url } from '../lib/url';
 
 <style>
   .nf {
-    padding-block: clamp(3rem, 2rem + 6vw, 8rem);
-    background-image:
-      linear-gradient(rgba(243, 246, 240, 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(243, 246, 240, 0.045) 1px, transparent 1px);
-    background-size: 30px 30px;
+    padding-block: clamp(3rem, 2rem + 6vw, 7rem);
+    background:
+      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--brand) 16%, transparent) 1px, transparent 0) 0 0 / 22px 22px,
+      linear-gradient(180deg, var(--brand-tint), var(--bg));
   }
   .nf-grid {
     display: grid;
@@ -45,12 +44,8 @@ import { url } from '../lib/url';
     gap: 1.1rem;
     justify-items: start;
   }
-  .nf-copy .eyebrow,
-  .nf-copy .lede {
-    color: var(--chalk-2);
-  }
-  .nf-art :global(.g-grid),
-  .nf-art :global(.g-grid-major) {
-    display: none;
+  .nf-art {
+    padding: 1.25rem;
+    box-shadow: 0 5px 0 var(--line), var(--shadow-lg);
   }
 </style>

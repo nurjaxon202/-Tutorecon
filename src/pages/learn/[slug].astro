@@ -2,10 +2,11 @@
 import Base from '../../layouts/Base.astro';
 import Quiz from '../../components/Quiz.astro';
 import GraphThumb from '../../components/GraphThumb.astro';
-import { units, unitLabel } from '../../data/units';
+import { units, unitLabel, courseName } from '../../data/units';
 import { questionsFor } from '../../data/questions';
 import { termsFor, termSlug } from '../../data/glossary';
 import { unitThumb } from '../../data/thumbs';
+import { shortTitle } from '../../data/short';
 import { lesson } from '../../lib/lessons';
 import { url } from '../../lib/url';
 
@@ -25,97 +26,110 @@ const thumb = unitThumb[slug!];
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 ---
 <Base title={unit.title} description={unit.summary}>
-  <section class="lesson-hero on-board">
+  <section class:list={['lesson-hero', `course-${unit.course}`]}>
     <div class="wrap hero-grid">
       <div class="hero-text">
         <nav class="crumbs" aria-label="Breadcrumb">
           <a href={url('/learn/')}>All units</a>
-          <span aria-hidden="true">/</span>
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
           <span aria-current="page">{unitLabel(unit)}</span>
         </nav>
         <div class="title-row">
-          <span class="hero-n" aria-hidden="true">{unit.apUnit}</span>
-          <h1 class="page-title">{unit.title}</h1>
+          <span class="unit-badge" aria-hidden="true">{unit.apUnit}</span>
+          <div>
+            <p class="course">{courseName[unit.course]}</p>
+            <h1 class="page-title">{unit.title}</h1>
+          </div>
         </div>
         <p class="lede">{unit.summary}</p>
-        <ul class="meta mono">
-          <li>About {minutes} min</li>
+        <ul class="meta">
+          <li><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2" /><path d="M10 5.5V10l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>{minutes} min</li>
+          <li>{plural(headings.length, 'step')}</li>
           {graphs.length > 0 && <li>{plural(graphs.length, 'live graph')}</li>}
           {worked > 0 && <li>{plural(worked, 'worked problem')}</li>}
           <li>{plural(qs.length, 'question')}</li>
         </ul>
+        <div class="btn-row">
+          <a class="btn btn-big" href="#lesson" data-start>Start lesson <span class="arrow" aria-hidden="true">&rarr;</span></a>
+        </div>
       </div>
       <div class="hero-art" aria-hidden="true">
-        <GraphThumb model={thumb.model} state={thumb.state} width={420} height={290} />
+        <GraphThumb model={thumb.model} state={thumb.state} width={440} height={300} />
       </div>
     </div>
   </section>
 
-  <div class="unit-bar">
+  <div class="lesson-bar">
     <div class="wrap bar-inner">
-      <p class="bar-unit mono">{unitLabel(unit)}</p>
-      <details class="bar-toc" data-toc>
-        <summary>
-          <span class="visually-hidden">Jump to a section. Current section: </span>
-          <span data-current>{headings[0]?.text ?? 'Sections'}</span>
-          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        </summary>
-        <ol>
-          {headings.map((h) => <li><a href={`#${h.slug}`} data-toc-link>{h.text}</a></li>)}
-          <li><a href="#key-terms" data-toc-link>Key terms</a></li>
-          <li><a href="#practice" data-toc-link>Practice questions</a></li>
-        </ol>
-      </details>
-      <div class="bar-end">
-        <span class="bar-status mono" data-status></span>
-        <a class="btn btn-small" href="#practice">Practice</a>
+      <p class="bar-unit"><span class="bar-n">{unit.apUnit}</span><span class="bar-name">{shortTitle[unit.slug]}</span></p>
+      <div class="bar-track" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax={headings.length} aria-valuenow="0" data-progress-wrap>
+        <span data-progress></span>
       </div>
+      <p class="bar-count" data-count>0 of {headings.length}</p>
+      <details class="bar-toc" data-toc>
+        <summary aria-label="Jump to a section">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
+          <span class="toc-label">Sections</span>
+        </summary>
+        <div class="toc-panel">
+          <ol>
+            {headings.map((h, n) => <li><a href={`#${h.slug}`} data-toc-link data-step-index={n}><span>{n + 1}</span>{h.text}</a></li>)}
+            <li><a href="#unit-check" data-toc-link data-step-index={headings.length}><span>&check;</span>Unit check</a></li>
+          </ol>
+          <button type="button" class="btn btn-secondary btn-small" data-mode-toggle>Show the whole lesson</button>
+        </div>
+      </details>
     </div>
-    <div class="bar-progress" aria-hidden="true"><span data-progress></span></div>
   </div>
 
   <div class="wrap">
-    <article class="lesson" style={`--unit-n: '${unit.apUnit}'`}>
-      <div class="prose lesson-prose">
+    <article class="lesson" id="lesson" style={`--unit-n: '${unit.apUnit}'`} data-lesson={slug} data-steps={headings.length}>
+      <div class="prose lesson-prose" data-prose>
         <Content />
       </div>
 
-      <section id="key-terms" class="terms" aria-labelledby="key-terms-title">
-        <p class="eyebrow">Unit {unit.apUnit} vocabulary</p>
-        <h2 id="key-terms-title" class="h2">Key terms</h2>
-        <dl>
-          {terms.map((t) => (
-            <div class="term" id={`term-${termSlug(t.term)}`}>
-              <dt>{t.term}</dt>
-              <dd>{t.def}</dd>
-            </div>
-          ))}
-        </dl>
-        <p class="muted small">Every term from every unit is in the <a href={url('/glossary/')}>glossary</a>.</p>
-      </section>
+      <div class="unit-check" id="unit-check" data-unit-check>
+        <section id="key-terms" class="terms" aria-labelledby="key-terms-title">
+          <p class="eyebrow">Unit {unit.apUnit} vocabulary</p>
+          <h2 id="key-terms-title" class="h2" tabindex="-1">Key terms</h2>
+          <dl>
+            {terms.map((t) => (
+              <div class="term" id={`term-${termSlug(t.term)}`}>
+                <dt>{t.term}</dt>
+                <dd>{t.def}</dd>
+              </div>
+            ))}
+          </dl>
+          <p class="muted small">Every term from every unit is in the <a href={url('/glossary/')}>glossary</a>.</p>
+        </section>
 
-      <div id="practice" class="practice">
-        <Quiz questions={qs} saveAs={slug!} />
-      </div>
-
-      <div class="done-row panel">
-        <div>
-          <p class="done-title">Finished this unit?</p>
-          <p class="muted small">Progress is saved in this browser only. <a href={url('/account/')}>Manage your data</a>.</p>
+        <div id="practice" class="practice">
+          <Quiz
+            questions={qs}
+            saveAs={slug!}
+            unitCheck
+            eyebrow="Unit check"
+            title="Show what you know"
+            intro={`Answer ${qs.length === 1 ? 'the question' : `all ${qs.length} questions`} to finish the unit. Every choice has its own explanation, and each first correct answer earns 10 XP.`}
+          />
         </div>
-        <button type="button" class="btn" data-done aria-pressed="false">Mark this unit as done</button>
+
+        <div class="done-row">
+          <p class="muted small">Progress is saved in this browser only. <a href={url('/account/')}>Manage your data</a>.</p>
+          <button type="button" class="btn btn-secondary btn-small" data-done aria-pressed="false">Mark this unit as done</button>
+        </div>
       </div>
 
       <nav class="pager" aria-label="Units">
         {prev ? (
           <a class="pager-link" href={url(`/learn/${prev.slug}/`)}>
-            <span class="eyebrow">&larr; Previous · {unitLabel(prev)}</span>
+            <span class="pager-dir">&larr; Previous</span>
             <span class="pager-title">{prev.title}</span>
           </a>
         ) : <span />}
         {next && (
-          <a class="pager-link pager-next on-board" href={url(`/learn/${next.slug}/`)}>
-            <span class="eyebrow">Next · {unitLabel(next)} &rarr;</span>
+          <a class="pager-link pager-next" href={url(`/learn/${next.slug}/`)}>
+            <span class="pager-dir">Next unit &rarr;</span>
             <span class="pager-title">{next.title}</span>
           </a>
         )}
@@ -125,24 +139,154 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 </Base>
 
 <script>
-  import { store } from '../../scripts/store';
+  import { store, LESSON_MODE_KEY } from '../../scripts/store';
 
-  const slug = location.pathname.split('/').filter(Boolean).pop() ?? '';
+  const article = document.querySelector<HTMLElement>('[data-lesson]')!;
+  const slug = article.dataset.lesson!;
+  const total = Number(article.dataset.steps);
+  const prose = document.querySelector<HTMLElement>('[data-prose]')!;
+  const check = document.querySelector<HTMLElement>('[data-unit-check]')!;
+  const bar = document.querySelector<HTMLElement>('[data-progress]')!;
+  const barWrap = document.querySelector<HTMLElement>('[data-progress-wrap]')!;
+  const count = document.querySelector<HTMLElement>('[data-count]')!;
+  const toc = document.querySelector<HTMLDetailsElement>('[data-toc]');
+  const modeBtn = document.querySelector<HTMLButtonElement>('[data-mode-toggle]')!;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Group the lesson into steps, one per section heading.
+  const steps: HTMLElement[] = [];
+  let current: HTMLElement | null = null;
+  for (const node of Array.from(prose.childNodes)) {
+    if (node instanceof HTMLElement && node.tagName === 'H2') {
+      current = document.createElement('section');
+      current.className = 'lstep';
+      current.dataset.step = String(steps.length);
+      steps.push(current);
+      prose.appendChild(current);
+    }
+    if (current) current.appendChild(node);
+  }
+
+  // A Continue button at the end of each step.
+  steps.forEach((step, n) => {
+    const nextTitle = n + 1 < steps.length ? steps[n + 1].querySelector('h2')?.textContent : 'Unit check';
+    const wrap = document.createElement('div');
+    wrap.className = 'lstep-next';
+    wrap.innerHTML = `<button type="button" class="btn btn-big">Continue</button><p>Next: ${nextTitle ?? ''}</p>`;
+    wrap.querySelector('button')!.addEventListener('click', () => reveal(n + 1, true));
+    step.appendChild(wrap);
+    step.querySelector('h2')?.setAttribute('tabindex', '-1');
+  });
+
+  let mode = (() => {
+    try {
+      return localStorage.getItem(LESSON_MODE_KEY) === 'all' ? 'all' : 'steps';
+    } catch {
+      return 'steps';
+    }
+  })();
+  let shown = Math.min(store.getStep(slug), total);
+
+  const paint = () => {
+    const all = mode === 'all';
+    article.classList.toggle('mode-all', all);
+    steps.forEach((s, n) => {
+      s.hidden = !all && n > shown;
+      s.classList.toggle('is-current', !all && n === shown);
+    });
+    check.hidden = !all && shown < total;
+    const done = all ? total : Math.min(shown, total);
+    bar.style.transform = `scaleX(${total ? done / total : 1})`;
+    barWrap.setAttribute('aria-valuenow', String(done));
+    count.textContent = `${done} of ${total}`;
+    modeBtn.textContent = all ? 'Go step by step' : 'Show the whole lesson';
+    document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]').forEach((a) => {
+      const idx = Number(a.dataset.stepIndex);
+      a.classList.toggle('is-done', idx < done);
+      a.classList.toggle('is-locked', !all && idx > shown);
+    });
+  };
+
+  const reveal = (n: number, focus: boolean) => {
+    shown = Math.max(shown, Math.min(n, total));
+    store.setStep(slug, shown);
+    paint();
+    const target = n >= total ? check : steps[n];
+    if (focus && target) {
+      const heading = target.querySelector<HTMLElement>('h2') ?? target;
+      heading.scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'start' });
+      heading.focus({ preventScroll: true });
+    }
+  };
+
+  modeBtn.addEventListener('click', () => {
+    mode = mode === 'all' ? 'steps' : 'all';
+    try {
+      localStorage.setItem(LESSON_MODE_KEY, mode);
+    } catch {
+      /* the choice lasts for this visit */
+    }
+    paint();
+    if (toc) toc.open = false;
+  });
+
+  // Jumping to a section from the menu reveals everything up to it.
+  document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      const idx = Number(a.dataset.stepIndex);
+      if (mode === 'steps' && idx > shown) {
+        e.preventDefault();
+        reveal(idx, true);
+      }
+      if (toc) toc.open = false;
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (toc?.open && !toc.contains(e.target as Node)) toc.open = false;
+  });
+
+  // A link to a later section (like #practice) opens the lesson up to it.
+  const openFromHash = () => {
+    const id = location.hash.slice(1);
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (check.contains(el)) reveal(total, false);
+    else {
+      const step = el.closest<HTMLElement>('.lstep');
+      if (step) reveal(Number(step.dataset.step), false);
+    }
+    el.scrollIntoView();
+  };
+  window.addEventListener('hashchange', openFromHash);
+
+  document.querySelector('[data-start]')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const behavior: ScrollBehavior = reduce.matches ? 'auto' : 'smooth';
+    if (shown === 0) {
+      // Line the progress bar up under the site header, with the first step right below it.
+      const header = document.querySelector<HTMLElement>('.site-header')?.offsetHeight ?? 0;
+      const barHeight = document.querySelector<HTMLElement>('.lesson-bar')?.offsetHeight ?? 0;
+      window.scrollTo({ top: article.getBoundingClientRect().top + window.scrollY - header - barHeight, behavior });
+      steps[0]?.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
+      return;
+    }
+    const step = shown >= total ? check : steps[shown];
+    const target = step?.querySelector<HTMLElement>('h2') ?? article;
+    target.scrollIntoView({ behavior, block: 'start' });
+  });
+
+  paint();
+  openFromHash();
+
+  // Done button
   const btn = document.querySelector<HTMLButtonElement>('[data-done]');
-  const status = document.querySelector<HTMLElement>('[data-status]');
-
   const sync = () => {
     const done = store.isDone(slug);
     if (btn) {
       btn.setAttribute('aria-pressed', String(done));
       btn.textContent = done ? 'Done. Mark as not done' : 'Mark this unit as done';
-      btn.classList.toggle('btn-secondary', done);
     }
-    const quiz = store.get().quiz[slug];
-    const bits = [];
-    if (done) bits.push('Done');
-    if (quiz) bits.push(`Best ${quiz.best}/${quiz.total}`);
-    if (status) status.textContent = bits.join(' · ');
   };
   btn?.addEventListener('click', () => {
     store.setDone(slug, !store.isDone(slug));
@@ -159,68 +303,29 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
       b.closest('.sn')?.classList.toggle('is-open', !open);
     });
   });
-
-  // Reading progress along the bottom of the unit bar.
-  const bar = document.querySelector<HTMLElement>('[data-progress]');
-  const article = document.querySelector<HTMLElement>('.lesson');
-  let ticking = false;
-  const progress = () => {
-    ticking = false;
-    if (!bar || !article) return;
-    const r = article.getBoundingClientRect();
-    const total = r.height - window.innerHeight;
-    const p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 1;
-    bar.style.transform = `scaleX(${p})`;
-  };
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(progress);
-      }
-    },
-    { passive: true },
-  );
-  progress();
-
-  // Section menu: show where the reader is, close after a jump.
-  const toc = document.querySelector<HTMLDetailsElement>('[data-toc]');
-  const current = document.querySelector<HTMLElement>('[data-current]');
-  const links = new Map<string, HTMLAnchorElement>();
-  document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]').forEach((a) => {
-    links.set(a.hash.slice(1), a);
-    a.addEventListener('click', () => {
-      if (toc) toc.open = false;
-    });
-  });
-  const targets = [...links.keys()].map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        links.forEach((a) => a.removeAttribute('aria-current'));
-        const a = links.get(e.target.id);
-        a?.setAttribute('aria-current', 'true');
-        if (a && current) current.textContent = a.textContent;
-      }
-    },
-    { rootMargin: '-80px 0px -70% 0px' },
-  );
-  targets.forEach((t) => observer.observe(t));
-  document.addEventListener('click', (e) => {
-    if (toc?.open && !toc.contains(e.target as Node)) toc.open = false;
-  });
 </script>
 
 <style>
   /* Hero */
   .lesson-hero {
+    --accent: var(--brand-fill);
+    --accent-lip: var(--brand-fill-lip);
+    --accent-ink: #fff;
     padding-block: clamp(2rem, 1.5rem + 3vw, 4rem);
-    background-image:
-      linear-gradient(rgba(243, 246, 240, 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(243, 246, 240, 0.045) 1px, transparent 1px);
-    background-size: 30px 30px;
+    background:
+      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--accent) 16%, transparent) 1px, transparent 0) 0 0 / 22px 22px,
+      linear-gradient(180deg, color-mix(in srgb, var(--accent) 9%, var(--bg)), var(--bg));
+    border-bottom: 2px solid var(--line);
+  }
+  .course-micro {
+    --accent: var(--orange);
+    --accent-lip: var(--orange-lip);
+    --accent-ink: #0b1220;
+  }
+  .course-both {
+    --accent: var(--sun);
+    --accent-lip: var(--sun-lip);
+    --accent-ink: #0b1220;
   }
   .hero-grid {
     display: grid;
@@ -229,45 +334,57 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   }
   @media (min-width: 1000px) {
     .hero-grid {
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
       gap: 4rem;
     }
   }
   .hero-text {
     display: grid;
-    gap: 1rem;
+    gap: 1.1rem;
+    justify-items: start;
   }
   .crumbs {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--chalk-2);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ink-3);
   }
   .crumbs a {
-    color: var(--chalk);
+    color: var(--brand);
+    text-decoration: none;
   }
   .title-row {
     display: flex;
-    align-items: flex-start;
-    gap: clamp(0.9rem, 0.5rem + 1.5vw, 1.6rem);
+    align-items: center;
+    gap: clamp(0.9rem, 0.5rem + 1.5vw, 1.4rem);
   }
-  .hero-n {
+  .unit-badge {
     flex: none;
+    display: grid;
+    place-items: center;
+    width: clamp(64px, 50px + 3vw, 86px);
+    height: clamp(64px, 50px + 3vw, 86px);
+    border-radius: 22px;
+    background: var(--accent);
+    color: var(--accent-ink);
     font-family: var(--font-display);
-    font-size: clamp(4rem, 2.5rem + 6vw, 7.5rem);
-    line-height: 0.82;
-    color: var(--hl);
+    font-weight: 800;
+    font-size: clamp(2rem, 1.5rem + 1.5vw, 2.8rem);
+    box-shadow: 0 6px 0 var(--accent-lip);
   }
-  .title-row .page-title {
-    padding-top: 0.2em;
+  .course {
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 0.25rem;
   }
   .lede {
-    color: var(--chalk-2);
-    max-width: 52ch;
+    max-width: 54ch;
   }
   .meta {
     display: flex;
@@ -275,14 +392,19 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     gap: 0.5rem;
     list-style: none;
     padding: 0;
-    margin: 0.3rem 0 0;
-    font-size: 0.78rem;
+    margin: 0;
   }
   .meta li {
-    padding: 0.25rem 0.6rem;
-    border: 1px solid rgba(243, 246, 240, 0.25);
-    border-radius: 5px;
-    color: var(--chalk-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 10px;
+    background: var(--card);
+    border: 2px solid var(--line);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink-2);
   }
   .hero-art {
     display: none;
@@ -292,8 +414,9 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
       display: block;
       padding: 1.2rem;
       border-radius: var(--radius-lg);
-      background: var(--board-deep);
-      border: 1px solid rgba(243, 246, 240, 0.14);
+      background: var(--card);
+      border: 2px solid var(--line);
+      box-shadow: var(--shadow-lg);
     }
   }
   .hero-art :global(.g-grid),
@@ -301,120 +424,138 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     display: none;
   }
 
-  /* Sticky unit bar */
-  .unit-bar {
+  /* Sticky lesson bar, under the site header */
+  .lesson-bar {
     position: sticky;
-    top: 0;
-    z-index: 25;
-    background: color-mix(in srgb, var(--paper) 94%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--rule);
+    top: 72px;
+    z-index: 30;
+    background: var(--bg);
+    border-bottom: 2px solid var(--line);
   }
   .bar-inner {
     display: flex;
     align-items: center;
     gap: 1rem;
-    min-height: 58px;
+    min-height: 62px;
   }
   .bar-unit {
-    font-size: 0.76rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--ink-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .bar-n {
+    display: inline-grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 9px;
+    background: var(--brand-fill);
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  .bar-track {
+    flex: 1;
+    height: 16px;
+    border-radius: 8px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .bar-track span {
+    display: block;
+    height: 100%;
+    border-radius: 8px;
+    background: var(--good-fill);
+    background-image: linear-gradient(transparent 22%, rgba(255, 255, 255, 0.35) 22%, rgba(255, 255, 255, 0.35) 44%, transparent 44%);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.6s cubic-bezier(0.3, 0.9, 0.3, 1.1);
+  }
+  .bar-count {
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: var(--ink-3);
     white-space: nowrap;
   }
   .bar-toc {
     position: relative;
-    min-width: 0;
-    flex: 1;
   }
   .bar-toc summary {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
-    max-width: 100%;
-    min-height: 40px;
-    padding: 0.35rem 0.7rem;
-    border: 1px solid var(--control);
-    border-radius: var(--radius);
-    font-weight: 700;
-    font-size: 0.95rem;
+    gap: 0.4rem;
+    min-height: 42px;
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+    border: 2px solid var(--line-strong);
+    background: var(--card);
+    box-shadow: 0 3px 0 var(--line-strong);
+    font-weight: 800;
+    font-size: 0.92rem;
     cursor: pointer;
     list-style: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   .bar-toc summary::-webkit-details-marker {
     display: none;
   }
-  .bar-toc summary [data-current] {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .bar-toc summary svg {
-    flex: none;
-    transition: transform 0.15s ease;
-  }
-  .bar-toc[open] summary svg {
-    transform: rotate(180deg);
-  }
-  .bar-toc ol {
+  .toc-panel {
     position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    width: min(360px, calc(100vw - 2 * var(--gutter)));
-    list-style: none;
-    margin: 0;
-    padding: 0.4rem;
-    background: var(--paper-raised);
-    border: 1px solid var(--rule);
+    right: 0;
+    top: calc(100% + 10px);
+    width: min(380px, calc(100vw - 2 * var(--gutter)));
+    padding: 0.6rem;
+    display: grid;
+    gap: 0.6rem;
+    background: var(--card);
+    border: 2px solid var(--line);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
   }
-  .bar-toc a {
-    display: block;
-    padding: 0.55rem 0.7rem;
-    border-radius: 6px;
+  .toc-panel ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.15rem;
+  }
+  .toc-panel a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.6rem;
+    border-radius: 10px;
     text-decoration: none;
+    font-weight: 700;
     color: var(--ink-2);
     line-height: 1.3;
   }
-  .bar-toc a:hover {
-    background: var(--paper-sunk);
+  .toc-panel a:hover {
+    background: var(--bg-2);
     color: var(--ink);
   }
-  .bar-toc a[aria-current] {
-    color: var(--ink);
-    font-weight: 700;
-    box-shadow: inset 3px 0 0 var(--hl);
+  .toc-panel a span {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 8px;
+    border: 2px solid var(--line-strong);
+    font-size: 0.8rem;
+    font-weight: 800;
   }
-  .bar-end {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-left: auto;
+  .toc-panel a:global(.is-done) span {
+    background: var(--good-fill);
+    border-color: var(--good-fill);
+    color: #fff;
   }
-  .bar-status:not(:empty) {
-    font-size: 0.74rem;
-    color: var(--good);
-    white-space: nowrap;
-  }
-  .bar-progress {
-    height: 3px;
-    background: transparent;
-  }
-  .bar-progress span {
-    display: block;
-    height: 100%;
-    background: var(--hl);
-    transform-origin: left;
-    transform: scaleX(0);
+  .toc-panel a:global(.is-locked) {
+    opacity: 0.55;
   }
   @media (max-width: 720px) {
-    .bar-unit,
-    .bar-status {
+    .bar-name,
+    .toc-label {
       display: none;
     }
   }
@@ -423,15 +564,49 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   .lesson {
     max-width: 1000px;
     margin-inline: auto;
-    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3rem);
     padding-bottom: 5rem;
   }
   .lesson-prose {
     max-width: none;
   }
+  .lesson-prose :global(.lstep) {
+    padding-bottom: 1rem;
+  }
+  .lesson-prose :global(.lstep + .lstep) {
+    margin-top: 2.5rem;
+    padding-top: 2.5rem;
+    border-top: 2px dashed var(--line);
+  }
+  .lesson-prose :global(.lstep.is-current) {
+    animation: step-in 0.45s cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+  @keyframes step-in {
+    from {
+      opacity: 0;
+    }
+  }
+  .lesson-prose :global(.lstep > *),
   .lesson-prose > :global(*) {
     max-width: 680px;
   }
+  .lesson-prose :global(.lstep > * + *) {
+    margin-top: 1.1em;
+  }
+  .lesson-prose :global(.lstep > h2) {
+    margin-top: 0;
+    scroll-margin-top: 150px;
+  }
+  .lesson-prose :global(.lstep > h2:focus) {
+    outline: none;
+  }
+  .lesson-prose :global(.lstep > h2 + *),
+  .lesson-prose :global(.lstep > h3 + *) {
+    margin-top: 0.6em;
+  }
+  .lesson-prose :global(.lstep > figure),
+  .lesson-prose :global(.lstep > .worked),
+  .lesson-prose :global(.lstep > .table-scroll),
   .lesson-prose > :global(figure),
   .lesson-prose > :global(.worked),
   .lesson-prose > :global(.table-scroll) {
@@ -439,29 +614,47 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     margin-block: 2.2rem;
     clear: both;
   }
-  .lesson-prose > :global(h2:first-child) {
-    margin-top: 0;
+  .lesson-prose :global(.lstep-next) {
+    clear: both;
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    margin-top: 2.5rem !important;
+    padding: 1.6rem 1rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+    border: 2px solid var(--line);
+    text-align: center;
+    max-width: 680px;
   }
-  .lesson-prose > :global(h2) {
-    padding-top: 1.6rem;
-    border-top: 1px solid var(--rule);
+  .lesson-prose :global(.lstep-next .btn) {
+    min-width: min(320px, 100%);
   }
-  .lesson-prose > :global(h2:first-child) {
-    padding-top: 0;
-    border-top: 0;
+  .lesson-prose :global(.lstep-next p) {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink-3);
+  }
+  .lesson-prose :global(.lstep:not(.is-current) .lstep-next),
+  .mode-all .lesson-prose :global(.lstep-next) {
+    display: none;
   }
 
+  .unit-check {
+    margin-top: 3.5rem;
+  }
   .terms {
-    margin-top: 4.5rem;
-    padding-top: 2rem;
-    border-top: 2px solid var(--ink);
+    padding: clamp(1.3rem, 1rem + 1vw, 2rem);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--line);
+    background: var(--card);
   }
   .terms .eyebrow {
     margin-bottom: 0.4rem;
   }
   .terms dl {
     display: grid;
-    margin: 1.4rem 0 1rem;
+    margin: 1.3rem 0 1rem;
   }
   @media (min-width: 760px) {
     .terms dl {
@@ -470,15 +663,15 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     }
   }
   .term {
-    padding: 0.85rem 0;
-    border-bottom: 1px solid var(--rule);
-    scroll-margin-top: 5rem;
+    padding: 0.8rem 0;
+    border-bottom: 2px solid var(--line);
+    scroll-margin-top: 150px;
   }
   .term:target {
-    background: color-mix(in srgb, var(--hl) 22%, transparent);
+    background: var(--sun-tint);
   }
   .term dt {
-    font-weight: 700;
+    font-weight: 800;
   }
   .term dd {
     margin: 0.2rem 0 0;
@@ -486,25 +679,23 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     line-height: 1.5;
   }
   .practice {
-    margin-top: 4.5rem;
-    padding-top: 2rem;
-    border-top: 2px solid var(--ink);
+    margin-top: 3rem;
+    scroll-margin-top: 150px;
+  }
+  .unit-check,
+  .terms h2 {
+    scroll-margin-top: 150px;
   }
   .done-row {
-    margin-top: 3rem;
-    padding: 1.25rem 1.4rem;
+    margin-top: 2rem;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 1rem 2rem;
     align-items: center;
   }
-  .done-title {
-    font-weight: 700;
-    font-size: 1.1rem;
-  }
   .pager {
-    margin-top: 1.5rem;
+    margin-top: 2.5rem;
     display: grid;
     gap: 1rem;
   }
@@ -515,28 +706,40 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   }
   .pager-link {
     display: grid;
-    gap: 0.4rem;
-    padding: 1.2rem 1.3rem;
-    border: 1px solid var(--rule);
+    gap: 0.35rem;
+    padding: 1.2rem 1.35rem;
+    border: 2px solid var(--line);
     border-radius: var(--radius-lg);
-    background: var(--paper-raised);
+    background: var(--card);
+    box-shadow: 0 4px 0 var(--line);
     text-decoration: none;
-    transition: transform 0.15s ease, border-color 0.15s ease;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
   }
   .pager-link:hover {
-    border-color: var(--ink);
     transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--line);
   }
   .pager-next {
     text-align: right;
-    border-color: transparent;
+    background: var(--brand-fill);
+    border-color: var(--brand);
+    color: #fff;
+    box-shadow: 0 4px 0 var(--brand-fill-lip);
   }
-  .pager-next .eyebrow {
-    color: var(--chalk-2);
+  .pager-next:hover {
+    box-shadow: 0 6px 0 var(--brand-fill-lip);
+  }
+  .pager-dir {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
   .pager-title {
     font-family: var(--font-display);
-    font-size: 1.45rem;
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
     line-height: 1.2;
   }
 </style>

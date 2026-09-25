@@ -52,7 +52,7 @@ import { url } from '../lib/url';
               <tr data-row={u.slug}>
                 <th scope="row"><a href={url(`/learn/${u.slug}/`)}>{u.title}</a></th>
                 <td data-done>No</td>
-                <td data-quiz class="mono">None yet</td>
+                <td data-quiz>None yet</td>
               </tr>
             ))}
           </tbody>
@@ -62,15 +62,19 @@ import { url } from '../lib/url';
 
     <section class="panel card wide" aria-labelledby="stored-title">
       <h2 id="stored-title" class="h3">Exactly what is stored</h2>
-      <p>Two entries in this browser's local storage, and nothing else. No cookies.</p>
+      <p>Three entries in this browser's local storage, and nothing else. No cookies.</p>
       <dl class="stored">
         <div>
           <dt class="mono">tutorecon.v1</dt>
-          <dd>Units you marked done, your best quiz scores, your last 20 mock exam scores, and whether the Pro demo is on.</dd>
+          <dd>Units you marked done, how far you read in each lesson, your best quiz scores, which questions you already got right, your XP and streak, your last 20 mock exam scores, and whether the Pro demo is on.</dd>
         </div>
         <div>
           <dt class="mono">tutorecon.theme</dt>
           <dd>Your light or dark theme choice, if you made one.</dd>
+        </div>
+        <div>
+          <dt class="mono">tutorecon.lessonMode</dt>
+          <dd>Whether you read lessons one step at a time or all at once, if you changed it.</dd>
         </div>
       </dl>
       <div class="btn-row">
@@ -80,7 +84,7 @@ import { url } from '../lib/url';
       <div class="confirm" data-delete-confirm hidden>
         <p><strong>Delete everything?</strong> Your progress, scores, theme, and Pro demo status will be removed from this browser. This cannot be undone.</p>
         <div class="btn-row">
-          <button type="button" class="btn btn-small danger-solid" data-delete-yes>Yes, delete my data</button>
+          <button type="button" class="btn btn-small btn-bad" data-delete-yes>Yes, delete my data</button>
           <button type="button" class="btn btn-secondary btn-small" data-delete-no>Keep my data</button>
         </div>
       </div>
@@ -110,7 +114,8 @@ import { url } from '../lib/url';
       row.querySelector('[data-quiz]')!.textContent = q ? `${q.best} of ${q.total}` : 'None yet';
     });
     const exams = data.exams.length;
-    $('[data-progress-summary]').textContent = `${done} of ${document.querySelectorAll('[data-row]').length} units marked done. ${exams ? `${exams} mock exam${exams === 1 ? '' : 's'} taken.` : 'No mock exams taken yet.'}`;
+    const streak = store.currentStreak();
+    $('[data-progress-summary]').textContent = `${done} of ${document.querySelectorAll('[data-row]').length} units marked done. ${data.xp} XP earned. ${streak ? `${streak} day streak.` : 'No streak running.'} ${exams ? `${exams} mock exam${exams === 1 ? '' : 's'} taken.` : 'No mock exams taken yet.'}`;
 
     const saved = store.getTheme();
     const value = saved ?? 'system';
@@ -139,7 +144,7 @@ import { url } from '../lib/url';
   });
 
   $('[data-download]').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify({ 'tutorecon.v1': store.get(), 'tutorecon.theme': store.getTheme() }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ 'tutorecon.v1': store.get(), 'tutorecon.theme': store.getTheme(), 'tutorecon.lessonMode': store.getLessonMode() }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'tutorecon-data.json';
@@ -190,7 +195,8 @@ import { url } from '../lib/url';
     }
   }
   .card {
-    padding: 1.25rem;
+    padding: 1.4rem;
+    box-shadow: 0 4px 0 var(--line);
     display: grid;
     gap: 0.9rem;
     align-content: start;
@@ -211,14 +217,21 @@ import { url } from '../lib/url';
   .progress-table th,
   .progress-table td {
     text-align: left;
-    padding: 0.55rem 0.5rem;
-    border-bottom: 1px solid var(--rule);
+    padding: 0.65rem 0.6rem;
+    border-bottom: 2px solid var(--line);
   }
   .progress-table thead th {
-    border-bottom: 1.5px solid var(--ink);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
   }
   .progress-table tbody th {
-    font-weight: 560;
+    font-weight: 700;
+  }
+  .progress-table tbody tr:last-child > * {
+    border-bottom: 0;
   }
   .table-scroll {
     overflow-x: auto;
@@ -241,21 +254,17 @@ import { url } from '../lib/url';
   }
   .danger {
     color: var(--bad);
-    border-color: var(--bad);
+    box-shadow: inset 0 0 0 2px var(--bad-fill), 0 var(--lip-size) 0 var(--bad-fill);
   }
-  .danger-solid {
-    background: var(--bad);
-    border-color: var(--bad);
-    color: var(--btn-ink);
-  }
-  .danger-solid:hover {
-    background: var(--bad);
-    filter: brightness(0.92);
+  .danger:active {
+    box-shadow: inset 0 0 0 2px var(--bad-fill), 0 0 0 var(--bad-fill);
   }
   .confirm {
-    padding: 1rem;
-    border: 1.5px solid var(--bad);
-    border-radius: var(--radius);
-    background: var(--bad-bg);
+    display: grid;
+    gap: 0.8rem;
+    padding: 1.1rem;
+    border: 2px solid var(--bad-fill);
+    border-radius: 16px;
+    background: var(--bad-tint);
   }
 </style>

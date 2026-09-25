@@ -1,11 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import Graph from '../components/Graph.astro';
+import HeroDemo from '../components/HeroDemo.astro';
 import GraphThumb from '../components/GraphThumb.astro';
-import UnitTile from '../components/UnitTile.astro';
-import Quiz from '../components/Quiz.astro';
+import UnitPathRow from '../components/UnitPathRow.astro';
 import { units } from '../data/units';
-import { questions, questionsFor } from '../data/questions';
+import { questions } from '../data/questions';
 import { glossary } from '../data/glossary';
 import { allLessons } from '../lib/lessons';
 import { graphList, type State } from '../scripts/graphs/models';
@@ -13,82 +12,159 @@ import { url } from '../lib/url';
 import { site } from '../site';
 
 const lessons = allLessons();
-const workedCount = lessons.reduce((n, l) => n + l.worked, 0);
-const sample = questions.filter((q) => q.id === 'sd3');
-const foundations = units.find((u) => u.course === 'both')!;
-const micro = units.filter((u) => u.course === 'micro');
-const macro = units.filter((u) => u.course === 'macro');
-const metaFor = (slug: string) => {
-  const l = lessons.find((x) => x.unit.slug === slug)!;
-  return `${l.minutes} min · ${questionsFor(slug).length} questions`;
-};
+const firstMinutes = lessons[0].minutes;
+
+const facts = [
+  { n: units.length, label: 'units in AP order' },
+  { n: graphList.length, label: 'live graphs' },
+  { n: questions.length, label: 'practice questions' },
+  { n: glossary.length, label: 'glossary terms' },
+];
 
 const moves: { title: string; text: string; state: State }[] = [
-  {
-    title: 'What changed?',
-    text: 'Name the event and what kind of change it is: a cost, a taste, an income, or the price of something else.',
-    state: {},
-  },
-  {
-    title: 'Which curve?',
-    text: 'Decide whether it moves demand, supply, or both. A good’s own price never shifts its own curve.',
-    state: { _hl: 's' },
-  },
-  {
-    title: 'Which way?',
-    text: 'Left means less at every price. Right means more. Draw the new curve and label it.',
-    state: { sShift: -20, _hl: 's' },
-  },
-  {
-    title: 'What happens?',
-    text: 'Read the new price and quantity off the axes and mark the arrows. That is the answer graders look for.',
-    state: { sShift: -20 },
-  },
+  { title: 'What changed?', text: 'Name the event: a cost, a taste, an income, or the price of something else.', state: {} },
+  { title: 'Which curve?', text: 'Demand, supply, or both. A good’s own price never shifts its own curve.', state: { _hl: 's' } },
+  { title: 'Which way?', text: 'Left means less at every price. Right means more.', state: { sShift: -20, _hl: 's' } },
+  { title: 'What happens?', text: 'Read the new price and quantity, and mark the arrows. That is what graders want.', state: { sShift: -20 } },
 ];
 ---
 <Base>
-  <section class="hero on-board">
-    <div class="wrap">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
       <div class="hero-copy">
-        <div class="hero-title">
-          <p class="eyebrow hero-eyebrow">Free for AP Microeconomics and AP Macroeconomics</p>
-          <h1 class="display">Economics you can <span class="hl">move</span>.</h1>
+        <p class="chip">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7L12 2Z" fill="currentColor" /></svg>
+          Free for AP Micro and AP Macro
+        </p>
+        <h1 class="display">Stop memorizing graphs. <span class="accent">Start moving them.</span></h1>
+        <p class="lede">
+          Bite-sized AP Economics lessons where every graph is live. Answer a question, watch the curve shift, and see
+          exactly why. No account, no ads.
+        </p>
+        <div class="btn-row">
+          <a class="btn btn-big" href={url('/learn/foundations/')}>Start learning free <span class="arrow" aria-hidden="true">&rarr;</span></a>
+          <a class="btn btn-big btn-secondary" href={url('/learn/')}>See all units</a>
         </div>
-        <div class="hero-side">
-          <p class="lede">
-            Pick a headline and watch the market react. A tutor walks you through the four moves behind every
-            graph question, then you try it yourself.
-          </p>
-          <div class="btn-row">
-            <a class="btn" href={url('/learn/foundations/')}>Start with Unit 1 <span class="arrow" aria-hidden="true">&rarr;</span></a>
-            <a class="btn btn-secondary" href={url('/graph-lab/')}>Open the graph lab</a>
-          </div>
-        </div>
+        <ul class="checks">
+          <li><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="var(--good-fill)" /><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>Follows the AP course outlines</li>
+          <li><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="var(--good-fill)" /><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>Every answer explained</li>
+          <li><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="var(--good-fill)" /><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>Works on your phone</li>
+        </ul>
       </div>
-
-      <div class="stage">
-        <Graph model="market-oj" variant="hero" ratio={0.8} title="The market for orange juice" scenarioHeading="Pick a headline" />
+      <div class="hero-demo">
+        <p class="try-label" aria-hidden="true">
+          <svg viewBox="0 0 40 24" width="40" height="24"><path d="M2 20c8-2 16-8 28-14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /><path d="M24 4l7 1.5-3 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          Try it right here
+        </p>
+        <HeroDemo />
       </div>
-      <p class="stage-note">Every graph on this site works like this one. {graphList.length} of them, all live.</p>
     </div>
   </section>
 
-  <section class="section moves-section" aria-labelledby="moves-title">
+  <!-- Facts -->
+  <section class="facts-bar" aria-label="What is inside">
+    <div class="wrap">
+      <ul class="facts">
+        {facts.map((f) => (
+          <li><span class="fact-n">{f.n}</span><span class="fact-l">{f.label}</span></li>
+        ))}
+        <li><span class="fact-n">$0</span><span class="fact-l">for every lesson</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Bento -->
+  <section class="section" aria-labelledby="bento-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Why it works</p>
+        <h2 id="bento-title" class="h2">Built like an app. Explained like a great teacher.</h2>
+      </div>
+      <div class="bento">
+        <a class="tile tile-a" href={url('/graph-lab/')}>
+          <div class="tile-copy">
+            <h3>Every graph moves</h3>
+            <p>Drag the curves, flip on a tax, add a price ceiling. {graphList.length} diagrams from supply and demand to the Phillips curve.</p>
+            <span class="tile-link">Open the graph lab <span aria-hidden="true">&rarr;</span></span>
+          </div>
+          <div class="tile-art tile-art-big">
+            <GraphThumb model="tax-incidence" width={520} height={330} />
+          </div>
+        </a>
+
+        <div class="tile tile-b">
+          <h3>Feedback on every answer</h3>
+          <p>Every choice has its own explanation, so a wrong answer still teaches you something.</p>
+          <div class="mock-feedback" aria-hidden="true">
+            <p class="mf-verdict"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="11" fill="currentColor" /><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>Nice work! <span class="xp-chip">+10 XP</span></p>
+            <p class="mf-why">Demand for an inferior good falls as income rises.</p>
+          </div>
+        </div>
+
+        <div class="tile tile-c">
+          <h3>Four moves for every shift</h3>
+          <ol class="mini-moves">
+            {moves.map((m, i) => <li class:list={{ on: i === 2 }}><span>{i + 1}</span>{m.title}</li>)}
+          </ol>
+        </div>
+
+        <div class="tile tile-d" data-stats-tile>
+          <h3>Streaks and XP</h3>
+          <p data-stats-text>Answer questions to earn XP. Come back tomorrow to start a streak.</p>
+          <div class="mini-stats" aria-hidden="true">
+            <span class="ms ms-streak"><svg viewBox="0 0 24 24" width="30" height="30"><path d="M12 2c.6 3.2-1.2 5-2.6 6.6C8 10.2 7 11.7 7 14a5 5 0 0 0 10 0c0-1.7-.6-3-1.4-4.1-.3 1.4-1 2.3-2 2.8.4-2.8-.2-7.2-1.6-10.7Z" fill="#ff7a1a" /><path d="M12 22a3 3 0 0 1-3-3c0-1.6 1-2.6 2-3.6.2 1 .8 1.6 1.6 1.9.1-.9.3-1.9.9-2.7.9 1 1.5 2.3 1.5 4.4a3 3 0 0 1-3 3Z" fill="#ffc53d" /></svg><b data-home-streak>0</b> day streak</span>
+            <span class="ms ms-xp"><svg viewBox="0 0 24 24" width="30" height="30"><path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.8L13.5 2Z" fill="#ffc53d" stroke="#e0a000" stroke-width="1.2" stroke-linejoin="round" /></svg><b data-home-xp>0</b> XP</span>
+          </div>
+        </div>
+
+        <div class="tile tile-e">
+          <h3>Definitions in the margin</h3>
+          <p>The first time a key term shows up, its meaning sits right next to it. No flipping to the back of the book.</p>
+          <div class="mock-sn" aria-hidden="true">
+            <span class="mock-line">The <mark>law of demand</mark> says that when the price rises...</span>
+            <span class="mock-note"><b>Law of demand</b>When price rises, quantity demanded falls.</span>
+          </div>
+        </div>
+
+        <a class="tile tile-f" href={url('/pricing/')}>
+          <h3>Timed mock exams</h3>
+          <p>20 questions, 25 minutes, and a score for every unit. Part of Pro.</p>
+          <div class="mock-timer" aria-hidden="true"><span class="mt-clock">25:00</span><span class="mt-tag">Pro</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Path -->
+  <section class="section path-section" aria-labelledby="path-title">
+    <div class="wrap">
+      <div class="section-head split">
+        <div>
+          <p class="eyebrow">Your path</p>
+          <h2 id="path-title" class="h2">Eleven units. One clear path.</h2>
+        </div>
+        <p class="muted">Start with Unit 1, which both AP courses share, then follow the course you are taking. Finished units light up as you go.</p>
+      </div>
+      <UnitPathRow />
+      <div class="path-cta">
+        <a class="btn btn-secondary" href={url('/learn/')}>See the full path</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Four moves -->
+  <section class="section" aria-labelledby="moves-title">
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">How the tutor thinks</p>
         <h2 id="moves-title" class="h2">Every graph question takes four moves.</h2>
-        <p class="lede">
-          AP free-response questions reward the same reasoning again and again. TutorEcon walks through it with you on
-          every shift until you do it without thinking.
-        </p>
+        <p class="lede">AP free-response questions reward the same reasoning again and again. TutorEcon walks you through it on every shift until you do it without thinking.</p>
       </div>
       <ol class="moves-grid">
         {moves.map((m, i) => (
           <li class="move-card">
-            <div class="move-art">
-              <GraphThumb model="market-oj" state={m.state} width={300} height={200} />
-            </div>
+            <div class="move-art"><GraphThumb model="market-oj" state={m.state} width={300} height={200} /></div>
             <div class="move-copy">
               <span class="move-num" aria-hidden="true">{i + 1}</span>
               <h3>{m.title}</h3>
@@ -100,78 +176,13 @@ const moves: { title: string; text: string; state: State }[] = [
     </div>
   </section>
 
-  <section class="section units-section" aria-labelledby="units-title">
-    <div class="wrap">
-      <div class="section-head split">
-        <div>
-          <p class="eyebrow">The course</p>
-          <h2 id="units-title" class="h2">Eleven units. Each one fits on a page.</h2>
-        </div>
-        <p class="muted">
-          Start with Unit 1, which both AP courses share, then take the course you need. Your progress shows on each
-          card.
-        </p>
-      </div>
-
-      <div class="units-first">
-        <UnitTile unit={foundations} meta={metaFor(foundations.slug)} wide />
-      </div>
-
-      {[
-        { name: 'AP Microeconomics', list: micro },
-        { name: 'AP Macroeconomics', list: macro },
-      ].map((c) => (
-        <div class="course">
-          <h3 class="course-name">{c.name}</h3>
-          <ul class="tiles">
-            {c.list.map((u) => (
-              <li><UnitTile unit={u} meta={metaFor(u.slug)} /></li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <section class="section practice-section" aria-labelledby="practice-title">
-    <div class="wrap practice">
-      <div class="practice-copy">
-        <p class="eyebrow">Practice</p>
-        <h2 id="practice-title" class="h2">Wrong answers teach you something too.</h2>
-        <p class="lede">
-          Every choice on every question has its own explanation, so you learn why a tempting answer is wrong, not just
-          which one is right.
-        </p>
-        <dl class="facts">
-          <div><dt class="mono">{questions.length}</dt><dd>practice questions across all units</dd></div>
-          <div><dt class="mono">{workedCount}</dt><dd>worked problems you open one step at a time</dd></div>
-          <div><dt class="mono">{glossary.length}</dt><dd>terms in the glossary, each tied to its unit</dd></div>
-        </dl>
-        <a class="btn btn-secondary" href={url('/practice/')}>Try a mixed set</a>
-      </div>
-      <div class="practice-demo">
-        <Quiz
-          questions={sample}
-          saveAs="home-sample"
-          title="Try one question"
-          intro="This one trips up a lot of students. Choose an answer, then check it."
-          headingLevel="h3"
-          numbered={false}
-          eyebrow="Sample question"
-        />
-      </div>
-    </div>
-  </section>
-
+  <!-- Pro -->
   <section class="section pro-band on-board" aria-labelledby="pro-title">
     <div class="wrap pro">
       <div>
         <p class="eyebrow">TutorEcon Pro</p>
         <h2 id="pro-title" class="h2">For the last two weeks before the exam.</h2>
-        <p class="lede">
-          Everything above stays free. Pro adds a timed mock exam with a score for each unit, and a one-page review sheet
-          for every unit that you can print.
-        </p>
+        <p class="lede">Everything above stays free. Pro adds timed mock exams with a score for each unit, and a one-page review sheet for every unit that you can print.</p>
       </div>
       <div class="pro-card">
         <p class="pro-price"><span class="amount">${site.pro.price}</span><span class="per">per month</span></p>
@@ -180,65 +191,171 @@ const moves: { title: string; text: string; state: State }[] = [
           <li>Score breakdown by unit</li>
           <li>Printable review sheets for all {units.length} units</li>
         </ul>
-        <a class="btn" href={url('/pricing/')}>See Pro <span class="arrow" aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn-big" href={url('/pricing/')}>See Pro <span class="arrow" aria-hidden="true">&rarr;</span></a>
         <p class="pro-note">Payments are not switched on. The checkout is a working demo that never charges a card.</p>
       </div>
     </div>
   </section>
+
+  <!-- Final CTA -->
+  <section class="section final">
+    <div class="wrap final-inner">
+      <h2 class="h2">Your first lesson takes about {firstMinutes} minutes.</h2>
+      <p class="lede">Scarcity, opportunity cost, and a graph you can push around. Start now and your progress saves in this browser.</p>
+      <a class="btn btn-big btn-orange" href={url('/learn/foundations/')}>Start Unit 1 <span class="arrow" aria-hidden="true">&rarr;</span></a>
+    </div>
+  </section>
 </Base>
+
+<script>
+  import { store } from '../scripts/store';
+  const sync = () => {
+    const d = store.get();
+    const streak = store.currentStreak();
+    const s = document.querySelector('[data-home-streak]');
+    const x = document.querySelector('[data-home-xp]');
+    const t = document.querySelector('[data-stats-text]');
+    if (s) s.textContent = String(streak);
+    if (x) x.textContent = String(d.xp);
+    if (t && d.xp > 0) t.textContent = 'Your real numbers, saved in this browser. Keep the streak going tomorrow.';
+  };
+  window.addEventListener('tutorecon:change', sync);
+  sync();
+</script>
 
 <style>
   /* Hero */
   .hero {
     position: relative;
     padding-top: clamp(2.5rem, 1.5rem + 4vw, 5rem);
-    padding-bottom: clamp(2.5rem, 1.5rem + 4vw, 5rem);
-    background-image:
-      radial-gradient(ellipse 60% 50% at 20% 0%, rgba(255, 216, 77, 0.08), transparent 70%),
-      linear-gradient(rgba(243, 246, 240, 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(243, 246, 240, 0.045) 1px, transparent 1px);
-    background-size: auto, 32px 32px, 32px 32px;
-    background-position: 0 0, -1px -1px, -1px -1px;
+    padding-bottom: clamp(3rem, 2rem + 4vw, 5.5rem);
+    background:
+      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--brand) 14%, transparent) 1px, transparent 0) 0 0 / 24px 24px,
+      radial-gradient(ellipse 55% 60% at 80% 40%, color-mix(in srgb, var(--brand) 12%, transparent), transparent 70%),
+      radial-gradient(ellipse 40% 40% at 60% 90%, color-mix(in srgb, var(--orange) 10%, transparent), transparent 70%);
+    overflow: hidden;
+  }
+  .hero-grid {
+    display: grid;
+    gap: 3rem;
+    align-items: center;
+  }
+  @media (min-width: 1000px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+      gap: 4rem;
+    }
   }
   .hero-copy {
     display: grid;
-    gap: 1.75rem;
-    align-items: end;
-    margin-bottom: clamp(2rem, 1.5rem + 2.5vw, 3.5rem);
+    gap: 1.5rem;
+    justify-items: start;
   }
-  @media (min-width: 980px) {
-    .hero-copy {
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-      gap: 3.5rem;
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 10px;
+    background: var(--sun-tint);
+    border: 2px solid color-mix(in srgb, var(--sun) 55%, transparent);
+    color: var(--orange-text);
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+  .hero .display {
+    font-size: clamp(2.6rem, 1.3rem + 4.2vw, 4.7rem);
+  }
+  .display .accent {
+    color: var(--brand);
+  }
+  .hero .lede {
+    max-width: 44ch;
+  }
+  .checks {
+    list-style: none;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.25rem;
+    font-weight: 700;
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+  .checks li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .hero-demo {
+    position: relative;
+  }
+  .try-label {
+    position: absolute;
+    top: -2.1rem;
+    left: 1.2rem;
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.3rem;
+    color: var(--orange-text);
+    font-weight: 800;
+    font-size: 0.95rem;
+    transform: rotate(-2deg);
+  }
+  .try-label svg {
+    transform: scaleX(-1) rotate(10deg);
+  }
+  @media (max-width: 999px) {
+    .try-label {
+      position: static;
+      margin-bottom: 0.6rem;
     }
   }
-  .hero-eyebrow {
-    color: var(--chalk-2);
-    margin-bottom: 1.2rem;
+
+  /* Facts */
+  .facts-bar {
+    border-block: 2px solid var(--line);
+    background: var(--bg-2);
   }
-  .hero .display .hl {
-    padding: 0 0.1em;
-  }
-  .hero-side {
+  .facts {
+    list-style: none;
+    margin: 0;
+    padding: 1.3rem 0;
     display: grid;
-    gap: 1.6rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
-  .hero-side .lede {
-    color: var(--chalk-2);
-    max-width: 38ch;
+  @media (min-width: 760px) {
+    .facts {
+      grid-template-columns: repeat(5, 1fr);
+    }
   }
-  .stage-note {
-    margin-top: 1rem;
-    font-size: 0.92rem;
-    color: var(--chalk-3);
+  .facts li {
+    display: grid;
+    gap: 0.1rem;
+    justify-items: center;
     text-align: center;
+  }
+  .fact-n {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2rem;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--brand);
+  }
+  .fact-l {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--ink-2);
   }
 
   /* Section heads */
   .section-head {
     display: grid;
-    gap: 0.75rem;
-    max-width: 760px;
+    gap: 0.8rem;
+    max-width: 780px;
     margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.25rem);
   }
   .section-head.split {
@@ -247,12 +364,212 @@ const moves: { title: string; text: string; state: State }[] = [
   }
   @media (min-width: 900px) {
     .section-head.split {
-      grid-template-columns: 1.4fr 1fr;
+      grid-template-columns: 1.3fr 1fr;
       gap: 3rem;
     }
   }
-  .section-head.split .muted {
-    max-width: 44ch;
+
+  /* Bento */
+  .bento {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 900px) {
+    .bento {
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: minmax(210px, auto);
+    }
+    .tile-a {
+      grid-column: 1 / 3;
+      grid-row: 1 / 3;
+    }
+  }
+  .tile {
+    display: grid;
+    align-content: start;
+    gap: 0.6rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    border: 2px solid var(--line);
+    box-shadow: 0 4px 0 var(--line);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  a.tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 0 var(--line);
+  }
+  .tile h3 {
+    font-size: 1.35rem;
+  }
+  .tile p {
+    color: var(--ink-2);
+  }
+  .tile-a {
+    background: linear-gradient(160deg, var(--brand-tint), var(--card) 60%);
+    align-content: space-between;
+  }
+  .tile-copy {
+    display: grid;
+    gap: 0.6rem;
+    max-width: 46ch;
+  }
+  .tile-a h3 {
+    font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem);
+  }
+  .tile-link {
+    font-weight: 800;
+    color: var(--brand);
+  }
+  .tile-art-big {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 18px;
+    background: var(--card);
+    border: 2px solid var(--line);
+  }
+  .tile-art-big :global(.g-grid),
+  .tile-art-big :global(.g-grid-major) {
+    display: none;
+  }
+  .mock-feedback {
+    margin-top: 0.4rem;
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    background: var(--good-tint);
+    display: grid;
+    gap: 0.35rem;
+  }
+  .mf-verdict {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--good) !important;
+  }
+  .mf-verdict .xp-chip {
+    font-size: 0.8rem;
+    animation: none;
+  }
+  .mf-why {
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+  .mini-moves {
+    list-style: none;
+    margin: 0.3rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+  .mini-moves li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 800;
+    color: var(--ink-2);
+  }
+  .mini-moves span {
+    display: inline-grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 9px;
+    background: var(--good-fill);
+    color: #fff;
+    font-size: 0.85rem;
+  }
+  .mini-moves li.on {
+    color: var(--ink);
+  }
+  .mini-moves li.on span {
+    background: var(--sun);
+    color: #0b1220;
+  }
+  .mini-moves li.on ~ li span {
+    background: var(--line);
+    color: var(--ink-2);
+  }
+  .mini-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+  }
+  .ms {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 12px;
+    border: 2px solid var(--line);
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  .ms b {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--ink);
+  }
+  .mock-sn {
+    display: grid;
+    grid-template-columns: 1fr 0.9fr;
+    gap: 0.6rem;
+    align-items: start;
+    margin-top: 0.4rem;
+    font-size: 0.88rem;
+  }
+  .mock-line {
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .mock-note {
+    padding: 0.5rem 0.6rem;
+    border-radius: 10px;
+    border: 2px solid var(--line);
+    color: var(--ink-2);
+    font-size: 0.8rem;
+  }
+  .mock-note b {
+    display: block;
+    color: var(--ink);
+  }
+  .mock-timer {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+  }
+  .mt-clock {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2.4rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .mt-tag {
+    padding: 0.2rem 0.55rem;
+    border-radius: 8px;
+    background: var(--sun);
+    color: #0b1220;
+    font-weight: 800;
+    font-size: 0.8rem;
+  }
+
+  /* Path */
+  .path-section {
+    background: var(--bg-2);
+    border-block: 2px solid var(--line);
+  }
+  .path-cta {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
   }
 
   /* Four moves */
@@ -262,7 +579,6 @@ const moves: { title: string; text: string; state: State }[] = [
     padding: 0;
     display: grid;
     gap: 1rem;
-    counter-reset: none;
   }
   @media (min-width: 700px) {
     .moves-grid {
@@ -275,120 +591,50 @@ const moves: { title: string; text: string; state: State }[] = [
     }
   }
   .move-card {
-    position: relative;
     display: grid;
     grid-template-rows: auto 1fr;
-    border: 1px solid var(--rule);
+    border: 2px solid var(--line);
     border-radius: var(--radius-lg);
-    background: var(--paper-raised);
+    background: var(--card);
     overflow: hidden;
-    box-shadow: var(--shadow);
+    box-shadow: 0 4px 0 var(--line);
   }
   .move-art {
-    padding: 1rem 1rem 0.25rem;
-    background: var(--paper-sunk);
-    border-bottom: 1px solid var(--rule);
+    padding: 1rem 1rem 0.4rem;
+    background: var(--bg-2);
+    border-bottom: 2px solid var(--line);
+  }
+  .move-art :global(.g-grid),
+  .move-art :global(.g-grid-major) {
+    display: none;
   }
   .move-copy {
     display: grid;
-    gap: 0.4rem;
+    gap: 0.45rem;
     align-content: start;
-    padding: 1rem 1.15rem 1.3rem;
+    padding: 1.1rem 1.2rem 1.35rem;
   }
   .move-num {
+    display: inline-grid;
+    place-items: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 11px;
+    background: var(--brand-fill);
+    color: #fff;
     font-family: var(--font-display);
-    font-size: 2.4rem;
-    line-height: 1;
-    color: var(--ink);
-    background-image: linear-gradient(transparent 55%, var(--hl) 55%, var(--hl) 88%, transparent 88%);
-    justify-self: start;
-    padding: 0 0.12em;
+    font-weight: 800;
+    font-size: 1.15rem;
+    box-shadow: 0 3px 0 var(--brand-fill-lip);
   }
   .move-copy h3 {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
   .move-copy p {
     color: var(--ink-2);
   }
 
-  /* Units */
-  .units-section {
-    background: var(--paper-sunk);
-    border-block: 1px solid var(--rule);
-  }
-  .units-first {
-    margin-bottom: 2.5rem;
-  }
-  .course + .course {
-    margin-top: 2.5rem;
-  }
-  .course-name {
-    font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 0.8rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-    margin-bottom: 0.9rem;
-  }
-  .tiles {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  }
-  @media (min-width: 1180px) {
-    .tiles {
-      grid-template-columns: repeat(5, 1fr);
-    }
-  }
-
-  /* Practice */
-  .practice {
-    display: grid;
-    gap: 2.5rem;
-    align-items: start;
-  }
-  @media (min-width: 980px) {
-    .practice {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-      gap: 4.5rem;
-    }
-  }
-  .practice-copy {
-    display: grid;
-    gap: 1.1rem;
-    justify-items: start;
-  }
-  .facts {
-    margin: 0.5rem 0 0.75rem;
-    width: 100%;
-    display: grid;
-    border-top: 1px solid var(--rule);
-  }
-  .facts div {
-    display: grid;
-    grid-template-columns: 4.5rem 1fr;
-    align-items: baseline;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  .facts dt {
-    font-size: 1.5rem;
-    font-weight: 500;
-  }
-  .facts dd {
-    margin: 0;
-    color: var(--ink-2);
-  }
-
   /* Pro */
-  .pro-band {
-    background-color: var(--board);
-  }
   .pro {
     display: grid;
     gap: 2.5rem;
@@ -401,21 +647,19 @@ const moves: { title: string; text: string; state: State }[] = [
     }
   }
   .pro .eyebrow {
-    color: var(--chalk-2);
     margin-bottom: 0.8rem;
   }
   .pro .lede {
-    color: var(--chalk-2);
     margin-top: 1rem;
   }
   .pro-card {
     display: grid;
     gap: 1.1rem;
     justify-items: start;
-    padding: 1.75rem;
+    padding: 1.8rem;
     border-radius: var(--radius-lg);
-    background: var(--board-deep);
-    border: 1px solid rgba(243, 246, 240, 0.16);
+    background: var(--card);
+    border: 2px solid var(--line);
   }
   .pro-price {
     display: flex;
@@ -424,24 +668,39 @@ const moves: { title: string; text: string; state: State }[] = [
   }
   .amount {
     font-family: var(--font-display);
-    font-size: 3.6rem;
+    font-weight: 800;
+    font-size: 3.8rem;
     line-height: 1;
-    color: var(--hl);
+    letter-spacing: -0.04em;
+    color: var(--sun);
   }
   .per {
-    color: var(--chalk-2);
+    color: var(--ink-2);
+    font-weight: 700;
   }
   .pro-card ul {
     margin: 0;
     padding-left: 1.1em;
     display: grid;
     gap: 0.35rem;
+    font-weight: 600;
   }
   .pro-card li::marker {
-    color: var(--hl);
+    color: var(--sun);
   }
   .pro-note {
     font-size: 0.88rem;
-    color: var(--chalk-3);
+    color: var(--ink-3);
+  }
+
+  /* Final */
+  .final-inner {
+    display: grid;
+    gap: 1.2rem;
+    justify-items: center;
+    text-align: center;
+  }
+  .final .lede {
+    max-width: 52ch;
   }
 </style>

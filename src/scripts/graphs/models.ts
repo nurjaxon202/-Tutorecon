@@ -934,7 +934,7 @@ function businessCycle(): Setup {
       pl.grid();
       pl.axes();
       const tl = pl.fn(trend, 'g-curve g-fourth g-dashed', 0, 10);
-      pl.label(tl, 'Long-run trend', 'g-label-fourth', -6, 16, 'end');
+      pl.label(tl, 'Long-run trend', 'g-label-fourth', -6, -12, 'end');
       pl.fn(cycle, 'g-curve g-demand', 0, 10, 160);
       if (!pl.compact) {
         pl.note([peakT, cycle(peakT) + 6], 'Peak', 'middle', 'g-note g-note-strong');

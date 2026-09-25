@@ -13,17 +13,12 @@ const links = [
 const here = Astro.url.pathname;
 const isActive = (href: string) => here.startsWith(url(href));
 ---
-<header class="site-header on-board">
+<header class="site-header">
   <div class="wrap bar">
     <a class="brand" href={url('/')} aria-label={`${site.name} home`}>
       <Logo />
-      <span class="wordmark">{site.name}</span>
+      <span class="wordmark">Tutor<span>Econ</span></span>
     </a>
-
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
-      Menu
-    </button>
 
     <nav id="site-nav" class="nav" aria-label="Main">
       <ul>
@@ -33,15 +28,28 @@ const isActive = (href: string) => here.startsWith(url(href));
           </li>
         ))}
       </ul>
-      <div class="nav-end">
-        <button class="theme-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">
-          <svg class="icon-moon" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
-          <svg class="icon-sun" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
-          <span class="theme-label">Theme</span>
-        </button>
-        <a class="btn btn-small start" href={url('/learn/foundations/')}>Start learning</a>
-      </div>
     </nav>
+
+    <div class="end">
+      <a class="stats" href={url('/account/')} data-stats hidden aria-label="Your streak and XP">
+        <span class="stat stat-streak" title="Day streak">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 2c.6 3.2-1.2 5-2.6 6.6C8 10.2 7 11.7 7 14a5 5 0 0 0 10 0c0-1.7-.6-3-1.4-4.1-.3 1.4-1 2.3-2 2.8.4-2.8-.2-7.2-1.6-10.7Z" fill="#ff7a1a" /><path d="M12 22a3 3 0 0 1-3-3c0-1.6 1-2.6 2-3.6.2 1 .8 1.6 1.6 1.9.1-.9.3-1.9.9-2.7.9 1 1.5 2.3 1.5 4.4a3 3 0 0 1-3 3Z" fill="#ffc53d" /></svg>
+          <span data-streak>0</span>
+        </span>
+        <span class="stat stat-xp" title="XP earned">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.8L13.5 2Z" fill="#ffc53d" stroke="#e0a000" stroke-width="1.2" stroke-linejoin="round" /></svg>
+          <span data-xp>0</span>
+        </span>
+      </a>
+      <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+      </button>
+      <a class="btn btn-small start" href={url('/learn/foundations/')}>Start learning</a>
+      <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -75,38 +83,58 @@ const isActive = (href: string) => here.startsWith(url(href));
     window.dispatchEvent(new CustomEvent('tutorecon:theme'));
   });
   syncThemeBtn();
+
+  // Streak and XP, only once the reader has earned some.
+  const stats = document.querySelector<HTMLAnchorElement>('[data-stats]');
+  const syncStats = () => {
+    const data = store.get();
+    const streak = store.currentStreak();
+    if (!stats) return;
+    stats.hidden = data.xp <= 0;
+    stats.querySelector('[data-streak]')!.textContent = String(streak);
+    stats.querySelector('[data-xp]')!.textContent = String(data.xp);
+    stats.setAttribute('aria-label', `${streak} day streak, ${data.xp} XP. Open your progress.`);
+    stats.classList.toggle('is-cold', streak === 0);
+  };
+  window.addEventListener('tutorecon:change', syncStats);
+  syncStats();
 </script>
 
 <style>
   .site-header {
-    position: relative;
-    z-index: 30;
-    border-bottom: 1px solid rgba(243, 246, 240, 0.12);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--bg) 95%, transparent);
+    backdrop-filter: saturate(1.6) blur(14px);
+    -webkit-backdrop-filter: saturate(1.6) blur(14px);
+    border-bottom: 2px solid var(--line);
   }
   .bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 72px;
+    gap: 1.25rem;
+    min-height: 70px;
   }
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.6rem;
     text-decoration: none;
-    color: var(--chalk);
+    color: var(--ink);
+    flex: none;
   }
   .wordmark {
     font-family: var(--font-display);
-    font-size: 1.42rem;
-    letter-spacing: -0.01em;
-    line-height: 1;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.035em;
+  }
+  .wordmark span {
+    color: var(--brand);
   }
   .nav {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex: 1;
   }
   .nav ul {
     display: flex;
@@ -115,60 +143,80 @@ const isActive = (href: string) => here.startsWith(url(href));
     margin: 0;
     padding: 0;
   }
-  .nav a:not(.btn) {
-    position: relative;
+  .nav a {
     display: inline-flex;
     align-items: center;
     min-height: 42px;
-    padding: 0.35rem 0.75rem;
-    border-radius: var(--radius);
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
     text-decoration: none;
-    font-weight: 600;
-    color: var(--chalk-2);
+    font-weight: 700;
+    color: var(--ink-2);
+    transition: background-color 0.15s ease, color 0.15s ease;
   }
-  .nav a:not(.btn):hover {
-    color: var(--chalk);
-    background: rgba(243, 246, 240, 0.08);
+  .nav a:hover {
+    color: var(--ink);
+    background: var(--bg-2);
   }
   .nav a[aria-current='page'] {
-    color: var(--chalk);
+    color: var(--brand);
+    background: var(--brand-tint);
   }
-  .nav a[aria-current='page']::after {
-    content: '';
-    position: absolute;
-    left: 0.75rem;
-    right: 0.75rem;
-    bottom: 5px;
-    height: 3px;
-    border-radius: 2px;
-    background: var(--hl);
-  }
-  .nav-end {
+  .end {
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    margin-left: auto;
   }
-  .theme-btn,
-  .menu-btn {
+  .stats {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
-    min-height: 40px;
-    min-width: 40px;
-    justify-content: center;
-    padding: 0.35rem 0.7rem;
-    border: 1px solid rgba(243, 246, 240, 0.28);
-    border-radius: var(--radius);
-    background: transparent;
-    color: var(--chalk-2);
-    font-weight: 600;
-    font-size: 0.92rem;
-    cursor: pointer;
+    gap: 0.2rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: 12px;
+    text-decoration: none;
+    border: 2px solid var(--line);
   }
-  .theme-btn:hover,
-  .menu-btn:hover {
-    color: var(--chalk);
-    border-color: rgba(243, 246, 240, 0.55);
+  .stats:hover {
+    background: var(--bg-2);
+  }
+  .stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1rem 0.35rem;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+  .stat-streak {
+    color: var(--orange-text);
+  }
+  .is-cold .stat-streak {
+    color: var(--ink-3);
+    filter: grayscale(1);
+  }
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 2px solid var(--line);
+    background: var(--card);
+    color: var(--ink-2);
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--line);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .icon-btn:hover {
+    color: var(--ink);
+  }
+  .icon-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 var(--line);
+  }
+  .start {
+    margin-bottom: 3px;
   }
   .icon-sun {
     display: none;
@@ -182,15 +230,9 @@ const isActive = (href: string) => here.startsWith(url(href));
   .menu-btn {
     display: none;
   }
-
-  @media (max-width: 1060px) {
-    .theme-label {
-      display: none;
-    }
-  }
-  @media (max-width: 900px) {
+  @media (max-width: 960px) {
     .menu-btn {
-      display: inline-flex;
+      display: inline-grid;
     }
     .nav {
       display: none;
@@ -198,34 +240,32 @@ const isActive = (href: string) => here.startsWith(url(href));
       left: 0;
       right: 0;
       top: 100%;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.75rem;
       padding: 0.75rem var(--gutter) 1.25rem;
-      background: var(--board);
-      border-bottom: 1px solid rgba(243, 246, 240, 0.12);
-      box-shadow: 0 24px 40px -20px rgba(0, 0, 0, 0.5);
+      background: var(--bg);
+      border-bottom: 2px solid var(--line);
+      box-shadow: var(--shadow);
     }
     .nav.is-open {
-      display: flex;
+      display: block;
     }
     .nav ul {
       flex-direction: column;
     }
-    .nav a:not(.btn) {
-      min-height: 48px;
+    .nav a {
+      min-height: 50px;
       font-size: 1.08rem;
+      width: 100%;
     }
-    .nav a[aria-current='page']::after {
-      left: 0.75rem;
-      right: auto;
-      width: 2.5rem;
+  }
+  @media (max-width: 560px) {
+    .start {
+      display: none;
     }
-    .nav-end {
-      justify-content: space-between;
+    .wordmark {
+      font-size: 1.25rem;
     }
-    .theme-label {
-      display: inline;
+    .bar {
+      gap: 0.75rem;
     }
   }
 </style>

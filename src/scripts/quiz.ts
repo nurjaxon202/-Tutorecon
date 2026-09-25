@@ -8,6 +8,11 @@ interface QData {
 }
 
 const letters = ['A', 'B', 'C', 'D', 'E'];
+const PRAISE = ['Nice work!', 'Correct!', 'Exactly right!', 'Spot on!'];
+const ICON_RIGHT =
+  '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_WRONG =
+  '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -70,7 +75,10 @@ function mount(root: HTMLElement) {
     });
     card.querySelectorAll('.q-opt').forEach((o) => o.classList.remove('is-correct', 'is-wrong'));
     const fb = card.querySelector<HTMLElement>('[data-feedback]');
-    if (fb) fb.innerHTML = '';
+    if (fb) {
+      fb.innerHTML = '';
+      fb.classList.remove('is-right', 'is-wrong');
+    }
     const btn = card.querySelector<HTMLButtonElement>('[data-check]');
     if (btn) btn.hidden = false;
   };
@@ -105,6 +113,12 @@ function mount(root: HTMLElement) {
     const correct = [...results.values()].filter(Boolean).length;
     const total = active.length;
     const saved = store.saveQuiz(saveAs, correct, total);
+    // Finishing a unit's own check marks the unit done and pays a one-time bonus.
+    let bonus = 0;
+    if (root.dataset.unitCheck === 'true' && !store.isDone(saveAs)) {
+      store.setDone(saveAs, true);
+      bonus = store.rewardAnswer(`unit-${saveAs}`, 30);
+    }
     const message =
       correct === total
         ? 'Every answer right.'
@@ -115,8 +129,8 @@ function mount(root: HTMLElement) {
     scoreEl.innerHTML = `
       ${ring(correct, total)}
       <div>
-        <p class="quiz-score-num">${correct} of ${total} correct</p>
-        <p>${message} Your best score is ${saved.best} of ${saved.total}.</p>
+        <p class="quiz-score-num">${bonus ? 'Unit complete! ' : ''}${correct} of ${total} correct</p>
+        <p>${message} Your best score is ${saved.best} of ${saved.total}.${bonus ? ` You earned a ${bonus} XP bonus for finishing the unit.` : ''}</p>
       </div>
       <div class="btn-row"><button type="button" class="btn btn-small" data-retry>${sample ? 'Try a new set' : 'Try these again'}</button></div>`;
     requestAnimationFrame(() =>
@@ -157,9 +171,12 @@ function mount(root: HTMLElement) {
     card.querySelector(`[data-opt="${q.answer}"]`)?.classList.add('is-correct');
     if (!right) card.querySelector(`[data-opt="${choice}"]`)?.classList.add('is-wrong');
     btn.hidden = true;
+    const xp = right ? store.rewardAnswer(`q-${id}`) : 0;
+    fb.classList.toggle('is-right', right);
+    fb.classList.toggle('is-wrong', !right);
     fb.innerHTML = right
-      ? `<p class="q-verdict q-right">Correct.</p><p>${esc(q.why[choice])}</p>`
-      : `<p class="q-verdict q-wrong">Not quite. You chose ${letters[choice]}.</p><p>${esc(q.why[choice])}</p>` +
+      ? `<p class="q-verdict q-right">${ICON_RIGHT}${PRAISE[Math.floor(Math.random() * PRAISE.length)]}${xp ? `<span class="xp-chip">+${xp} XP</span>` : ''}</p><p>${esc(q.why[choice])}</p>`
+      : `<p class="q-verdict q-wrong">${ICON_WRONG}Not quite</p><p>You chose ${letters[choice]}. ${esc(q.why[choice])}</p>` +
         `<p class="q-answer"><strong>The answer is ${letters[q.answer]}.</strong> ${esc(q.why[q.answer])}</p>`;
     drawStrip();
     // Move on to the next unanswered question, so keyboard users can keep going.
