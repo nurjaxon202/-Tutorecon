@@ -1,0 +1,27 @@
+---
+// The green band at the top of inner pages: eyebrow, title, lede, and an
+// optional slot for actions.
+interface Props {
+  eyebrow: string;
+  title: string;
+  lede?: string;
+}
+const { eyebrow, title, lede } = Astro.props;
+---
+<section class="page-band on-board">
+  <div class="wrap">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1 class="page-title">{title}</h1>
+    {lede && <p class="lede">{lede}</p>}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .eyebrow {
+    color: var(--chalk-2);
+  }
+  .lede {
+    max-width: 56ch;
+  }
+</style>

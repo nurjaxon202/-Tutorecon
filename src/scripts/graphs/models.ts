@@ -15,7 +15,16 @@ export interface Scenario {
   /** Target values, or a function of the current state. Numbers animate. */
   set: State | ((s: State) => State);
   note: string;
+  /**
+   * The four moves a tutor walks through for any shift question:
+   * what changed, which curve, which way, and what happens.
+   */
+  moves?: [string, string, string, string];
+  /** Which curve to highlight while the moves play. */
+  hl?: string;
 }
+
+export const MOVE_TITLES = ['What changed?', 'Which curve?', 'Which way?', 'What happens?'];
 
 export interface Setup {
   title: string;
@@ -146,8 +155,14 @@ function market(p: MarketParams): Setup {
           else ps.push([0, f.Ps(0)]);
           pl.area(ps, 'fill-ps', 'PS', [f.Qe / 3, (2 * f.Pe + Math.max(0, f.Ps(0))) / 3]);
         }
+        if (s._hl === 'd') pl.glow(f.Pd);
+        if (s._hl === 's') pl.glow(f.Ps);
         drawCurves(pl, f, shifted);
-        if (shifted) pl.dot(base.Qe, base.Pe, 'g-dot g-dot-ghost', 4);
+        if (shifted) {
+          pl.dot(base.Qe, base.Pe, 'g-dot g-dot-ghost', 4);
+          pl.axisArrow('y', base.Pe, f.Pe);
+          pl.axisArrow('x', base.Qe, f.Qe);
+        }
         pl.guides(f.Qe, f.Pe, fq(f.Qe), p.fmtP(f.Pe));
         pl.dot(f.Qe, f.Pe, 'g-dot g-dot-eq', 6);
         // Handles sit on the visible part of each curve, near its upper end.
@@ -381,10 +396,54 @@ function adas(): Setup {
       { type: 'range', key: 'sras', label: 'Shift short-run supply', min: -30, max: 30, step: 1, fmt: (x) => (x === 0 ? 'none' : x > 0 ? `right ${x}` : `left ${-x}`) },
     ],
     scenarios: [
-      { label: 'Consumer confidence drops', set: { ad: -24, sras: 0 }, note: 'Households spend less, so AD shifts left. Output falls below full employment and the price level falls. That is a recessionary gap.' },
-      { label: 'Oil prices spike', set: { ad: 0, sras: -24 }, note: 'Higher input costs shift SRAS left. Output falls and the price level rises at the same time. Economists call this stagflation.' },
-      { label: 'Government spends more', set: { ad: 24, sras: 0 }, note: 'More government spending shifts AD right. Starting from full employment, output rises above potential and prices climb: an inflationary gap.' },
-      { label: 'Wages adjust after a recession', set: { ad: -24, sras: 24 }, note: 'In the long run, lower nominal wages cut firms’ costs. SRAS shifts right until output is back at full employment, at a lower price level.' },
+      {
+        label: 'Consumer confidence drops',
+        set: { ad: -24, sras: 0 },
+        note: 'Households spend less, so AD shifts left. Output falls below full employment and the price level falls. That is a recessionary gap.',
+        hl: 'ad',
+        moves: [
+          'Households feel worse about the future and cut spending. Consumption is part of AD.',
+          'Aggregate demand.',
+          'Left. Less spending at every price level.',
+          'Real GDP and the price level both fall. Output is below full employment: a recessionary gap.',
+        ],
+      },
+      {
+        label: 'Oil prices spike',
+        set: { ad: 0, sras: -24 },
+        note: 'Higher input costs shift SRAS left. Output falls and the price level rises at the same time. Economists call this stagflation.',
+        hl: 'sras',
+        moves: [
+          'A key input to almost every business got more expensive.',
+          'Short-run aggregate supply. Input costs move SRAS.',
+          'Left. Firms produce less at every price level.',
+          'Output falls and the price level rises at the same time. That is stagflation.',
+        ],
+      },
+      {
+        label: 'Government spends more',
+        set: { ad: 24, sras: 0 },
+        note: 'More government spending shifts AD right. Starting from full employment, output rises above potential and prices climb: an inflationary gap.',
+        hl: 'ad',
+        moves: [
+          'Government purchases (G) go up. G is part of AD.',
+          'Aggregate demand.',
+          'Right. More spending at every price level.',
+          'Real GDP and the price level both rise. Output is now above full employment: an inflationary gap.',
+        ],
+      },
+      {
+        label: 'Wages adjust after a recession',
+        set: { ad: -24, sras: 24 },
+        note: 'In the long run, lower nominal wages cut firms’ costs. SRAS shifts right until output is back at full employment, at a lower price level.',
+        hl: 'sras',
+        moves: [
+          'After demand fell, high unemployment slowly pushes nominal wages down.',
+          'Short-run aggregate supply. Wages are firms’ biggest input cost.',
+          'Right. Lower costs mean more output at every price level.',
+          'Output returns to full employment at a lower price level. The economy corrected itself, slowly.',
+        ],
+      },
     ],
     draw(pl, s) {
       const { a, r, Y, PL } = eq(s);
@@ -400,8 +459,14 @@ function adas(): Setup {
         const g = pl.fn((y) => 20 + 0.8 * y, 'g-curve g-supply g-ghost');
         pl.label(g, 'SRAS_1', 'g-label-supply g-label-ghost', -8, 14);
       }
+      if (s._hl === 'ad') pl.glow((y) => 180 - 0.8 * (y - a));
+      if (s._hl === 'sras') pl.glow((y) => 20 + 0.8 * (y - r));
       const dl = pl.fn((y) => 180 - 0.8 * (y - a), 'g-curve g-demand');
       const sl = pl.fn((y) => 20 + 0.8 * (y - r), 'g-curve g-supply');
+      if (a !== 0 || r !== 0) {
+        pl.axisArrow('y', 100, PL);
+        pl.axisArrow('x', 100, Y);
+      }
       pl.label(dl, a !== 0 ? 'AD_2' : 'AD', 'g-label-demand', 8, -6);
       pl.label(sl, r !== 0 ? 'SRAS_2' : 'SRAS', 'g-label-supply', 8, 14);
       if (Math.abs(Y - Yf) > 0.5) {
@@ -438,9 +503,42 @@ function moneyMarket(): Setup {
       { type: 'range', key: 'md', label: 'Shift money demand', min: -30, max: 30, step: 1, fmt: (x) => (x === 0 ? 'none' : x > 0 ? `right ${x}` : `left ${-x}`) },
     ],
     scenarios: [
-      { label: 'The Fed buys bonds', set: { ms: 80, md: 0 }, note: 'Paying for bonds puts new reserves into banks, so the money supply shifts right and the interest rate falls. Lower rates encourage borrowing and investment.' },
-      { label: 'The Fed sells bonds', set: { ms: 40, md: 0 }, note: 'Selling bonds pulls reserves out of banks. The money supply shifts left and the interest rate rises.' },
-      { label: 'Incomes rise', set: { ms: 60, md: 20 }, note: 'With higher incomes people need more money for everyday spending. Money demand shifts right and, with the same money supply, the interest rate rises.' },
+      {
+        label: 'The Fed buys bonds',
+        set: { ms: 80, md: 0 },
+        note: 'Paying for bonds puts new reserves into banks, so the money supply shifts right and the interest rate falls. Lower rates encourage borrowing and investment.',
+        hl: 'ms',
+        moves: [
+          'The Fed buys government bonds from banks and pays with new reserves.',
+          'Money supply. The central bank controls it.',
+          'Right. Banks can lend the new reserves, so there is more money.',
+          'The nominal interest rate falls, which encourages borrowing, investment, and spending.',
+        ],
+      },
+      {
+        label: 'The Fed sells bonds',
+        set: { ms: 40, md: 0 },
+        note: 'Selling bonds pulls reserves out of banks. The money supply shifts left and the interest rate rises.',
+        hl: 'ms',
+        moves: [
+          'The Fed sells bonds, and buyers pay with money that leaves the banking system.',
+          'Money supply.',
+          'Left. Banks have fewer reserves to lend.',
+          'The nominal interest rate rises and borrowing slows.',
+        ],
+      },
+      {
+        label: 'Incomes rise',
+        set: { ms: 60, md: 20 },
+        note: 'With higher incomes people need more money for everyday spending. Money demand shifts right and, with the same money supply, the interest rate rises.',
+        hl: 'md',
+        moves: [
+          'People earn and spend more, so they need more money on hand for purchases.',
+          'Money demand.',
+          'Right. People want to hold more money at every interest rate.',
+          'With the money supply unchanged, the nominal interest rate rises.',
+        ],
+      },
     ],
     draw(pl, s) {
       const ms = n(s, 'ms');
@@ -456,6 +554,9 @@ function moneyMarket(): Setup {
         pl.vline(60, 'g-curve g-supply g-ghost');
         pl.note([60, 13.3], 'MS_1', 'middle', 'g-label g-label-supply g-label-ghost');
       }
+      if (s._hl === 'md') pl.glow((m) => 12 - 0.1 * (m - md));
+      if (s._hl === 'ms') pl.vglow(ms);
+      if (Math.abs(i - 6) > 0.01) pl.axisArrow('y', 6, i);
       const dl = pl.fn((m) => 12 - 0.1 * (m - md), 'g-curve g-demand');
       pl.label(dl, md !== 0 ? 'MD_2' : 'MD', 'g-label-demand', 8, -6);
       pl.vline(ms, 'g-curve g-supply');
@@ -804,6 +905,61 @@ function lorenz(): Setup {
 }
 
 /* ------------------------------------------------------------------ */
+/* Business cycle                                                      */
+/* ------------------------------------------------------------------ */
+
+function businessCycle(): Setup {
+  const trend = (t: number) => 60 + 5 * t;
+  const cycle = (t: number) => trend(t) + 9 * Math.sin((t - 0.5) * (Math.PI / 2.5));
+  const k = Math.PI / 2.5;
+  // Slope of real GDP: trend growth plus the cycle's own slope.
+  const slope = (t: number) => 5 + 9 * k * Math.cos((t - 0.5) * k);
+  const phase = (t: number) => {
+    const m = slope(t);
+    if (Math.abs(m) < 1.6) return Math.sin((t - 0.5) * k) > 0 ? 'peak' : 'trough';
+    return m > 0 ? 'expansion' : 'contraction';
+  };
+  // Where the slope is zero: peaks near years 2.1 and 7.1, troughs near 3.9 and 8.9.
+  const u = Math.acos(-5 / (9 * k));
+  const peakT = 0.5 + u / k;
+  const troughT = 0.5 + (2 * Math.PI - u) / k;
+  return {
+    title: 'The business cycle',
+    x: { min: 0, max: 10, step: 0.5, major: 2, label: 'Time (years)' },
+    y: { min: 40, max: 130, step: 5, major: 2, label: 'Real GDP', ticks: false },
+    initial: { t: 1 },
+    controls: [{ type: 'range', key: 't', label: 'Move through time', min: 0.2, max: 9.8, step: 0.1, fmt: (x) => `year ${x.toFixed(1)}` }],
+    draw(pl, s) {
+      const t = n(s, 't');
+      pl.grid();
+      pl.axes();
+      const tl = pl.fn(trend, 'g-curve g-fourth g-dashed', 0, 10);
+      pl.label(tl, 'Long-run trend', 'g-label-fourth', -6, 16, 'end');
+      pl.fn(cycle, 'g-curve g-demand', 0, 10, 160);
+      if (!pl.compact) {
+        pl.note([peakT, cycle(peakT) + 6], 'Peak', 'middle', 'g-note g-note-strong');
+        pl.note([troughT, cycle(troughT) - 8], 'Trough', 'middle', 'g-note g-note-strong');
+      }
+      pl.guides(t, cycle(t));
+      pl.dot(t, cycle(t), 'g-dot g-dot-eq', 7);
+    },
+    describe(s) {
+      const t = n(s, 't');
+      const ph = phase(t);
+      const gap = cycle(t) - trend(t);
+      const where = gap > 1 ? 'above' : gap < -1 ? 'below' : 'close to';
+      const text: Record<string, string> = {
+        expansion: 'Real GDP is growing. Firms hire, unemployment falls, and inflation tends to pick up as the expansion goes on.',
+        contraction: 'Real GDP is falling. Firms cut jobs, cyclical unemployment rises, and inflation usually slows. A long enough contraction is a recession.',
+        peak: 'The expansion has topped out. Output is as far above trend as it will get in this cycle, and unemployment is at its lowest.',
+        trough: 'The contraction has hit bottom. Output is furthest below trend and unemployment is at its highest. Recovery starts from here.',
+      };
+      return `${v(ph[0].toUpperCase() + ph.slice(1))}. Output is ${where} its long-run trend. ${text[ph]}`;
+    },
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /* Registry                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -821,10 +977,53 @@ export const graphs: Record<string, () => Setup> = {
       qUnit: 'million cartons',
       fmtP: (x) => money(x),
       scenarios: [
-        { label: 'A frost hits the orange harvest', set: { dShift: 0, sShift: -20 }, note: 'Frost destroys part of the crop, so growers can sell fewer cartons at every price. Supply shifts left.' },
-        { label: 'A study links juice to fewer colds', set: { dShift: 20, sShift: 0 }, note: 'Tastes move toward orange juice, so buyers want more at every price. Demand shifts right.' },
-        { label: 'Apple juice gets cheaper', set: { dShift: -16, sShift: 0 }, note: 'Apple juice is a substitute. When it gets cheaper some buyers switch, so demand for orange juice shifts left.' },
-        { label: 'Both the frost and the study', set: { dShift: 20, sShift: -20 }, note: 'When both curves shift, one result is certain and the other depends on size. Here price must rise. Quantity only stays the same because the two shifts are equal.' },
+        {
+          label: 'A frost hits the orange harvest',
+          set: { dShift: 0, sShift: -20 },
+          note: 'Frost destroys part of the crop, so growers can sell fewer cartons at every price. Supply shifts left.',
+          hl: 's',
+          moves: [
+            'Frost destroys oranges, a key input. Nothing changed about what buyers want.',
+            'Supply. Inputs, technology, and the number of sellers move the supply curve.',
+            'Left. With fewer oranges, growers offer fewer cartons at every price.',
+            'The price rises and the quantity sold falls. Buyers compete for fewer cartons.',
+          ],
+        },
+        {
+          label: 'A study links juice to fewer colds',
+          set: { dShift: 20, sShift: 0 },
+          note: 'Tastes move toward orange juice, so buyers want more at every price. Demand shifts right.',
+          hl: 'd',
+          moves: [
+            'Buyers learn something that makes them like orange juice more. That is a change in tastes.',
+            'Demand. Tastes, income, related goods, buyers, and expectations move demand.',
+            'Right. Buyers want more cartons at every price.',
+            'Both price and quantity rise. Sellers move up their supply curve to meet the new demand.',
+          ],
+        },
+        {
+          label: 'Apple juice gets cheaper',
+          set: { dShift: -16, sShift: 0 },
+          note: 'Apple juice is a substitute. When it gets cheaper some buyers switch, so demand for orange juice shifts left.',
+          hl: 'd',
+          moves: [
+            'The price of a related good fell. Apple juice is a substitute for orange juice.',
+            'Demand for orange juice. The price of apple juice is not the price of this good, so it shifts a curve instead of moving along one.',
+            'Left. Some buyers switch to the cheaper substitute.',
+            'Price and quantity both fall.',
+          ],
+        },
+        {
+          label: 'Both the frost and the study',
+          set: { dShift: 20, sShift: -20 },
+          note: 'When both curves shift, one result is certain and the other depends on size. Here price must rise. Quantity only stays the same because the two shifts are equal.',
+          moves: [
+            'Two things at once: fewer oranges and a change in tastes.',
+            'Both curves. The frost moves supply and the study moves demand.',
+            'Supply shifts left and demand shifts right.',
+            'Both push the price up, so it must rise. They push quantity in opposite directions, so its change depends on which shift is bigger.',
+          ],
+        },
       ],
     }),
   'market-basic': () =>
@@ -897,9 +1096,42 @@ export const graphs: Record<string, () => Setup> = {
       sellers: 'savers',
       controls: ['dShift', 'sShift'],
       scenarios: [
-        { label: 'The government borrows to cover a deficit', set: { dShift: 20, sShift: 0 }, note: 'Government borrowing adds to the demand for loanable funds. The real interest rate rises, and some private investment is priced out. That is crowding out.' },
-        { label: 'Households save more', set: { dShift: 0, sShift: 20 }, note: 'More saving shifts supply right. The real interest rate falls and firms borrow more for investment.' },
-        { label: 'Firms expect strong sales', set: { dShift: 14, sShift: 0 }, note: 'Firms want to build and buy equipment, so demand for loans rises. The real interest rate rises.' },
+        {
+          label: 'The government borrows to cover a deficit',
+          set: { dShift: 20, sShift: 0 },
+          note: 'Government borrowing adds to the demand for loanable funds. The real interest rate rises, and some private investment is priced out. That is crowding out.',
+          hl: 'd',
+          moves: [
+            'The government spends more than it collects in taxes and has to borrow the difference.',
+            'Demand for loanable funds. Borrowers are the demand side of this market.',
+            'Right. There is more borrowing at every interest rate.',
+            'The real interest rate rises. Some firms decide not to borrow for investment, which is crowding out.',
+          ],
+        },
+        {
+          label: 'Households save more',
+          set: { dShift: 0, sShift: 20 },
+          note: 'More saving shifts supply right. The real interest rate falls and firms borrow more for investment.',
+          hl: 's',
+          moves: [
+            'Households decide to save a larger share of their income.',
+            'Supply of loanable funds. Savers are the supply side.',
+            'Right. More funds are available at every interest rate.',
+            'The real interest rate falls and more money is lent, mostly for investment.',
+          ],
+        },
+        {
+          label: 'Firms expect strong sales',
+          set: { dShift: 14, sShift: 0 },
+          note: 'Firms want to build and buy equipment, so demand for loans rises. The real interest rate rises.',
+          hl: 'd',
+          moves: [
+            'Businesses become more optimistic about future sales.',
+            'Demand for loanable funds. Firms borrow to invest.',
+            'Right. Firms want to borrow more at every rate.',
+            'The real interest rate rises and the quantity of loans grows.',
+          ],
+        },
       ],
     }),
   forex: () =>
@@ -916,9 +1148,41 @@ export const graphs: Record<string, () => Setup> = {
       sellers: 'people selling euros',
       controls: ['dShift', 'sShift'],
       scenarios: [
-        { label: 'Americans buy more European goods', set: { dShift: 16, sShift: 0 }, note: 'To pay for European goods, Americans need euros. Demand for euros shifts right, the euro appreciates, and the dollar depreciates.' },
-        { label: 'US interest rates rise', set: { dShift: -10, sShift: 10 }, note: 'Higher US rates draw savings into dollar assets. Europeans sell euros to buy dollars and Americans buy fewer euros. The euro depreciates against the dollar.' },
-        { label: 'Europe has a recession', set: { dShift: 0, sShift: -12 }, note: 'Europeans buy fewer imports from the US, so they supply fewer euros. Supply of euros shifts left and the euro appreciates.' },
+        {
+          label: 'Americans buy more European goods',
+          set: { dShift: 16, sShift: 0 },
+          note: 'To pay for European goods, Americans need euros. Demand for euros shifts right, the euro appreciates, and the dollar depreciates.',
+          hl: 'd',
+          moves: [
+            'American tastes shift toward European products.',
+            'Demand for euros. Americans need euros to pay European sellers.',
+            'Right. More euros are wanted at every exchange rate.',
+            'The euro appreciates: one euro now costs more dollars. The dollar depreciates.',
+          ],
+        },
+        {
+          label: 'US interest rates rise',
+          set: { dShift: -10, sShift: 10 },
+          note: 'Higher US rates draw savings into dollar assets. Europeans sell euros to buy dollars and Americans buy fewer euros. The euro depreciates against the dollar.',
+          moves: [
+            'US assets now pay a better return than European ones.',
+            'Both sides of the euro market. Europeans sell euros to buy dollar assets, and Americans buy fewer euros.',
+            'Supply of euros shifts right and demand for euros shifts left.',
+            'The euro depreciates and the dollar appreciates.',
+          ],
+        },
+        {
+          label: 'Europe has a recession',
+          set: { dShift: 0, sShift: -12 },
+          note: 'Europeans buy fewer imports from the US, so they supply fewer euros. Supply of euros shifts left and the euro appreciates.',
+          hl: 's',
+          moves: [
+            'Incomes in Europe fall.',
+            'Supply of euros. Europeans supply euros when they buy American goods.',
+            'Left. Poorer Europeans buy fewer imports, so fewer euros are offered.',
+            'The euro appreciates against the dollar.',
+          ],
+        },
       ],
     }),
   ppc,
@@ -931,6 +1195,7 @@ export const graphs: Record<string, () => Setup> = {
   'externality-positive': () => externality('positive'),
   monopsony,
   lorenz,
+  'business-cycle': businessCycle,
 };
 
 export const graphList: { key: string; label: string; unit: string }[] = [
@@ -946,6 +1211,7 @@ export const graphList: { key: string; label: string; unit: string }[] = [
   { key: 'externality-positive', label: 'Positive externality', unit: 'market-failure' },
   { key: 'monopsony', label: 'Monopsony and the minimum wage', unit: 'factor-markets' },
   { key: 'lorenz', label: 'Lorenz curve and Gini coefficient', unit: 'market-failure' },
+  { key: 'business-cycle', label: 'Business cycle', unit: 'economic-indicators' },
   { key: 'adas', label: 'AD and AS', unit: 'national-income' },
   { key: 'money-market', label: 'Money market', unit: 'financial-sector' },
   { key: 'loanable-funds', label: 'Loanable funds', unit: 'financial-sector' },

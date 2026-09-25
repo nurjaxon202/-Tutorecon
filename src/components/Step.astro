@@ -6,6 +6,6 @@ interface Props {
 const { n, title } = Astro.props;
 ---
 <details class="step">
-  <summary><span class="step-n mono">Step {n}</span><span>{title}</span></summary>
+  <summary><span class="step-n mono"><span class="visually-hidden">Step </span>{n}</span><span>{title}</span></summary>
   <div class="step-body"><slot /></div>
 </details>

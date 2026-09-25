@@ -3,10 +3,16 @@
 Free AP Microeconomics and AP Macroeconomics lessons with graphs you can move.
 
 - 11 units that follow the AP course outlines
-- 17 interactive graphs (supply and demand, price controls, taxes, cost curves, monopoly, monopsony, externalities, Lorenz curve, AD-AS, money market, loanable funds, Phillips curve, foreign exchange)
-- 66 practice questions, each with an explanation for every answer choice
+- 18 live graphs (supply and demand, price controls, taxes, cost curves, monopoly, monopsony, externalities, Lorenz curve, business cycle, AD-AS, money market, loanable funds, Phillips curve, foreign exchange)
+- **The four moves**: pick a news event and a tutor walks through what changed, which curve moves, which way, and what happens, while the graph highlights the curve, shifts it, and draws the axis arrows
+- Margin definitions: the first time a key term appears in a lesson, its glossary definition sits beside it
+- 66 practice questions, each with an explanation for every answer choice, keyboard shortcuts, and a progress strip
 - A glossary, a graph lab, and progress saved in the browser
 - A Pro tier (timed mock exams, printable review sheets) behind a clearly labeled **demo** checkout
+
+## Design
+
+Chalkboard green, graph paper, and a yellow highlighter. Headlines are set in Young Serif, reading text in Atkinson Hyperlegible Next (a typeface designed for legibility), and numbers in IBM Plex Mono. All fonts are self-hosted. Every picture on the site is drawn by the same graph engine that powers the lessons.
 
 The site is fully static. It has no server, no accounts, no cookies, no analytics, and no third-party scripts.
 
@@ -66,7 +72,8 @@ To take real payments later, create a Stripe Payment Link (Stripe handles the ca
 src/
   units/            lesson content (MDX), one file per unit
   data/             units, practice questions, glossary, review sheets
-  scripts/graphs/   the SVG graph engine and every graph model
+  scripts/graphs/   the SVG graph engine, every graph model, and the four-moves scripts
+  lib/rehype-sidenotes.mjs   adds margin definitions to lessons at build time
   scripts/          quiz, local storage
   components/       Graph, Quiz, Callout, Worked, Step, ProGate, header, footer
   pages/            every route, including policies

@@ -1,9 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Quiz from '../../components/Quiz.astro';
+import GraphThumb from '../../components/GraphThumb.astro';
 import { units, unitLabel } from '../../data/units';
 import { questionsFor } from '../../data/questions';
 import { termsFor, termSlug } from '../../data/glossary';
+import { unitThumb } from '../../data/thumbs';
 import { lesson } from '../../lib/lessons';
 import { url } from '../../lib/url';
 
@@ -19,44 +21,67 @@ const terms = termsFor(slug!);
 const i = units.indexOf(unit);
 const prev = units[i - 1];
 const next = units[i + 1];
+const thumb = unitThumb[slug!];
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 ---
 <Base title={unit.title} description={unit.summary}>
-  <header class="wrap lesson-top">
-    <nav class="crumbs" aria-label="Breadcrumb">
-      <a href={url('/learn/')}>All units</a>
-      <span aria-hidden="true">/</span>
-      <span aria-current="page">{unitLabel(unit)}</span>
-    </nav>
-    <h1 class="page-title">{unit.title}</h1>
-    <p class="lede">{unit.summary}</p>
-    <ul class="lesson-meta mono">
-      <li>About {minutes} min</li>
-      {graphs.length > 0 && <li>{plural(graphs.length, 'interactive graph')}</li>}
-      {worked > 0 && <li>{plural(worked, 'worked problem')}</li>}
-      <li>{plural(qs.length, 'practice question')}</li>
-    </ul>
-  </header>
+  <section class="lesson-hero on-board">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href={url('/learn/')}>All units</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{unitLabel(unit)}</span>
+        </nav>
+        <div class="title-row">
+          <span class="hero-n" aria-hidden="true">{unit.apUnit}</span>
+          <h1 class="page-title">{unit.title}</h1>
+        </div>
+        <p class="lede">{unit.summary}</p>
+        <ul class="meta mono">
+          <li>About {minutes} min</li>
+          {graphs.length > 0 && <li>{plural(graphs.length, 'live graph')}</li>}
+          {worked > 0 && <li>{plural(worked, 'worked problem')}</li>}
+          <li>{plural(qs.length, 'question')}</li>
+        </ul>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <GraphThumb model={thumb.model} state={thumb.state} width={420} height={290} />
+      </div>
+    </div>
+  </section>
 
-  <div class="wrap lesson-grid">
-    <aside class="lesson-toc">
-      <nav aria-label="On this page">
-        <p class="eyebrow">On this page</p>
+  <div class="unit-bar">
+    <div class="wrap bar-inner">
+      <p class="bar-unit mono">{unitLabel(unit)}</p>
+      <details class="bar-toc" data-toc>
+        <summary>
+          <span class="visually-hidden">Jump to a section. Current section: </span>
+          <span data-current>{headings[0]?.text ?? 'Sections'}</span>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </summary>
         <ol>
-          {headings.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
-          <li><a href="#key-terms">Key terms</a></li>
-          <li><a href="#practice">Practice questions</a></li>
+          {headings.map((h) => <li><a href={`#${h.slug}`} data-toc-link>{h.text}</a></li>)}
+          <li><a href="#key-terms" data-toc-link>Key terms</a></li>
+          <li><a href="#practice" data-toc-link>Practice questions</a></li>
         </ol>
-        <p class="toc-status" data-status hidden></p>
-      </nav>
-    </aside>
+      </details>
+      <div class="bar-end">
+        <span class="bar-status mono" data-status></span>
+        <a class="btn btn-small" href="#practice">Practice</a>
+      </div>
+    </div>
+    <div class="bar-progress" aria-hidden="true"><span data-progress></span></div>
+  </div>
 
-    <article class="lesson-body">
+  <div class="wrap">
+    <article class="lesson" style={`--unit-n: '${unit.apUnit}'`}>
       <div class="prose lesson-prose">
         <Content />
       </div>
 
       <section id="key-terms" class="terms" aria-labelledby="key-terms-title">
+        <p class="eyebrow">Unit {unit.apUnit} vocabulary</p>
         <h2 id="key-terms-title" class="h2">Key terms</h2>
         <dl>
           {terms.map((t) => (
@@ -73,21 +98,24 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
         <Quiz questions={qs} saveAs={slug!} />
       </div>
 
-      <div class="done-row">
+      <div class="done-row panel">
+        <div>
+          <p class="done-title">Finished this unit?</p>
+          <p class="muted small">Progress is saved in this browser only. <a href={url('/account/')}>Manage your data</a>.</p>
+        </div>
         <button type="button" class="btn" data-done aria-pressed="false">Mark this unit as done</button>
-        <p class="muted small">Progress is saved in this browser only. <a href={url('/account/')}>Manage your data</a>.</p>
       </div>
 
       <nav class="pager" aria-label="Units">
         {prev ? (
           <a class="pager-link" href={url(`/learn/${prev.slug}/`)}>
-            <span class="eyebrow">Previous · {unitLabel(prev)}</span>
+            <span class="eyebrow">&larr; Previous · {unitLabel(prev)}</span>
             <span class="pager-title">{prev.title}</span>
           </a>
         ) : <span />}
         {next && (
-          <a class="pager-link pager-next" href={url(`/learn/${next.slug}/`)}>
-            <span class="eyebrow">Next · {unitLabel(next)}</span>
+          <a class="pager-link pager-next on-board" href={url(`/learn/${next.slug}/`)}>
+            <span class="eyebrow">Next · {unitLabel(next)} &rarr;</span>
             <span class="pager-title">{next.title}</span>
           </a>
         )}
@@ -112,12 +140,9 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     }
     const quiz = store.get().quiz[slug];
     const bits = [];
-    if (done) bits.push('Unit done');
-    if (quiz) bits.push(`Best quiz score ${quiz.best} of ${quiz.total}`);
-    if (status) {
-      status.hidden = bits.length === 0;
-      status.textContent = bits.join(' · ');
-    }
+    if (done) bits.push('Done');
+    if (quiz) bits.push(`Best ${quiz.best}/${quiz.total}`);
+    if (status) status.textContent = bits.join(' · ');
   };
   btn?.addEventListener('click', () => {
     store.setDone(slug, !store.isDone(slug));
@@ -126,154 +151,331 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   window.addEventListener('tutorecon:change', sync);
   sync();
 
-  // Highlight the section being read in the table of contents.
+  // Margin definitions: on small screens a button shows them under the line.
+  document.querySelectorAll<HTMLButtonElement>('.sn-btn').forEach((b) => {
+    b.addEventListener('click', () => {
+      const open = b.getAttribute('aria-expanded') === 'true';
+      b.setAttribute('aria-expanded', String(!open));
+      b.closest('.sn')?.classList.toggle('is-open', !open);
+    });
+  });
+
+  // Reading progress along the bottom of the unit bar.
+  const bar = document.querySelector<HTMLElement>('[data-progress]');
+  const article = document.querySelector<HTMLElement>('.lesson');
+  let ticking = false;
+  const progress = () => {
+    ticking = false;
+    if (!bar || !article) return;
+    const r = article.getBoundingClientRect();
+    const total = r.height - window.innerHeight;
+    const p = total > 0 ? Math.min(1, Math.max(0, -r.top / total)) : 1;
+    bar.style.transform = `scaleX(${p})`;
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(progress);
+      }
+    },
+    { passive: true },
+  );
+  progress();
+
+  // Section menu: show where the reader is, close after a jump.
+  const toc = document.querySelector<HTMLDetailsElement>('[data-toc]');
+  const current = document.querySelector<HTMLElement>('[data-current]');
   const links = new Map<string, HTMLAnchorElement>();
-  document.querySelectorAll<HTMLAnchorElement>('.lesson-toc a').forEach((a) => links.set(a.hash.slice(1), a));
+  document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]').forEach((a) => {
+    links.set(a.hash.slice(1), a);
+    a.addEventListener('click', () => {
+      if (toc) toc.open = false;
+    });
+  });
   const targets = [...links.keys()].map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
   const observer = new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
         if (!e.isIntersecting) continue;
         links.forEach((a) => a.removeAttribute('aria-current'));
-        links.get(e.target.id)?.setAttribute('aria-current', 'true');
+        const a = links.get(e.target.id);
+        a?.setAttribute('aria-current', 'true');
+        if (a && current) current.textContent = a.textContent;
       }
     },
-    { rootMargin: '0px 0px -70% 0px' },
+    { rootMargin: '-80px 0px -70% 0px' },
   );
   targets.forEach((t) => observer.observe(t));
+  document.addEventListener('click', (e) => {
+    if (toc?.open && !toc.contains(e.target as Node)) toc.open = false;
+  });
 </script>
 
 <style>
-  .lesson-top {
-    padding-top: clamp(1.5rem, 1rem + 2vw, 3rem);
-    padding-bottom: 2rem;
+  /* Hero */
+  .lesson-hero {
+    padding-block: clamp(2rem, 1.5rem + 3vw, 4rem);
+    background-image:
+      linear-gradient(rgba(243, 246, 240, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(243, 246, 240, 0.045) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .hero-grid {
     display: grid;
-    gap: 0.9rem;
-    border-bottom: 1px solid var(--rule);
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (min-width: 1000px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 4rem;
+    }
+  }
+  .hero-text {
+    display: grid;
+    gap: 1rem;
   }
   .crumbs {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--ink-2);
+    font-size: 0.78rem;
+    color: var(--chalk-2);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
   }
   .crumbs a {
-    color: var(--ink);
+    color: var(--chalk);
+  }
+  .title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: clamp(0.9rem, 0.5rem + 1.5vw, 1.6rem);
+  }
+  .hero-n {
+    flex: none;
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 2.5rem + 6vw, 7.5rem);
+    line-height: 0.82;
+    color: var(--hl);
+  }
+  .title-row .page-title {
+    padding-top: 0.2em;
   }
   .lede {
-    max-width: 58ch;
+    color: var(--chalk-2);
+    max-width: 52ch;
   }
-  .lesson-meta {
+  .meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1.25rem;
+    gap: 0.5rem;
     list-style: none;
     padding: 0;
-    margin: 0.25rem 0 0;
-    font-size: 0.82rem;
-    color: var(--ink-2);
+    margin: 0.3rem 0 0;
+    font-size: 0.78rem;
   }
-  .lesson-meta li + li::before {
-    content: '';
+  .meta li {
+    padding: 0.25rem 0.6rem;
+    border: 1px solid rgba(243, 246, 240, 0.25);
+    border-radius: 5px;
+    color: var(--chalk-2);
   }
-  .lesson-grid {
-    display: grid;
-    gap: 2rem;
-    padding-top: 2rem;
-    padding-bottom: 4rem;
+  .hero-art {
+    display: none;
   }
-  @media (min-width: 1040px) {
-    .lesson-grid {
-      grid-template-columns: 220px minmax(0, 1fr);
-      gap: 3.5rem;
-    }
-  }
-  .lesson-toc nav {
-    position: sticky;
-    top: 1.5rem;
-    display: grid;
-    gap: 0.6rem;
-  }
-  .lesson-toc ol {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 0.1rem;
-    border-left: 1px solid var(--rule);
-  }
-  .lesson-toc a {
-    display: block;
-    padding: 0.35rem 0 0.35rem 0.85rem;
-    margin-left: -1px;
-    border-left: 2px solid transparent;
-    color: var(--ink-2);
-    text-decoration: none;
-    font-size: 0.92rem;
-    line-height: 1.35;
-  }
-  .lesson-toc a:hover {
-    color: var(--ink);
-  }
-  .lesson-toc a[aria-current] {
-    color: var(--ink);
-    font-weight: 620;
-    border-left-color: var(--ink);
-  }
-  .toc-status {
-    font-size: 0.85rem;
-    color: var(--good);
-    font-weight: 600;
-  }
-  @media (max-width: 1039px) {
-    .lesson-toc nav {
-      position: static;
-      padding: 1rem;
-      border: 1px solid var(--rule);
+  @media (min-width: 1000px) {
+    .hero-art {
+      display: block;
+      padding: 1.2rem;
       border-radius: var(--radius-lg);
-      background: var(--paper-raised);
+      background: var(--board-deep);
+      border: 1px solid rgba(243, 246, 240, 0.14);
     }
   }
-  .lesson-body {
+  .hero-art :global(.g-grid),
+  .hero-art :global(.g-grid-major) {
+    display: none;
+  }
+
+  /* Sticky unit bar */
+  .unit-bar {
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 58px;
+  }
+  .bar-unit {
+    font-size: 0.76rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .bar-toc {
+    position: relative;
     min-width: 0;
-    max-width: 860px;
+    flex: 1;
+  }
+  .bar-toc summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    max-width: 100%;
+    min-height: 40px;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--control);
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    list-style: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bar-toc summary::-webkit-details-marker {
+    display: none;
+  }
+  .bar-toc summary [data-current] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bar-toc summary svg {
+    flex: none;
+    transition: transform 0.15s ease;
+  }
+  .bar-toc[open] summary svg {
+    transform: rotate(180deg);
+  }
+  .bar-toc ol {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: min(360px, calc(100vw - 2 * var(--gutter)));
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+  .bar-toc a {
+    display: block;
+    padding: 0.55rem 0.7rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--ink-2);
+    line-height: 1.3;
+  }
+  .bar-toc a:hover {
+    background: var(--paper-sunk);
+    color: var(--ink);
+  }
+  .bar-toc a[aria-current] {
+    color: var(--ink);
+    font-weight: 700;
+    box-shadow: inset 3px 0 0 var(--hl);
+  }
+  .bar-end {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+  }
+  .bar-status:not(:empty) {
+    font-size: 0.74rem;
+    color: var(--good);
+    white-space: nowrap;
+  }
+  .bar-progress {
+    height: 3px;
+    background: transparent;
+  }
+  .bar-progress span {
+    display: block;
+    height: 100%;
+    background: var(--hl);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+  @media (max-width: 720px) {
+    .bar-unit,
+    .bar-status {
+      display: none;
+    }
+  }
+
+  /* Lesson body */
+  .lesson {
+    max-width: 1000px;
+    margin-inline: auto;
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    padding-bottom: 5rem;
   }
   .lesson-prose {
     max-width: none;
   }
-  .lesson-prose > :global(p),
-  .lesson-prose > :global(ul),
-  .lesson-prose > :global(ol),
-  .lesson-prose > :global(h2),
-  .lesson-prose > :global(h3) {
-    max-width: 68ch;
+  .lesson-prose > :global(*) {
+    max-width: 680px;
+  }
+  .lesson-prose > :global(figure),
+  .lesson-prose > :global(.worked),
+  .lesson-prose > :global(.table-scroll) {
+    max-width: none;
+    margin-block: 2.2rem;
+    clear: both;
   }
   .lesson-prose > :global(h2:first-child) {
     margin-top: 0;
   }
-  .terms {
-    margin-top: 4rem;
-    padding-top: 2rem;
+  .lesson-prose > :global(h2) {
+    padding-top: 1.6rem;
     border-top: 1px solid var(--rule);
+  }
+  .lesson-prose > :global(h2:first-child) {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .terms {
+    margin-top: 4.5rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--ink);
+  }
+  .terms .eyebrow {
+    margin-bottom: 0.4rem;
   }
   .terms dl {
     display: grid;
-    gap: 0;
-    margin: 1.25rem 0 1rem;
+    margin: 1.4rem 0 1rem;
   }
-  @media (min-width: 720px) {
+  @media (min-width: 760px) {
     .terms dl {
       grid-template-columns: 1fr 1fr;
-      column-gap: 2rem;
+      column-gap: 2.5rem;
     }
   }
   .term {
-    padding: 0.8rem 0;
+    padding: 0.85rem 0;
     border-bottom: 1px solid var(--rule);
+    scroll-margin-top: 5rem;
+  }
+  .term:target {
+    background: color-mix(in srgb, var(--hl) 22%, transparent);
   }
   .term dt {
     font-weight: 700;
@@ -281,26 +483,28 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   .term dd {
     margin: 0.2rem 0 0;
     color: var(--ink-2);
-    font-family: var(--font-body);
     line-height: 1.5;
   }
-  .small {
-    font-size: 0.9rem;
-  }
   .practice {
-    margin-top: 4rem;
+    margin-top: 4.5rem;
     padding-top: 2rem;
-    border-top: 1px solid var(--rule);
+    border-top: 2px solid var(--ink);
   }
   .done-row {
-    margin-top: 2.5rem;
+    margin-top: 3rem;
+    padding: 1.25rem 1.4rem;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem 1.25rem;
+    justify-content: space-between;
+    gap: 1rem 2rem;
     align-items: center;
   }
+  .done-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
   .pager {
-    margin-top: 3rem;
+    margin-top: 1.5rem;
     display: grid;
     gap: 1rem;
   }
@@ -311,23 +515,28 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   }
   .pager-link {
     display: grid;
-    gap: 0.35rem;
-    padding: 1rem 1.1rem;
+    gap: 0.4rem;
+    padding: 1.2rem 1.3rem;
     border: 1px solid var(--rule);
     border-radius: var(--radius-lg);
     background: var(--paper-raised);
     text-decoration: none;
+    transition: transform 0.15s ease, border-color 0.15s ease;
   }
   .pager-link:hover {
     border-color: var(--ink);
+    transform: translateY(-2px);
   }
   .pager-next {
     text-align: right;
+    border-color: transparent;
+  }
+  .pager-next .eyebrow {
+    color: var(--chalk-2);
   }
   .pager-title {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.1rem;
-    line-height: 1.25;
+    font-size: 1.45rem;
+    line-height: 1.2;
   }
 </style>

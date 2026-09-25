@@ -1,15 +1,16 @@
 ---
 import Base from '../../layouts/Base.astro';
+import PageBand from '../../components/PageBand.astro';
 import ProGate from '../../components/ProGate.astro';
 import { units, unitLabel } from '../../data/units';
 import { url } from '../../lib/url';
 ---
 <Base title="Review sheets" description="Printable one-page review sheets for every AP Microeconomics and Macroeconomics unit. Part of TutorEcon Pro.">
-  <header class="wrap page-head">
-    <p class="eyebrow">Pro · Review sheets</p>
-    <h1 class="page-title">Review sheets</h1>
-    <p class="lede">One page per unit: what you must know, the formulas, the graphs to practice drawing, and the traps that cost points. Made to print.</p>
-  </header>
+  <PageBand
+    eyebrow="Pro · Review sheets"
+    title="Review sheets"
+    lede="One page per unit: what you must know, the formulas, the graphs to practice drawing, and the traps that cost points. Made to print."
+  />
   <div class="wrap body">
     <ProGate feature="Review sheets">
       <ol class="sheet-list">
@@ -27,11 +28,6 @@ import { url } from '../../lib/url';
 </Base>
 
 <style>
-  .page-head {
-    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
-    display: grid;
-    gap: 0.9rem;
-  }
   .lede {
     max-width: 56ch;
   }

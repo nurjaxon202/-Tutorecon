@@ -1,17 +1,15 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
 import { units } from '../data/units';
 import { url } from '../lib/url';
 ---
 <Base title="Your data and settings" description="See and delete everything TutorEcon has saved in your browser, change the theme, and manage the Pro demo.">
-  <header class="wrap page-head">
-    <p class="eyebrow">Your data</p>
-    <h1 class="page-title">Your data and settings</h1>
-    <p class="lede">
-      TutorEcon has no accounts and no server that stores information about you. Everything below lives only in this
-      browser, and you can download it or delete it here.
-    </p>
-  </header>
+  <PageBand
+    eyebrow="Your data"
+    title="Your data and settings"
+    lede="TutorEcon has no accounts and no server that stores information about you. Everything below lives only in this browser, and you can download it or delete it here."
+  />
 
   <div class="wrap grid">
     <section class="panel card" aria-labelledby="plan-title">
@@ -171,11 +169,6 @@ import { url } from '../lib/url';
 </script>
 
 <style>
-  .page-head {
-    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
-    display: grid;
-    gap: 0.9rem;
-  }
   .lede {
     max-width: 58ch;
   }

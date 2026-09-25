@@ -1,19 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
 import Quiz from '../components/Quiz.astro';
 import { questions, questionsFor } from '../data/questions';
 import { units, unitLabel } from '../data/units';
 import { url } from '../lib/url';
 ---
 <Base title="Practice questions" description="Mixed AP Microeconomics and Macroeconomics practice questions, each with an explanation for every answer choice.">
-  <header class="wrap page-head">
-    <p class="eyebrow">Practice</p>
-    <h1 class="page-title">Practice questions</h1>
-    <p class="lede">
-      Ten questions drawn at random from all {questions.length}. Filter by course, check each answer as you go, and draw a
-      new set whenever you like.
-    </p>
-  </header>
+  <PageBand
+    eyebrow="Practice"
+    title="Practice questions"
+    lede={`Ten questions drawn at random from all ${questions.length}. Filter by course, check each answer as you go, and draw a new set whenever you like.`}
+  />
 
   <div class="wrap practice-grid">
     <div class="practice-main">
@@ -60,11 +58,6 @@ import { url } from '../lib/url';
 </script>
 
 <style>
-  .page-head {
-    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
-    display: grid;
-    gap: 0.9rem;
-  }
   .lede {
     max-width: 56ch;
   }

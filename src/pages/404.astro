@@ -1,24 +1,56 @@
 ---
 import Base from '../layouts/Base.astro';
+import GraphThumb from '../components/GraphThumb.astro';
 import { url } from '../lib/url';
 ---
 <Base title="Page not found" noindex>
-  <div class="wrap nf">
-    <p class="eyebrow">Error 404</p>
-    <h1 class="page-title">This page is not on the curve.</h1>
-    <p class="lede">The link may be old, or the address may have a typo. Try one of these instead.</p>
-    <div class="btn-row">
-      <a class="btn" href={url('/learn/')}>See all units</a>
-      <a class="btn btn-secondary" href={url('/')}>Go to the home page</a>
+  <section class="nf on-board">
+    <div class="wrap nf-grid">
+      <div class="nf-copy">
+        <p class="eyebrow">Error 404</p>
+        <h1 class="page-title">This page is off the curve.</h1>
+        <p class="lede">The link may be old, or the address may have a typo. Try one of these instead.</p>
+        <div class="btn-row">
+          <a class="btn" href={url('/learn/')}>See all units</a>
+          <a class="btn btn-secondary" href={url('/')}>Go to the home page</a>
+        </div>
+      </div>
+      <div class="nf-art" aria-hidden="true">
+        <GraphThumb model="ppc" state={{ x: 118, y: 96 }} width={380} height={300} />
+      </div>
     </div>
-  </div>
+  </section>
 </Base>
 
 <style>
   .nf {
-    padding-block: clamp(3rem, 2rem + 5vw, 7rem);
+    padding-block: clamp(3rem, 2rem + 6vw, 8rem);
+    background-image:
+      linear-gradient(rgba(243, 246, 240, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(243, 246, 240, 0.045) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .nf-grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .nf-grid {
+      grid-template-columns: 1.2fr 1fr;
+    }
+  }
+  .nf-copy {
     display: grid;
     gap: 1.1rem;
     justify-items: start;
+  }
+  .nf-copy .eyebrow,
+  .nf-copy .lede {
+    color: var(--chalk-2);
+  }
+  .nf-art :global(.g-grid),
+  .nf-art :global(.g-grid-major) {
+    display: none;
   }
 </style>

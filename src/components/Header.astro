@@ -4,7 +4,7 @@ import { url } from '../lib/url';
 import { site } from '../site';
 
 const links = [
-  { href: '/learn/', label: 'Learn' },
+  { href: '/learn/', label: 'Units' },
   { href: '/practice/', label: 'Practice' },
   { href: '/graph-lab/', label: 'Graph lab' },
   { href: '/glossary/', label: 'Glossary' },
@@ -13,14 +13,15 @@ const links = [
 const here = Astro.url.pathname;
 const isActive = (href: string) => here.startsWith(url(href));
 ---
-<header class="site-header">
+<header class="site-header on-board">
   <div class="wrap bar">
     <a class="brand" href={url('/')} aria-label={`${site.name} home`}>
       <Logo />
       <span class="wordmark">{site.name}</span>
     </a>
 
-    <button class="menu-btn btn btn-secondary btn-small" type="button" aria-expanded="false" aria-controls="site-nav">
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
       Menu
     </button>
 
@@ -32,11 +33,14 @@ const isActive = (href: string) => here.startsWith(url(href));
           </li>
         ))}
       </ul>
-      <button class="theme-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">
-        <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span class="theme-label">Theme</span>
-      </button>
+      <div class="nav-end">
+        <button class="theme-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" /></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+          <span class="theme-label">Theme</span>
+        </button>
+        <a class="btn btn-small start" href={url('/learn/foundations/')}>Start learning</a>
+      </div>
     </nav>
   </div>
 </header>
@@ -75,88 +79,96 @@ const isActive = (href: string) => here.startsWith(url(href));
 
 <style>
   .site-header {
-    border-bottom: 1px solid var(--rule);
-    background: var(--paper);
     position: relative;
-    z-index: 20;
+    z-index: 30;
+    border-bottom: 1px solid rgba(243, 246, 240, 0.12);
   }
   .bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    min-height: 68px;
+    min-height: 72px;
   }
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.65rem;
     text-decoration: none;
-    color: var(--ink);
+    color: var(--chalk);
   }
   .wordmark {
     font-family: var(--font-display);
-    font-weight: 820;
-    font-stretch: 122%;
-    font-variation-settings: 'wdth' 122;
-    font-size: 1.2rem;
-    letter-spacing: -0.02em;
+    font-size: 1.42rem;
+    letter-spacing: -0.01em;
+    line-height: 1;
   }
   .nav {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
   }
   .nav ul {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.15rem;
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .nav a {
+  .nav a:not(.btn) {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    min-height: 40px;
-    padding: 0.35rem 0.7rem;
+    min-height: 42px;
+    padding: 0.35rem 0.75rem;
     border-radius: var(--radius);
     text-decoration: none;
-    font-weight: 560;
-    color: var(--ink-2);
+    font-weight: 600;
+    color: var(--chalk-2);
   }
-  .nav a:hover {
-    color: var(--ink);
-    background: var(--paper-sunk);
+  .nav a:not(.btn):hover {
+    color: var(--chalk);
+    background: rgba(243, 246, 240, 0.08);
   }
   .nav a[aria-current='page'] {
-    color: var(--ink);
-    background-image: linear-gradient(var(--hl), var(--hl));
-    background-size: calc(100% - 1.4rem) 5px;
-    background-position: 0.7rem 78%;
-    background-repeat: no-repeat;
+    color: var(--chalk);
   }
-  .theme-btn {
+  .nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 5px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--hl);
+  }
+  .nav-end {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .theme-btn,
+  .menu-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
     min-height: 40px;
     min-width: 40px;
     justify-content: center;
-    padding: 0.35rem 0.6rem;
-    border: 1px solid var(--rule);
+    padding: 0.35rem 0.7rem;
+    border: 1px solid rgba(243, 246, 240, 0.28);
     border-radius: var(--radius);
     background: transparent;
-    color: var(--ink-2);
+    color: var(--chalk-2);
+    font-weight: 600;
+    font-size: 0.92rem;
     cursor: pointer;
-    margin-left: 0.5rem;
   }
-  .theme-btn:hover {
-    color: var(--ink);
-    border-color: var(--rule-strong);
-  }
-  .theme-label {
-    font-size: 0.9rem;
-    font-weight: 560;
+  .theme-btn:hover,
+  .menu-btn:hover {
+    color: var(--chalk);
+    border-color: rgba(243, 246, 240, 0.55);
   }
   .icon-sun {
     display: none;
@@ -171,12 +183,12 @@ const isActive = (href: string) => here.startsWith(url(href));
     display: none;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1060px) {
     .theme-label {
       display: none;
     }
   }
-  @media (max-width: 780px) {
+  @media (max-width: 900px) {
     .menu-btn {
       display: inline-flex;
     }
@@ -188,10 +200,11 @@ const isActive = (href: string) => here.startsWith(url(href));
       top: 100%;
       flex-direction: column;
       align-items: stretch;
+      gap: 0.75rem;
       padding: 0.75rem var(--gutter) 1.25rem;
-      background: var(--paper);
-      border-bottom: 1px solid var(--rule);
-      box-shadow: var(--shadow);
+      background: var(--board);
+      border-bottom: 1px solid rgba(243, 246, 240, 0.12);
+      box-shadow: 0 24px 40px -20px rgba(0, 0, 0, 0.5);
     }
     .nav.is-open {
       display: flex;
@@ -199,14 +212,17 @@ const isActive = (href: string) => here.startsWith(url(href));
     .nav ul {
       flex-direction: column;
     }
-    .nav a {
+    .nav a:not(.btn) {
       min-height: 48px;
-      font-size: 1.05rem;
+      font-size: 1.08rem;
     }
-    .theme-btn {
-      margin: 0.5rem 0 0;
-      justify-content: flex-start;
-      min-height: 48px;
+    .nav a[aria-current='page']::after {
+      left: 0.75rem;
+      right: auto;
+      width: 2.5rem;
+    }
+    .nav-end {
+      justify-content: space-between;
     }
     .theme-label {
       display: inline;
