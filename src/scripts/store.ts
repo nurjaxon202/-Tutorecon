@@ -4,6 +4,8 @@
 
 const KEY = 'tutorecon.v1';
 const THEME_KEY = 'tutorecon.theme';
+/** Whether lessons show one step at a time or all at once. Read by the lesson page. */
+export const LESSON_MODE_KEY = 'tutorecon.lessonMode';
 
 export interface QuizResult {
   best: number;
@@ -24,9 +26,30 @@ export interface Saved {
   quiz: Record<string, QuizResult>;
   exams: ExamResult[];
   pro: { since: number } | null;
+  /** Points earned for correct answers and finished units. */
+  xp: number;
+  /** Consecutive days with at least one correct answer. */
+  streak: number;
+  /** Local date (YYYY-MM-DD) of the last day that counted toward the streak. */
+  lastDay: string | null;
+  /** XP earned on lastDay, for the daily goal. */
+  dayXp: number;
+  /** Questions already answered correctly once (XP is only given the first time). */
+  answered: Record<string, true>;
+  /** How far the reader got in each lesson, as a section index. */
+  steps: Record<string, number>;
 }
 
-const empty = (): Saved => ({ done: {}, quiz: {}, exams: [], pro: null });
+const empty = (): Saved => ({ done: {}, quiz: {}, exams: [], pro: null, xp: 0, streak: 0, lastDay: null, dayXp: 0, answered: {}, steps: {} });
+
+const dayKey = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+const daysBetween = (a: string, b: string) => {
+  const [ay, am, ad] = a.split('-').map(Number);
+  const [by, bm, bd] = b.split('-').map(Number);
+  return Math.round((Date.UTC(by, bm - 1, bd) - Date.UTC(ay, am - 1, ad)) / 86400000);
+};
 
 function read(): Saved {
   try {
@@ -83,6 +106,58 @@ export const store = {
     write(data);
   },
 
+  /** Add points and count today toward the streak. Returns the new totals. */
+  addXp(points: number): { xp: number; streak: number; newDay: boolean } {
+    const data = read();
+    const today = dayKey();
+    let newDay = false;
+    if (data.lastDay !== today) {
+      const gap = data.lastDay ? daysBetween(data.lastDay, today) : Infinity;
+      data.streak = gap === 1 ? data.streak + 1 : 1;
+      data.lastDay = today;
+      data.dayXp = 0;
+      newDay = true;
+    }
+    data.xp += points;
+    data.dayXp += points;
+    write(data);
+    return { xp: data.xp, streak: data.streak, newDay };
+  },
+
+  /** Award XP for a question the first time it is answered correctly. Returns points given. */
+  rewardAnswer(id: string, points = 10): number {
+    const data = read();
+    if (data.answered[id]) return 0;
+    data.answered[id] = true;
+    write(data);
+    store.addXp(points);
+    return points;
+  },
+
+  getStep(slug: string): number {
+    return read().steps[slug] ?? 0;
+  },
+
+  setStep(slug: string, step: number): void {
+    const data = read();
+    if ((data.steps[slug] ?? 0) >= step) return;
+    data.steps[slug] = step;
+    write(data);
+  },
+
+  /** The streak only counts if the last active day was today or yesterday. */
+  currentStreak(): number {
+    const data = read();
+    if (!data.lastDay) return 0;
+    return daysBetween(data.lastDay, dayKey()) <= 1 ? data.streak : 0;
+  },
+
+  /** XP earned today, for the daily goal. */
+  todayXp(): number {
+    const data = read();
+    return data.lastDay === dayKey() ? data.dayXp : 0;
+  },
+
   isPro(): boolean {
     return Boolean(read().pro);
   },
@@ -103,11 +178,21 @@ export const store = {
     try {
       localStorage.removeItem(KEY);
       localStorage.removeItem(THEME_KEY);
+      localStorage.removeItem(LESSON_MODE_KEY);
     } catch {
       /* storage unavailable: nothing to clear */
     }
     delete document.documentElement.dataset.theme;
     window.dispatchEvent(new CustomEvent('tutorecon:change'));
+  },
+
+  getLessonMode(): 'steps' | 'all' | null {
+    try {
+      const m = localStorage.getItem(LESSON_MODE_KEY);
+      return m === 'steps' || m === 'all' ? m : null;
+    } catch {
+      return null;
+    }
   },
 
   getTheme(): 'light' | 'dark' | null {

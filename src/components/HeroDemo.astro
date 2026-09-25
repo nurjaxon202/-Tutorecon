@@ -1,0 +1,509 @@
+---
+// The home page demo: three real questions on a live supply and demand graph.
+// Pick an answer, press Check, watch the market move, read why.
+import { graphs } from '../scripts/graphs/models';
+import { Plot, heightFor } from '../scripts/graphs/core';
+import { url } from '../lib/url';
+
+const questions = [
+  {
+    prompt: 'A frost destroys part of Florida’s orange harvest. What happens to the price of orange juice?',
+    choices: ['It falls', 'It rises', 'It stays the same'],
+    answer: 1,
+    target: { dShift: 0, sShift: -20 },
+    hl: 's',
+    explain: 'Frost cuts supply, so the supply curve shifts left. Price rises from $6 to $7, and quantity falls from 40 to 30 million cartons.',
+  },
+  {
+    prompt: 'A study links orange juice to fewer colds. What happens to the quantity sold?',
+    choices: ['It falls', 'It stays the same', 'It rises'],
+    answer: 2,
+    target: { dShift: 20, sShift: 0 },
+    hl: 'd',
+    explain: 'Tastes move toward orange juice, so demand shifts right. Quantity rises from 40 to 50 million cartons, and price rises to $7.',
+  },
+  {
+    prompt: 'Apple juice gets cheaper. What happens in the orange juice market?',
+    choices: ['Demand shifts right', 'Demand shifts left', 'Supply shifts left'],
+    answer: 1,
+    target: { dShift: -16, sShift: 0 },
+    hl: 'd',
+    explain: 'Apple juice is a substitute. When it gets cheaper, some buyers switch, so demand for orange juice shifts left. Price falls to $5.20 and quantity to 32 million cartons.',
+  },
+];
+
+const setup = graphs['market-oj']();
+const w = 560;
+const h = heightFor(w, 0.62);
+const plot = new Plot(w, h, setup.x, setup.y, 'demo-clip');
+setup.draw(plot, setup.initial);
+const first = questions[0];
+---
+<div class="demo" data-demo data-questions={JSON.stringify(questions)} aria-label="Try a question">
+  <div class="demo-top">
+    <div class="demo-progress" role="progressbar" aria-label="Demo progress" aria-valuemin="0" aria-valuemax={questions.length} aria-valuenow="0">
+      <span data-demo-bar></span>
+    </div>
+    <span class="demo-count" data-demo-count>1 of {questions.length}</span>
+  </div>
+
+  <div class="demo-body" data-demo-body>
+    <p class="demo-label">Unit 2 &middot; Supply and demand</p>
+    <p class="demo-q" id="demo-q" data-demo-q>{first.prompt}</p>
+    <div class="demo-graph" data-demo-canvas>
+      <svg
+        data-demo-svg
+        role="img"
+        aria-label="Supply and demand graph for orange juice. It updates after you check your answer."
+        viewBox={`0 0 ${w} ${h}`}
+        width={w}
+        height={h}
+        xmlns="http://www.w3.org/2000/svg"
+        set:html={plot.svg()}
+      />
+    </div>
+    <fieldset class="demo-choices" aria-labelledby="demo-q">
+      {first.choices.map((c, i) => (
+        <label class="demo-choice">
+          <input type="radio" name="demo-choice" value={i} />
+          <span class="demo-key" aria-hidden="true">{i + 1}</span>
+          <span data-demo-choice={i}>{c}</span>
+        </label>
+      ))}
+    </fieldset>
+    <button type="button" class="btn btn-big demo-check" data-demo-check disabled>Check</button>
+  </div>
+
+  <div class="demo-sheet" data-demo-sheet hidden aria-live="polite">
+    <p class="demo-verdict" data-demo-verdict></p>
+    <p class="demo-why" data-demo-why></p>
+    <button type="button" class="btn btn-big demo-next" data-demo-next>Continue</button>
+  </div>
+
+  <div class="demo-end" data-demo-end hidden>
+    <p class="demo-end-score" data-demo-score></p>
+    <p class="demo-end-text">That is how every lesson works: a question, a graph that moves, and the reason in plain words.</p>
+    <div class="btn-row">
+      <a class="btn btn-big" href={url('/learn/foundations/')}>Start Unit 1 <span class="arrow" aria-hidden="true">&rarr;</span></a>
+      <button type="button" class="btn btn-secondary btn-big" data-demo-restart>Try again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { Plot, heightFor } from '../scripts/graphs/core';
+  import { graphs, type State } from '../scripts/graphs/models';
+  import { store } from '../scripts/store';
+
+  interface Q {
+    prompt: string;
+    choices: string[];
+    answer: number;
+    target: State;
+    hl: string;
+    explain: string;
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-demo]');
+  if (root) {
+    const qs: Q[] = JSON.parse(root.dataset.questions ?? '[]');
+    const setup = graphs['market-oj']();
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const canvas = $('[data-demo-canvas]');
+    const svg = root.querySelector<SVGSVGElement>('[data-demo-svg]')!;
+    const check = $<HTMLButtonElement>('[data-demo-check]');
+    const sheet = $('[data-demo-sheet]');
+    const body = $('[data-demo-body]');
+    const end = $('[data-demo-end]');
+    let state: State = { ...setup.initial };
+    let index = 0;
+    let score = 0;
+    let raf = 0;
+
+    const render = () => {
+      const w = Math.max(260, Math.round(canvas.clientWidth));
+      const h = heightFor(w, 0.62);
+      const plot = new Plot(w, h, setup.x, setup.y, 'demo-clip');
+      setup.draw(plot, state);
+      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+      svg.setAttribute('width', String(w));
+      svg.setAttribute('height', String(h));
+      svg.innerHTML = plot.svg();
+    };
+
+    const animateTo = (target: State, done?: () => void) => {
+      cancelAnimationFrame(raf);
+      const from = { ...state };
+      const keys = Object.keys(target).filter((k) => typeof target[k] === 'number');
+      for (const k of Object.keys(target)) if (!keys.includes(k)) state[k] = target[k];
+      if (reduce.matches) {
+        state = { ...state, ...target };
+        render();
+        done?.();
+        return;
+      }
+      const t0 = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - t0) / 750);
+        const e = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+        for (const k of keys) state[k] = (from[k] as number) + ((target[k] as number) - (from[k] as number)) * e;
+        render();
+        if (t < 1) raf = requestAnimationFrame(step);
+        else {
+          state = { ...state, ...target };
+          render();
+          done?.();
+        }
+      };
+      raf = requestAnimationFrame(step);
+    };
+
+    const setBar = (n: number) => {
+      $('[data-demo-bar]').style.width = `${(n / qs.length) * 100}%`;
+      root.querySelector('[role="progressbar"]')?.setAttribute('aria-valuenow', String(n));
+    };
+
+    const show = (i: number) => {
+      index = i;
+      const q = qs[i];
+      $('[data-demo-q]').textContent = q.prompt;
+      $('[data-demo-count]').textContent = `${i + 1} of ${qs.length}`;
+      root.querySelectorAll<HTMLInputElement>('input[name="demo-choice"]').forEach((r, j) => {
+        r.checked = false;
+        r.disabled = false;
+        r.closest('label')!.classList.remove('is-right', 'is-wrong');
+        root.querySelector(`[data-demo-choice="${j}"]`)!.textContent = q.choices[j];
+      });
+      check.disabled = true;
+      check.hidden = false;
+      sheet.hidden = true;
+      sheet.classList.remove('is-right', 'is-wrong');
+      body.hidden = false;
+      end.hidden = true;
+    };
+
+    root.addEventListener('change', (e) => {
+      if ((e.target as HTMLInputElement).name === 'demo-choice') check.disabled = false;
+    });
+
+    // Number keys pick an answer, Enter checks, like the lessons.
+    root.addEventListener('keydown', (e) => {
+      if (!sheet.hidden || body.hidden) return;
+      const n = Number(e.key);
+      const radios = root.querySelectorAll<HTMLInputElement>('input[name="demo-choice"]');
+      if (n >= 1 && n <= radios.length) {
+        radios[n - 1].checked = true;
+        radios[n - 1].focus();
+        check.disabled = false;
+      } else if (e.key === 'Enter' && !check.disabled && (e.target as HTMLElement).matches('input')) {
+        e.preventDefault();
+        check.click();
+      }
+    });
+
+    check.addEventListener('click', () => {
+      const picked = root.querySelector<HTMLInputElement>('input[name="demo-choice"]:checked');
+      if (!picked) return;
+      const q = qs[index];
+      const choice = Number(picked.value);
+      const right = choice === q.answer;
+      if (right) score++;
+      root.querySelectorAll<HTMLInputElement>('input[name="demo-choice"]').forEach((r) => (r.disabled = true));
+      picked.closest('label')!.classList.add(right ? 'is-right' : 'is-wrong');
+      if (!right) root.querySelectorAll<HTMLInputElement>('input[name="demo-choice"]')[q.answer].closest('label')!.classList.add('is-right');
+      const xp = right ? store.rewardAnswer(`demo-${index}`, 5) : 0;
+      $('[data-demo-verdict]').innerHTML = right
+        ? `Nice work!${xp ? ` <span class="xp-chip">+${xp} XP</span>` : ''}`
+        : 'Not quite';
+      $('[data-demo-why]').textContent = q.explain;
+      sheet.classList.toggle('is-right', right);
+      sheet.classList.toggle('is-wrong', !right);
+      check.hidden = true;
+      setBar(index + 1);
+      state._hl = q.hl;
+      render();
+      window.setTimeout(() => {
+        animateTo({ ...q.target, _hl: q.hl }, () => {
+          state._hl = '';
+          render();
+        });
+      }, reduce.matches ? 0 : 250);
+      sheet.hidden = false;
+      $<HTMLButtonElement>('[data-demo-next]').focus({ preventScroll: true });
+    });
+
+    $('[data-demo-next]').addEventListener('click', () => {
+      if (index + 1 < qs.length) {
+        animateTo({ ...setup.initial, _hl: '' });
+        show(index + 1);
+        root.querySelector<HTMLInputElement>('input[name="demo-choice"]')?.focus({ preventScroll: true });
+      } else {
+        body.hidden = true;
+        sheet.hidden = true;
+        end.hidden = false;
+        $('[data-demo-score]').textContent = score === qs.length ? `${score} of ${qs.length}. Perfect.` : `${score} of ${qs.length} correct`;
+        end.querySelector<HTMLAnchorElement>('a')?.focus({ preventScroll: true });
+      }
+    });
+
+    $('[data-demo-restart]').addEventListener('click', () => {
+      score = 0;
+      setBar(0);
+      state = { ...setup.initial };
+      render();
+      show(0);
+    });
+
+    let lastW = 0;
+    new ResizeObserver(() => {
+      const w = Math.round(canvas.clientWidth);
+      if (w !== lastW) {
+        lastW = w;
+        render();
+      }
+    }).observe(canvas);
+  }
+</script>
+
+<style>
+  .demo {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1rem, 0.7rem + 1vw, 1.5rem);
+    border-radius: 30px;
+    background: var(--card);
+    border: 2px solid var(--line);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    min-height: 100%;
+  }
+  .demo-top {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+  .demo-progress {
+    flex: 1;
+    height: 16px;
+    border-radius: 8px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .demo-progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 8px;
+    background: var(--good-fill);
+    background-image: linear-gradient(transparent 20%, rgba(255, 255, 255, 0.35) 20%, rgba(255, 255, 255, 0.35) 42%, transparent 42%);
+    transition: width 0.5s cubic-bezier(0.3, 0.9, 0.3, 1.1);
+  }
+  .demo-count {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  .demo-body {
+    display: grid;
+    gap: 0.9rem;
+  }
+  .demo-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand);
+  }
+  .demo-q {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.2rem, 1rem + 0.6vw, 1.45rem);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    min-height: 2.6em;
+  }
+  .demo-graph {
+    padding: 0.5rem 0.4rem 0.2rem 0;
+    border-radius: 18px;
+    background: var(--bg-2);
+  }
+  .demo-graph svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .demo-graph :global(.g-handle) {
+    display: none;
+  }
+  .demo-choices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  @media (max-width: 520px) {
+    .demo-choices {
+      grid-template-columns: 1fr;
+    }
+  }
+  .demo-choice {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 54px;
+    padding: 0.55rem 0.75rem;
+    border: 2px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--card);
+    box-shadow: 0 4px 0 var(--line-strong);
+    font-weight: 800;
+    font-size: 0.97rem;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease, border-color 0.15s ease;
+  }
+  .demo-choice:hover {
+    background: var(--bg-2);
+  }
+  .demo-choice:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--line-strong);
+  }
+  .demo-choice input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .demo-key {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 7px;
+    border: 2px solid var(--line-strong);
+    font-size: 0.8rem;
+    color: var(--ink-3);
+  }
+  .demo-choice:has(input:checked) {
+    border-color: var(--brand);
+    background: var(--brand-tint);
+    color: var(--brand);
+    box-shadow: 0 4px 0 var(--brand);
+  }
+  .demo-choice:has(input:checked) .demo-key {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+  .demo-choice:has(input:focus-visible) {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+  .demo-choice:has(input:disabled) {
+    cursor: default;
+  }
+  .demo-choice.is-right {
+    border-color: var(--good-fill) !important;
+    background: var(--good-tint) !important;
+    color: var(--good) !important;
+    box-shadow: 0 4px 0 var(--good-fill) !important;
+  }
+  .demo-choice.is-wrong {
+    border-color: var(--bad-fill) !important;
+    background: var(--bad-tint) !important;
+    color: var(--bad) !important;
+    box-shadow: 0 4px 0 var(--bad-fill) !important;
+  }
+  .demo-choice.is-right:has(input) .demo-key {
+    border-color: var(--good-fill);
+    background: var(--good-fill);
+    color: #fff;
+  }
+  .demo-choice.is-wrong:has(input) .demo-key {
+    border-color: var(--bad-fill);
+    background: var(--bad-fill);
+    color: #fff;
+  }
+  .demo-check {
+    width: 100%;
+  }
+  .demo-sheet {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0 calc(-1 * clamp(1rem, 0.7rem + 1vw, 1.5rem)) calc(-1 * clamp(1rem, 0.7rem + 1vw, 1.5rem));
+    padding: 1.1rem clamp(1rem, 0.7rem + 1vw, 1.5rem) clamp(1rem, 0.7rem + 1vw, 1.5rem);
+    animation: sheet-up 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+  }
+  .demo-sheet.is-right {
+    background: var(--good-tint);
+  }
+  .demo-sheet.is-wrong {
+    background: var(--bad-tint);
+  }
+  @keyframes sheet-up {
+    from {
+      transform: translateY(40px);
+      opacity: 0;
+    }
+  }
+  .demo-verdict {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.45rem;
+    letter-spacing: -0.02em;
+  }
+  .is-right .demo-verdict {
+    color: var(--good);
+  }
+  .is-wrong .demo-verdict {
+    color: var(--bad);
+  }
+  .demo-why {
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .demo-next {
+    width: 100%;
+    margin-top: 0.3rem;
+  }
+  .is-right .demo-next {
+    background: var(--good-fill);
+    box-shadow: 0 4px 0 var(--good-lip);
+  }
+  .is-wrong .demo-next {
+    background: var(--bad-fill);
+    box-shadow: 0 4px 0 var(--bad-lip);
+  }
+  .demo-end {
+    display: grid;
+    gap: 1rem;
+    align-content: center;
+    justify-items: start;
+    padding: 2rem 0.5rem;
+    min-height: 420px;
+  }
+  .demo-end-score {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2.4rem;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--good);
+  }
+  .demo-end-text {
+    font-size: 1.1rem;
+    color: var(--ink-2);
+    max-width: 36ch;
+  }
+</style>

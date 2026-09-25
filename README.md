@@ -2,17 +2,22 @@
 
 Free AP Microeconomics and AP Macroeconomics lessons with graphs you can move.
 
-- 11 units that follow the AP course outlines
+- A try-it-now demo on the home page: answer a question and watch the market move
+- 11 units that follow the AP course outlines, laid out as a path: Unit 1, then an AP Micro track and an AP Macro track
+- Step-by-step lessons: one section at a time with a Continue button and a progress bar, or the whole lesson at once
 - 18 live graphs (supply and demand, price controls, taxes, cost curves, monopoly, monopsony, externalities, Lorenz curve, business cycle, AD-AS, money market, loanable funds, Phillips curve, foreign exchange)
 - **The four moves**: pick a news event and a tutor walks through what changed, which curve moves, which way, and what happens, while the graph highlights the curve, shifts it, and draws the axis arrows
 - Margin definitions: the first time a key term appears in a lesson, its glossary definition sits beside it
 - 66 practice questions, each with an explanation for every answer choice, keyboard shortcuts, and a progress strip
+- XP for first correct answers, a daily goal, a day streak, and a unit check that marks the unit done
 - A glossary, a graph lab, and progress saved in the browser
 - A Pro tier (timed mock exams, printable review sheets) behind a clearly labeled **demo** checkout
 
 ## Design
 
-Chalkboard green, graph paper, and a yellow highlighter. Headlines are set in Young Serif, reading text in Atkinson Hyperlegible Next (a typeface designed for legibility), and numbers in IBM Plex Mono. All fonts are self-hosted. Every picture on the site is drawn by the same graph engine that powers the lessons.
+Built like a learning app. Big, friendly type (Bricolage Grotesque for headlines, Figtree for reading), a blue and orange palette (blue for AP Macro and demand curves, orange for AP Micro and supply curves, yellow for the current step), and chunky buttons with a pressable bottom edge. Answers get a green or red banner with the reason, and progress shows up as bars, rings, and a streak counter. Every picture on the site is drawn by the same graph engine that powers the lessons, and all fonts are self-hosted.
+
+Text meets WCAG AA contrast in both the light and dark themes, everything works with a keyboard, and motion is reduced when your device asks for it.
 
 The site is fully static. It has no server, no accounts, no cookies, no analytics, and no third-party scripts.
 
@@ -74,8 +79,8 @@ src/
   data/             units, practice questions, glossary, review sheets
   scripts/graphs/   the SVG graph engine, every graph model, and the four-moves scripts
   lib/rehype-sidenotes.mjs   adds margin definitions to lessons at build time
-  scripts/          quiz, local storage
-  components/       Graph, Quiz, Callout, Worked, Step, ProGate, header, footer
+  scripts/          quiz, learning path, local storage (progress, XP, streak)
+  components/       Graph, HeroDemo, UnitPathRow, Quiz, Callout, Worked, Step, ProGate, header, footer
   pages/            every route, including policies
   styles/           design tokens and component styles
 ```

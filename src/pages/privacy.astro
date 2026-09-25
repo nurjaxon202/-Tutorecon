@@ -15,10 +15,11 @@ import { url } from '../lib/url';
   <p>Nothing. The site is a set of static pages. It has no server-side code, no database, no sign-up, and no contact forms. We do not use analytics tools, tracking pixels, advertising networks, or embedded content from other companies. Fonts are served from this site, not from a font service.</p>
 
   <h2>What is saved in your browser</h2>
-  <p>To remember your progress, the site writes two entries to your browser's local storage:</p>
+  <p>To remember your progress, the site writes up to three entries to your browser's local storage:</p>
   <ul>
-    <li><code>tutorecon.v1</code>: units you marked done, your best practice scores, your last 20 mock exam scores, and whether the Pro demo is on.</li>
+    <li><code>tutorecon.v1</code>: units you marked done, how far you read in each lesson, your best practice scores, which questions you already answered correctly (so XP is only given once), your XP, your streak and the last day it counted, your last 20 mock exam scores, and whether the Pro demo is on.</li>
     <li><code>tutorecon.theme</code>: your light or dark theme choice, if you made one.</li>
+    <li><code>tutorecon.lessonMode</code>: whether you read lessons one step at a time or all at once, if you changed it.</li>
   </ul>
   <p>This data never leaves your device. We cannot see it. You can view, download, or delete it on the <a href={url('/account/')}>Your data and settings</a> page, or by clearing this site's data in your browser settings.</p>
 

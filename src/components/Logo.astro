@@ -2,13 +2,12 @@
 interface Props {
   size?: number;
 }
-const { size = 32 } = Astro.props;
+const { size = 34 } = Astro.props;
 ---
 <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" focusable="false" class="logo-mark">
-  <rect width="32" height="32" rx="8" fill="#0b2a21" />
-  <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="7.25" fill="none" stroke="rgba(243,246,240,0.18)" stroke-width="1.5" />
-  <path d="M8 6v18h18" fill="none" stroke="#c3d5cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M11 9l13 12" stroke="#8ec5ff" stroke-width="2.6" stroke-linecap="round" />
-  <path d="M11 21l13-12" stroke="#ff9c80" stroke-width="2.6" stroke-linecap="round" />
-  <circle cx="17.5" cy="15" r="2.8" fill="#ffd84d" />
+  <rect width="32" height="32" rx="9" fill="#1a56f0" />
+  <path d="M8.5 6.5v17h17" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M11.5 9.5l12.5 11" stroke="#bcd0ff" stroke-width="2.8" stroke-linecap="round" />
+  <path d="M11.5 20.5l12.5-11" stroke="#ff9b57" stroke-width="2.8" stroke-linecap="round" />
+  <circle cx="17.75" cy="15" r="3" fill="#ffc53d" stroke="#1a56f0" stroke-width="1.2" />
 </svg>

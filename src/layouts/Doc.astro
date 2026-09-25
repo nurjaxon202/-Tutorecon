@@ -12,7 +12,7 @@ const { title, description, eyebrow, updated } = Astro.props;
 ---
 <Base title={title} description={description}>
   <PageBand eyebrow={eyebrow} title={title}>
-    {updated && <p class="mono updated">Last updated {updated}</p>}
+    {updated && <p class="updated">Last updated {updated}</p>}
   </PageBand>
   <div class="wrap doc">
     <div class="prose doc-body">
@@ -27,17 +27,24 @@ const { title, description, eyebrow, updated } = Astro.props;
     padding-bottom: 5rem;
   }
   .updated {
-    font-size: 0.82rem;
-    color: var(--chalk-2);
+    justify-self: start;
+    padding: 0.25rem 0.6rem;
+    border-radius: 8px;
+    border: 2px solid var(--line);
+    background: var(--card);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-2);
   }
   .doc-body :global(h2:first-child) {
     margin-top: 0;
   }
   .doc-body :global(.summary) {
-    padding: 1.1rem 1.2rem;
-    border-left: 5px solid var(--hl);
-    background: color-mix(in srgb, var(--hl) 16%, var(--paper-raised));
-    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 1.2rem 1.35rem;
+    border: 2px solid color-mix(in srgb, var(--sun-lip) 45%, var(--sun-tint));
+    background: var(--sun-tint);
+    border-radius: 18px;
+    box-shadow: 0 4px 0 color-mix(in srgb, var(--sun-lip) 45%, var(--sun-tint));
     font-size: 1.05rem;
   }
 </style>

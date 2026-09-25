@@ -8,16 +8,26 @@ interface Props {
 }
 const { feature } = Astro.props;
 ---
-<div class="pro-locked panel" data-pro-locked>
-  <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8" /></svg>
-  <h2 class="h3">{feature} are part of Pro</h2>
-  <p class="muted">
-    Pro costs $5 a month once payments are switched on. For now the checkout is a demo that takes no payment, so you can
-    turn Pro on with a test card and try everything.
-  </p>
-  <div class="btn-row">
-    <a class="btn" href={url('/checkout/')}>Try the Pro checkout</a>
-    <a class="btn btn-secondary" href={url('/pricing/')}>Compare plans</a>
+<div class="pro-locked on-board" data-pro-locked>
+  <span class="lock" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="30" height="30"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="currentColor" /><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" /></svg>
+  </span>
+  <div class="pro-text">
+    <p class="pro-kicker">TutorEcon Pro</p>
+    <h2 class="pro-title">{feature} are part of Pro</h2>
+    <p class="pro-body">
+      Pro costs $5 a month once payments are switched on. For now the checkout is a demo that takes no payment, so you can
+      turn Pro on with a test card and try everything.
+    </p>
+    <ul class="pro-list">
+      <li>Timed mock exams with a score for each unit</li>
+      <li>One-page review sheets for every unit, made to print</li>
+      <li>Every lesson stays free either way</li>
+    </ul>
+    <div class="btn-row">
+      <a class="btn" href={url('/checkout/')}>Try the Pro checkout</a>
+      <a class="btn btn-secondary" href={url('/pricing/')}>Compare plans</a>
+    </div>
   </div>
 </div>
 <div class="pro-unlocked" data-pro-unlocked>
@@ -27,14 +37,72 @@ const { feature } = Astro.props;
 <style>
   .pro-locked {
     display: grid;
-    gap: 0.9rem;
-    justify-items: start;
-    padding: 1.75rem;
-    max-width: 640px;
+    gap: 1.25rem;
+    align-items: start;
+    padding: clamp(1.5rem, 1.2rem + 1.5vw, 2.4rem);
+    max-width: 760px;
+    border-radius: 24px;
+    box-shadow: 0 5px 0 #070b16, var(--shadow-lg);
   }
-  .pro-locked p {
-    font-family: var(--font-body);
+  @media (min-width: 640px) {
+    .pro-locked {
+      grid-template-columns: auto 1fr;
+      gap: 1.5rem;
+    }
+  }
+  .lock {
+    display: grid;
+    place-items: center;
+    width: 3.6rem;
+    height: 3.6rem;
+    border-radius: 16px;
+    background: var(--sun);
+    color: #0b1220;
+    box-shadow: 0 4px 0 var(--sun-lip);
+  }
+  .pro-text {
+    display: grid;
+    gap: 0.8rem;
+    justify-items: start;
+  }
+  .pro-kicker {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sun);
+  }
+  .pro-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    line-height: 1.1;
+  }
+  .pro-body {
     font-size: 1.05rem;
+    color: var(--ink-2);
+    max-width: 56ch;
+  }
+  .pro-list {
+    list-style: none;
+    margin: 0.25rem 0 0.5rem;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+    font-weight: 700;
+  }
+  .pro-list li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+  }
+  .pro-list li::before {
+    content: '';
+    flex: none;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 50%;
+    background: var(--sun) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.6 2.6L12 5.6' fill='none' stroke='%230b1220' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 80% no-repeat;
   }
   :global(:root[data-pro='on']) .pro-locked {
     display: none;

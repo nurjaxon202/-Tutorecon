@@ -1,130 +1,729 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PageBand from '../../components/PageBand.astro';
-import UnitTile from '../../components/UnitTile.astro';
-import { units } from '../../data/units';
+import { units, type Unit } from '../../data/units';
 import { questionsFor } from '../../data/questions';
 import { allLessons } from '../../lib/lessons';
+import { url } from '../../lib/url';
 
 const lessons = allLessons();
+const info = (slug: string) => lessons.find((x) => x.unit.slug === slug)!;
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const metaFor = (slug: string) => {
-  const l = lessons.find((x) => x.unit.slug === slug)!;
-  return `${l.minutes} min · ${l.graphs.length} graph${l.graphs.length === 1 ? '' : 's'} · ${questionsFor(slug).length} questions`;
+  const l = info(slug);
+  const parts = [`${l.minutes} min`, l.graphs.length ? plural(l.graphs.length, 'live graph') : '', plural(questionsFor(slug).length, 'question')];
+  return parts.filter(Boolean).join(' · ');
 };
-const foundations = units.find((u) => u.course === 'both')!;
-const groups = [
-  { title: 'AP Microeconomics', note: 'How individual markets, firms, and consumers make choices.', list: units.filter((u) => u.course === 'micro') },
-  { title: 'AP Macroeconomics', note: 'Output, jobs, prices, money, and trade for the whole economy.', list: units.filter((u) => u.course === 'macro') },
+
+// The path winds left and right like a trail. Offsets are in pixels.
+const wind = [0, 64, 104, 64, 0];
+const sections: { track: string; cls: string; kicker: string; title: string; note: string; list: Unit[]; offsets: number[] }[] = [
+  {
+    track: 'main',
+    cls: 'both',
+    kicker: 'Start here',
+    title: 'Unit 1 for both courses',
+    note: 'Scarcity, trade-offs, and the production possibilities curve. AP Micro and AP Macro both open with it.',
+    list: units.filter((u) => u.course === 'both'),
+    offsets: [40],
+  },
+  {
+    track: 'micro',
+    cls: 'micro',
+    kicker: 'Track 1 · Units 2 to 6',
+    title: 'AP Microeconomics',
+    note: 'How single markets, firms, and workers make choices.',
+    list: units.filter((u) => u.course === 'micro'),
+    offsets: wind,
+  },
+  {
+    track: 'macro',
+    cls: 'macro',
+    kicker: 'Track 2 · Units 2 to 6',
+    title: 'AP Macroeconomics',
+    note: 'Output, jobs, prices, money, and trade for a whole country.',
+    list: units.filter((u) => u.course === 'macro'),
+    offsets: [...wind].reverse().map((x) => 104 - x),
+  },
 ];
+
+// Facts the "jump back in" card needs, in path order.
+const order = sections.flatMap((s) => s.list);
+const facts = order.map((u) => ({
+  slug: u.slug,
+  n: u.apUnit,
+  title: u.title,
+  steps: info(u.slug).headings.length,
+  href: url(`/learn/${u.slug}/`),
+}));
+
+const check = '<svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M6 12.5l4 4L18 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const R = 50;
+const C = (2 * Math.PI * R).toFixed(1);
 ---
-<Base title="All units" description="Every TutorEcon unit for AP Microeconomics and AP Macroeconomics, with live graphs and practice questions.">
-  <PageBand
-    eyebrow="Units"
-    title="Eleven units, in AP order"
-    lede="Start with Unit 1, which both AP courses share. Each card shows your progress once you mark a unit done or finish its questions."
-  >
-    <div class="progress" data-overall hidden>
-      <div class="progress-bar" aria-hidden="true"><span data-overall-bar></span></div>
-      <p class="mono" data-overall-text></p>
-    </div>
-  </PageBand>
-
-  <div class="wrap body">
-    <section aria-labelledby="start-title">
-      <h2 id="start-title" class="group-title">Start here</h2>
-      <UnitTile unit={foundations} meta={metaFor(foundations.slug)} wide />
-    </section>
-
-    {groups.map((g) => (
-      <section class="group" aria-labelledby={`g-${g.title}`}>
-        <div class="group-head">
-          <h2 id={`g-${g.title}`} class="group-title">{g.title}</h2>
-          <p class="muted">{g.note}</p>
+<Base title="All units" description="The TutorEcon path through AP Microeconomics and AP Macroeconomics: eleven units with live graphs, step-by-step lessons, and practice questions.">
+  <section class="page-band path-band">
+    <div class="wrap band-grid">
+      <div class="band-text">
+        <p class="eyebrow">Units</p>
+        <h1 class="page-title">Your path through AP Economics</h1>
+        <p class="lede">Start with Unit 1, which both courses share. Then follow the AP Micro track, the AP Macro track, or both. Every unit is open, so you can jump straight to whatever your class is on.</p>
+      </div>
+      <dl class="me" aria-label="Your progress in this browser">
+        <div class="me-stat">
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M12 2c.6 3.2-1.2 5-2.6 6.6C8 10.2 7 11.7 7 14a5 5 0 0 0 10 0c0-1.7-.6-3-1.4-4.1-.3 1.4-1 2.3-2 2.8.4-2.8-.2-7.2-1.6-10.7Z" fill="#ff7a1a" /><path d="M12 22a3 3 0 0 1-3-3c0-1.6 1-2.6 2-3.6.2 1 .8 1.6 1.6 1.9.1-.9.3-1.9.9-2.7.9 1 1.5 2.3 1.5 4.4a3 3 0 0 1-3 3Z" fill="#ffc53d" /></svg>
+          <dd data-me="streak">0</dd>
+          <dt>Day streak</dt>
         </div>
-        <ul class="tiles">
-          {g.list.map((u) => (
-            <li><UnitTile unit={u} meta={metaFor(u.slug)} summary /></li>
-          ))}
+        <div class="me-stat">
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.8L13.5 2Z" fill="#ffc53d" stroke="#e0a000" stroke-width="1.2" stroke-linejoin="round" /></svg>
+          <dd data-me="xp">0</dd>
+          <dt>Total XP</dt>
+        </div>
+        <div class="me-stat">
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#12875a" /><path d="M7.5 12.5l3 3L16.5 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          <dd><span data-me="done">0</span><span class="of"> of {units.length}</span></dd>
+          <dt>Units done</dt>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <div class="wrap layout">
+    <div class="path">
+      {sections.map((s) => (
+        <section class:list={['sec', `sec-${s.cls}`]} aria-labelledby={`sec-${s.cls}`} data-sec={s.track}>
+          <header class="sec-banner">
+            <div>
+              <p class="sec-kicker">{s.kicker}</p>
+              <h2 id={`sec-${s.cls}`} class="sec-title">{s.title}</h2>
+              <p class="sec-note">{s.note}</p>
+            </div>
+            <p class="sec-count"><span data-sec-done>0</span> of {s.list.length}<span class="visually-hidden"> units</span> done</p>
+          </header>
+          <ol class="nodes">
+            {s.list.map((u, i) => (
+              <li style={`--x: ${s.offsets[i] ?? 0}`}>
+                <a class="pnode" href={url(`/learn/${u.slug}/`)} data-path-node={u.slug} data-path-track={s.track} data-steps={info(u.slug).headings.length}>
+                  <span class="pnode-circle">
+                    <svg class="pnode-ring" viewBox="0 0 112 112" aria-hidden="true">
+                      <circle cx="56" cy="56" r={R} class="ring-track" />
+                      <circle cx="56" cy="56" r={R} class="ring-fill" stroke-dasharray={C} stroke-dashoffset={C} data-ring />
+                    </svg>
+                    <span class="pnode-face">
+                      <span class="pnode-n" aria-hidden="true">{u.apUnit}</span>
+                      <span class="pnode-check" set:html={check} />
+                    </span>
+                  </span>
+                  <span class="pnode-text">
+                    <span class="pnode-label">Unit {u.apUnit}</span>
+                    <span class="pnode-title">{u.title}</span>
+                    <span class="pnode-meta">{metaFor(u.slug)}</span>
+                    <span class="pnode-state" data-node-state></span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </div>
+
+    <aside class="rail" aria-label="Your next step">
+      <div class="rail-card jump">
+        <p class="rail-kicker" data-jump-kicker>Start here</p>
+        <p class="rail-title"><span class="rail-n" data-jump-n>1</span><span data-jump-title>{order[0].title}</span></p>
+        <div class="jump-track" aria-hidden="true"><span data-jump-bar></span></div>
+        <p class="rail-sub" data-jump-sub>{plural(facts[0].steps, 'step')} and a unit check</p>
+        <a class="btn btn-big rail-btn" href={facts[0].href} data-jump-link>Start Unit 1</a>
+      </div>
+
+      <div class="rail-card goal">
+        <div class="goal-head">
+          <p class="rail-kicker">Daily goal</p>
+          <p class="goal-num"><span data-goal>0</span> / 50 XP</p>
+        </div>
+        <div class="goal-track" role="progressbar" aria-label="XP earned today" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0" data-goal-wrap>
+          <span data-goal-bar></span>
+        </div>
+        <p class="rail-note" data-goal-note>Each first correct answer earns 10 XP. One a day keeps your streak alive. Five meets the goal.</p>
+      </div>
+
+      <nav class="rail-card more" aria-label="More ways to study">
+        <p class="rail-kicker">More ways to study</p>
+        <ul>
+          <li><a href={url('/practice/')}><span class="more-ico more-q" aria-hidden="true">?</span>Mixed practice<span class="more-sub">Questions from every unit</span></a></li>
+          <li><a href={url('/graph-lab/')}><span class="more-ico more-g" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 4v16h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /><path d="M7 7l10 10M7 17l10-10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg></span>Graph lab<span class="more-sub">All 18 graphs in one place</span></a></li>
+          <li><a href={url('/glossary/')}><span class="more-ico more-t" aria-hidden="true">Aa</span>Glossary<span class="more-sub">Every term, one line each</span></a></li>
+          <li><a href={url('/mock-exam/')}><span class="more-ico more-p" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2.4" /><path d="M12 9v4l2.5 2M10 2h4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" /></svg></span>Timed mock exam<span class="more-sub">Pro</span></a></li>
         </ul>
-      </section>
-    ))}
+      </nav>
+    </aside>
   </div>
+
+  <script type="application/json" data-facts set:html={JSON.stringify(facts)} />
 </Base>
 
 <script>
+  import '../../scripts/path';
   import { store } from '../../scripts/store';
-  const total = document.querySelectorAll('.tile[data-unit]').length;
+
+  interface Fact {
+    slug: string;
+    n: number;
+    title: string;
+    steps: number;
+    href: string;
+  }
+  const facts: Fact[] = JSON.parse(document.querySelector('[data-facts]')?.textContent ?? '[]');
+  const GOAL = 50;
+  const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector<T>(sel)!;
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
   const sync = () => {
     const saved = store.get();
-    const done = Object.keys(saved.done).length;
-    const box = document.querySelector<HTMLElement>('[data-overall]');
-    if (!box) return;
-    box.hidden = done === 0 && Object.keys(saved.quiz).length === 0;
-    document.querySelector<HTMLElement>('[data-overall-bar]')!.style.width = `${(done / total) * 100}%`;
-    document.querySelector<HTMLElement>('[data-overall-text]')!.textContent = `${done} of ${total} units done`;
+    const done = (slug: string) => Boolean(saved.done[slug]);
+
+    // Numbers in the header band.
+    $('[data-me="streak"]').textContent = String(store.currentStreak());
+    $('[data-me="xp"]').textContent = String(saved.xp);
+    $('[data-me="done"]').textContent = String(facts.filter((f) => done(f.slug)).length);
+
+    // Units done per section.
+    document.querySelectorAll<HTMLElement>('[data-sec]').forEach((sec) => {
+      const slugs = Array.from(sec.querySelectorAll<HTMLElement>('[data-path-node]')).map((n) => n.dataset.pathNode!);
+      sec.querySelector('[data-sec-done]')!.textContent = String(slugs.filter(done).length);
+    });
+
+    // Rings show how many lesson steps are finished.
+    document.querySelectorAll<HTMLElement>('[data-path-node]').forEach((node) => {
+      const ring = node.querySelector<SVGCircleElement>('[data-ring]')!;
+      const total = Number(node.dataset.steps) || 1;
+      const slug = node.dataset.pathNode!;
+      const part = done(slug) ? 1 : Math.min(1, (saved.steps[slug] ?? 0) / total);
+      const c = Number(ring.getAttribute('stroke-dasharray'));
+      ring.setAttribute('stroke-dashoffset', String(c * (1 - part)));
+    });
+
+    // Jump back in: a unit you started, else the next one not done yet.
+    const started = facts.find((f) => !done(f.slug) && ((saved.steps[f.slug] ?? 0) > 0 || saved.quiz[f.slug]));
+    const next = started ?? facts.find((f) => !done(f.slug));
+    const anyDone = facts.some((f) => done(f.slug));
+    if (next) {
+      const step = Math.min(saved.steps[next.slug] ?? 0, next.steps);
+      $('[data-jump-kicker]').textContent = started ? 'Jump back in' : anyDone ? 'Up next' : 'Start here';
+      $('[data-jump-n]').textContent = String(next.n);
+      $('[data-jump-title]').textContent = next.title;
+      $('[data-jump-bar]').style.transform = `scaleX(${step / next.steps})`;
+      $('[data-jump-sub]').textContent = started
+        ? step >= next.steps
+          ? 'Lesson read. The unit check is left.'
+          : `${step} of ${plural(next.steps, 'step')} done`
+        : `${plural(next.steps, 'step')} and a unit check`;
+      const link = $<HTMLAnchorElement>('[data-jump-link]');
+      link.href = next.href;
+      link.textContent = started ? 'Continue' : `Start Unit ${next.n}`;
+    } else {
+      $('[data-jump-kicker]').textContent = 'Every unit done';
+      $('[data-jump-n]').textContent = '11';
+      $('[data-jump-title]').textContent = 'Now try a full mock exam';
+      $('[data-jump-bar]').style.transform = 'scaleX(1)';
+      $('[data-jump-sub]').textContent = 'Or mix questions from every unit in practice.';
+      const link = $<HTMLAnchorElement>('[data-jump-link]');
+      link.href = $<HTMLAnchorElement>('.more a[href$="/practice/"]').href;
+      link.textContent = 'Mixed practice';
+    }
+
+    // Daily goal.
+    const today = store.todayXp();
+    $('[data-goal]').textContent = String(today);
+    $('[data-goal-bar]').style.transform = `scaleX(${Math.min(1, today / GOAL)})`;
+    $('[data-goal-wrap]').setAttribute('aria-valuenow', String(Math.min(today, GOAL)));
+    $('[data-goal-wrap]').classList.toggle('is-met', today >= GOAL);
+    if (today >= GOAL) $('[data-goal-note]').textContent = 'Goal met for today. Come back tomorrow to grow your streak.';
   };
   window.addEventListener('tutorecon:change', sync);
   sync();
 </script>
 
 <style>
-  .progress {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 0.5rem;
-    max-width: 420px;
-  }
-  .progress-bar {
-    flex: 1;
-    height: 8px;
-    border-radius: 4px;
-    background: rgba(243, 246, 240, 0.15);
-    overflow: hidden;
-  }
-  .progress-bar span {
-    display: block;
-    height: 100%;
-    width: 0;
-    background: var(--hl);
-    border-radius: 4px;
-  }
-  .progress p {
-    font-size: 0.82rem;
-    color: var(--chalk-2);
-    white-space: nowrap;
-  }
-  .body {
+  /* Header band */
+  .band-grid {
     display: grid;
-    gap: 3.5rem;
-    padding-top: clamp(2.5rem, 2rem + 2vw, 4rem);
+    gap: 2rem;
+    align-items: end;
+  }
+  @media (min-width: 960px) {
+    .band-grid {
+      grid-template-columns: 1fr auto;
+    }
+  }
+  .band-text {
+    display: grid;
+    gap: 0.9rem;
+  }
+  .band-text .lede {
+    max-width: 56ch;
+  }
+  .me {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .me-stat {
+    display: grid;
+    justify-items: start;
+    gap: 0.2rem;
+    min-width: 128px;
+    padding: 1rem 1.1rem;
+    border: 2px solid var(--line);
+    border-radius: 18px;
+    background: var(--card);
+    box-shadow: 0 4px 0 var(--line);
+  }
+  .me-stat dd {
+    margin: 0.3rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.9rem;
+    line-height: 1;
+  }
+  .me-stat .of {
+    font-size: 1rem;
+    color: var(--ink-3);
+  }
+  .me-stat dt {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  @media (max-width: 480px) {
+    .me-stat {
+      min-width: 0;
+      padding: 0.8rem;
+    }
+    .me-stat dd {
+      font-size: 1.5rem;
+    }
+    .me-stat dt {
+      font-size: 0.78rem;
+    }
+  }
+
+  /* Layout */
+  .layout {
+    display: grid;
+    gap: 3rem;
+    padding-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
     padding-bottom: 5rem;
   }
-  .group-title {
-    font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 0.8rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-    margin-bottom: 0.9rem;
+  @media (min-width: 1020px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 4rem;
+      align-items: start;
+    }
   }
-  .group-head {
+
+  /* Sections */
+  .path {
+    display: grid;
+    gap: 3.5rem;
+  }
+  .sec {
+    --c: var(--sun);
+    --c-lip: var(--sun-lip);
+    --c-ink: #0b1220;
+    --c-text: var(--fourth);
+  }
+  .sec-micro {
+    --c: var(--orange);
+    --c-lip: var(--orange-lip);
+    --c-ink: #0b1220;
+    --c-text: var(--orange-text);
+  }
+  .sec-macro {
+    --c: var(--brand-fill);
+    --c-lip: var(--brand-fill-lip);
+    --c-ink: #fff;
+    --c-text: var(--brand);
+  }
+  .sec-banner {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: baseline;
-    gap: 0.25rem 2rem;
+    align-items: flex-start;
+    gap: 0.75rem 1.5rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 20px;
+    background: var(--c);
+    color: var(--c-ink);
+    box-shadow: 0 5px 0 var(--c-lip);
   }
-  .group-head .muted {
-    margin-bottom: 0.9rem;
+  .sec-banner > div {
+    display: grid;
+    gap: 0.3rem;
+    max-width: 46ch;
   }
-  .tiles {
+  .sec-kicker {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .sec-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.45rem, 1.2rem + 1vw, 1.9rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .sec-note {
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+  .sec-count {
+    padding: 0.4rem 0.75rem;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--c-lip) 55%, var(--c));
+    font-size: 0.88rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  /* The winding trail */
+  .nodes {
+    --k: 1;
     list-style: none;
-    margin: 0;
+    margin: 2.25rem 0 0;
     padding: 0;
     display: grid;
+    gap: 1.9rem;
+  }
+  @media (max-width: 560px) {
+    .nodes {
+      --k: 0.35;
+    }
+  }
+  .nodes li {
+    padding-left: calc(var(--x) * var(--k) * 1px);
+  }
+  .pnode {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.1rem;
+    text-decoration: none;
+    color: var(--ink);
+    max-width: 100%;
+  }
+  .pnode-circle {
+    position: relative;
+    flex: none;
+    width: 112px;
+    height: 112px;
+    display: grid;
+    place-items: center;
+  }
+  .pnode-ring {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+  }
+  .pnode-ring circle {
+    fill: none;
+    stroke-width: 7;
+  }
+  .ring-track {
+    stroke: var(--line);
+  }
+  .ring-fill {
+    stroke: var(--good-fill);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+  .pnode-face {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 82px;
+    height: 82px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: var(--c);
+    color: var(--c-ink);
+    box-shadow: 0 6px 0 var(--c-lip);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2rem;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .pnode:hover .pnode-face {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 var(--c-lip);
+  }
+  .pnode:active .pnode-face {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 var(--c-lip);
+  }
+  .pnode-check {
+    display: none;
+  }
+  .pnode.is-done .pnode-n {
+    display: none;
+  }
+  .pnode.is-done .pnode-check {
+    display: block;
+  }
+  .pnode.is-next .pnode-circle::before {
+    content: 'Start';
+    position: absolute;
+    z-index: 1;
+    top: -1.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.25rem 0.65rem;
+    border-radius: 10px;
+    border: 2px solid var(--line-strong);
+    background: var(--card);
+    color: var(--c-text);
+    font-family: var(--font-text);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    box-shadow: 0 3px 0 var(--line-strong);
+    animation: bob 1.6s ease-in-out infinite;
+  }
+  .pnode.is-next.is-started .pnode-circle::before {
+    content: 'Continue';
+  }
+  @keyframes bob {
+    50% {
+      transform: translate(-50%, -4px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pnode.is-next .pnode-circle::before {
+      animation: none;
+    }
+  }
+  .pnode-text {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+  .pnode-label {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-text);
+  }
+  .pnode-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.3rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .pnode:hover .pnode-title {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+  .pnode-meta {
+    font-size: 0.9rem;
+    color: var(--ink-3);
+  }
+  .pnode-state:empty {
+    display: none;
+  }
+  .pnode-state {
+    justify-self: start;
+    margin-top: 0.3rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    background: var(--sun-tint);
+    color: var(--fourth);
+  }
+  .is-done .pnode-state {
+    background: var(--good-tint);
+    color: var(--good);
+  }
+  @media (max-width: 560px) {
+    .pnode {
+      gap: 0.75rem;
+    }
+    .pnode-circle {
+      width: 92px;
+      height: 92px;
+    }
+    .pnode-face {
+      width: 66px;
+      height: 66px;
+      font-size: 1.6rem;
+    }
+    .pnode-title {
+      font-size: 1.12rem;
+    }
+    .pnode-meta {
+      font-size: 0.84rem;
+    }
+  }
+
+  /* Right rail */
+  .rail {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 1020px) {
+    .rail {
+      position: sticky;
+      top: 96px;
+    }
+  }
+  .rail-card {
+    padding: 1.3rem;
+    border: 2px solid var(--line);
+    border-radius: 20px;
+    background: var(--card);
+    box-shadow: 0 4px 0 var(--line);
+  }
+  .rail-kicker {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .jump .rail-kicker {
+    color: var(--brand);
+  }
+  .rail-title {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.3rem;
+    line-height: 1.15;
+  }
+  .rail-n {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 12px;
+    background: var(--brand-fill);
+    color: #fff;
+    font-size: 1.15rem;
+    box-shadow: 0 3px 0 var(--brand-fill-lip);
+  }
+  .jump-track,
+  .goal-track {
+    height: 14px;
+    margin-top: 1rem;
+    border-radius: 7px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .jump-track span,
+  .goal-track span {
+    display: block;
+    height: 100%;
+    border-radius: 7px;
+    background: var(--good-fill);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+  .goal-track span {
+    background: var(--sun);
+  }
+  .goal-track.is-met span {
+    background: var(--good-fill);
+  }
+  .rail-sub {
+    margin-top: 0.55rem;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+  .rail-btn {
+    width: 100%;
+    margin-top: 1.1rem;
+  }
+  .goal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  }
+  .goal-num {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+  }
+  .rail-note {
+    margin-top: 0.75rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .more ul {
+    list-style: none;
+    margin: 0.7rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .more a {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.8rem;
+    align-items: center;
+    padding: 0.55rem 0.6rem;
+    margin: 0 -0.6rem;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 800;
+  }
+  .more a:hover {
+    background: var(--bg-2);
+  }
+  .more-ico {
+    grid-row: span 2;
+    display: grid;
+    place-items: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 11px;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+  .more-q {
+    background: var(--brand-tint);
+    color: var(--brand);
+  }
+  .more-g {
+    background: var(--orange-tint);
+    color: var(--orange-text);
+  }
+  .more-t {
+    background: var(--good-tint);
+    color: var(--good);
+  }
+  .more-p {
+    background: var(--sun-tint);
+    color: var(--fourth);
+  }
+  .more-sub {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--ink-3);
   }
 </style>
