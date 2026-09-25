@@ -1,0 +1,121 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## The short run and the long run
+
+In economics these are not lengths of time on a calendar. The **short run** is any period in which at least one input is fixed. A bakery can hire more bakers this week, but it cannot build a bigger kitchen. In the **long run**, every input can change, including the size of the building, and firms can enter or leave the industry.
+
+## Production and diminishing returns
+
+**Total product** is the total output a firm makes. **Marginal product** is the extra output from adding one more worker. **Average product** is total product divided by the number of workers.
+
+<div class="table-scroll">
+
+| Workers | Total product (loaves) | Marginal product |
+| --- | --- | --- |
+| 0 | 0 | |
+| 1 | 10 | 10 |
+| 2 | 25 | 15 |
+| 3 | 36 | 11 |
+| 4 | 44 | 8 |
+| 5 | 48 | 4 |
+| 6 | 50 | 2 |
+
+</div>
+
+The second worker adds more than the first because two people can split tasks. After that, each new worker adds less. The kitchen, ovens, and counter space are fixed, so extra workers start getting in each other's way. This is the <mark>law of diminishing marginal returns</mark>: in the short run, adding more of a variable input to a fixed input eventually makes marginal product fall.
+
+<Callout kind="mistake">
+Diminishing marginal returns does not mean total output falls. It means each extra worker adds less than the one before. Total product keeps rising as long as marginal product is positive.
+</Callout>
+
+## The cost family
+
+A firm's costs split into two groups:
+
+- **Fixed costs** do not change with output: rent, insurance, loan payments. You pay them even if you produce nothing.
+- **Variable costs** change with output: ingredients, hourly wages, electricity for the ovens.
+- **Total cost** = fixed cost + variable cost.
+
+Dividing by quantity gives the average costs, and the extra cost of one more unit is marginal cost:
+
+<div class="formula">AFC = FC ÷ Q &nbsp;&nbsp; AVC = VC ÷ Q &nbsp;&nbsp; ATC = TC ÷ Q = AFC + AVC &nbsp;&nbsp; MC = ΔTC ÷ ΔQ</div>
+
+Marginal cost first falls, then rises. It rises for the same reason marginal product falls: diminishing returns means each extra unit takes more labor to make.
+
+### Why MC cuts through the minimum of AVC and ATC
+
+Think about your grade average. If your next test score is below your average, your average falls. If it is above, your average rises. Marginal cost works the same way. When MC is below ATC, it pulls ATC down. When MC is above ATC, it pulls ATC up. So MC must cross ATC exactly at ATC's lowest point, and the same is true for AVC.
+
+The gap between ATC and AVC is average fixed cost. It shrinks as output grows, because the same fixed cost is spread over more units.
+
+## Economic profit and accounting profit
+
+**Explicit costs** are the payments a firm actually makes. **Implicit costs** are the opportunity costs of resources the owner already has, such as the salary the owner gave up to run the business.
+
+<div class="formula">Accounting profit = revenue − explicit costs<br />Economic profit = revenue − explicit costs − implicit costs</div>
+
+Say a bakery earns $200,000 in revenue and pays $150,000 in explicit costs. Its accounting profit is $50,000. But the owner left a job paying $70,000 to run it. Economic profit is $50,000 − $70,000 = −$20,000. On paper the bakery makes money; in economic terms the owner would be better off in the old job.
+
+Zero economic profit is called **normal profit**. It means the owner is earning exactly what they could get in their next best option, so it is not a bad result.
+
+## The profit-maximizing rule
+
+Every firm, in every market structure, maximizes profit by producing the quantity where <mark>marginal revenue equals marginal cost</mark> (MR = MC). If one more unit brings in more than it costs, make it. If it costs more than it brings in, do not.
+
+## Perfect competition
+
+A perfectly competitive market has many small firms selling identical products, with easy entry and exit and full information. Wheat and other farm products come closest in real life.
+
+Each firm is so small that it cannot affect the market price. It is a **price taker**. The firm can sell as much as it wants at the market price, so its demand curve is horizontal, and every extra unit adds exactly the price to revenue. For a competitive firm, P = MR = D.
+
+Move the market price in the graph below and watch the firm's choice, profit, and loss change.
+
+<Graph model="firm" caption="The firm always produces where the price line meets marginal cost. The shaded rectangle is profit or loss: (P − ATC) × Q." />
+
+### Profit, loss, and the shutdown rule
+
+- If **P is above ATC**, the firm earns an economic profit.
+- If **P equals minimum ATC**, the firm breaks even with zero economic profit.
+- If **P is between minimum AVC and minimum ATC**, the firm loses money but should keep producing in the short run. Its revenue covers all its variable costs and some of its fixed costs, so the loss is smaller than if it shut down and paid its fixed costs anyway.
+- If **P is below minimum AVC**, the firm should shut down in the short run. Its loss is then just its fixed cost.
+
+The firm's short-run supply curve is the part of its MC curve above minimum AVC.
+
+### The long run: entry and exit
+
+If firms in a competitive industry earn economic profit, new firms enter. Market supply shifts right and the price falls. If firms are losing money, some exit, supply shifts left, and the price rises. This continues until price equals minimum ATC and every firm earns zero economic profit.
+
+That long-run outcome has two efficiency properties you need to know:
+
+- **Productive efficiency**: P = minimum ATC. Goods are made at the lowest possible cost.
+- **Allocative efficiency**: P = MC. The value buyers place on the last unit equals what it costs to make, so society gets the right amount.
+
+<Callout kind="exam">
+In side-by-side graphs of a competitive market and a single firm, the market price is set where market supply meets market demand (left graph) and carried across as a horizontal line to the firm (right graph). Keep the price level the same on both.
+</Callout>
+
+## Long-run costs and economies of scale
+
+In the long run a firm can choose any plant size. The **long-run average total cost** curve shows the lowest cost of making each quantity when every input can change.
+
+- **Economies of scale**: LRATC falls as output grows, often because larger firms can specialize tasks and buy in bulk.
+- **Constant returns to scale**: LRATC stays flat.
+- **Diseconomies of scale**: LRATC rises, often because very large firms become hard to manage.
+
+<Worked title="Reading a cost table" prompt="A firm has fixed cost of $60. Its total cost is $100 at 4 units and $130 at 5 units. Find AFC, AVC, ATC, and MC at 5 units. If the market price is $28, should it make the fifth unit?">
+  <Step n={1} title="Average fixed cost">
+    AFC = $60 ÷ 5 = $12.
+  </Step>
+  <Step n={2} title="Average variable and average total cost">
+    Variable cost at 5 units is $130 − $60 = $70, so AVC = $70 ÷ 5 = $14. ATC = $130 ÷ 5 = $26. Check: AFC + AVC = $12 + $14 = $26.
+  </Step>
+  <Step n={3} title="Marginal cost of the fifth unit">
+    MC = $130 − $100 = $30.
+  </Step>
+  <Step n={4} title="Decide">
+    The fifth unit adds $28 to revenue and $30 to cost, so making it lowers profit by $2. The firm should stop at 4 units.
+  </Step>
+</Worked>

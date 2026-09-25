@@ -1,0 +1,24 @@
+---
+import Doc from '../layouts/Doc.astro';
+import { site } from '../site';
+import { units } from '../data/units';
+import { url } from '../lib/url';
+---
+<Doc title="About TutorEcon" eyebrow="About" description="What TutorEcon is, who runs it, and how the lessons are put together.">
+  <p>{site.name} is a free study site for AP Microeconomics and AP Macroeconomics. It is built around one idea: economics graphs make more sense when you can move them. Most textbooks show a diagram you can only look at. Here you shift the curve yourself and read what happened to price and quantity.</p>
+
+  <h2>What is here</h2>
+  <p>{units.length} units that follow the structure of the AP course descriptions, each with short explanations, interactive graphs, worked problems, and practice questions that explain every answer choice. There is also a <a href={url('/graph-lab/')}>graph lab</a> with every diagram in one place and a searchable <a href={url('/glossary/')}>glossary</a>.</p>
+
+  <h2>Who runs it</h2>
+  <p>{site.name} is run by <a href={site.ownerUrl}>{site.owner}</a>. The source code is public on <a href={site.sourceUrl}>GitHub</a>.</p>
+
+  <h2>How the lessons are checked</h2>
+  <p>Each lesson is written against the topics in the public AP course descriptions, and every number in the worked problems and graphs is calculated, not estimated. Mistakes still slip through. If you spot one, <a href={site.contactUrl}>open an issue</a> and it will be fixed.</p>
+
+  <h2>What it is not</h2>
+  <p>{site.name} is not affiliated with or endorsed by the College Board. It is a study aid, not a replacement for your class, your teacher, or official practice exams.</p>
+
+  <h2>Privacy</h2>
+  <p>No accounts, no ads, no tracking. Your progress stays in your browser. The <a href={url('/privacy/')}>privacy policy</a> has the details.</p>
+</Doc>

@@ -1,0 +1,72 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## Derived demand
+
+In product markets, households buy and firms sell. In **factor markets** it flips: firms buy labor, land, and capital, and households sell them. Firms do not want workers for their own sake. They want them because of what workers help produce. That makes the demand for labor a <mark>derived demand</mark>: it comes from the demand for the product.
+
+If people start buying more electric cars, carmakers need more battery engineers. The demand for engineers rises because the demand for cars rose.
+
+## How many workers to hire
+
+A firm keeps hiring as long as the next worker adds at least as much to revenue as to cost.
+
+- **Marginal revenue product (MRP)** is the extra revenue from one more worker. In a competitive product market, MRP = marginal product × price.
+- **Marginal factor cost (MFC)**, also called marginal resource cost, is the extra cost of one more worker. If the firm hires in a competitive labor market, it can hire as many people as it wants at the market wage, so MFC equals the wage.
+
+The rule is the factor-market version of MR = MC: <mark>hire until MRP = MFC</mark>.
+
+<Worked title="Choosing how many workers to hire" prompt="A car wash sells washes for $4 each in a competitive market. It can hire workers at $15 an hour. The marginal product of workers 1 to 6 is 10, 9, 7, 5, 3, and 1 washes per hour. How many workers should it hire?">
+  <Step n={1} title="Calculate MRP for each worker">
+    MRP = MP × P. With a $4 price: 40, 36, 28, 20, 12, and 4 dollars per hour.
+  </Step>
+  <Step n={2} title="Compare each MRP with the wage">
+    Workers 1 to 4 each bring in more than the $15 they cost ($40, $36, $28, $20). Worker 5 brings in only $12.
+  </Step>
+  <Step n={3} title="Decide">
+    Hire 4 workers. The fifth would lower profit by $3 an hour.
+  </Step>
+  <Step n={4} title="What if the price of a wash rose to $6?">
+    MRP becomes 60, 54, 42, 30, 18, and 6. Now worker 5 brings in $18, which is more than $15, so the firm hires 5. A higher product price increases the demand for labor.
+  </Step>
+</Worked>
+
+The MRP curve is the firm's **demand curve for labor**. It slopes down because of diminishing marginal returns.
+
+## What shifts labor demand and supply
+
+Labor demand shifts when:
+
+- **The price of the product changes.** A higher price raises MRP.
+- **Worker productivity changes.** Better training or better tools raise marginal product.
+- **The price of other inputs changes.** If machines that replace workers get cheaper, demand for those workers can fall. If machines that workers operate get cheaper, firms may buy more and hire more operators.
+
+Labor supply shifts with the size of the working population, immigration, people's preferences between work and leisure, and wages in other jobs people could do.
+
+## Using more than one input
+
+When a firm uses both labor and capital, the **least-cost rule** says to spend so that the last dollar on each input adds the same output:
+
+<div class="formula">MP of labor ÷ price of labor = MP of capital ÷ price of capital</div>
+
+If the left side is bigger, a dollar spent on labor produces more than a dollar spent on capital, so the firm should shift spending toward labor. The **profit-maximizing** combination goes one step further: MRP ÷ price = 1 for every input.
+
+## Monopsony
+
+A **monopsony** is a labor market with one main employer, such as a large hospital or mine in a small town. Because the firm is the only buyer, it faces the whole upward-sloping labor supply curve. To attract one more worker it must raise the wage, and usually for everyone it already employs. So its **marginal factor cost is above the wage**, and the MFC curve lies above the supply curve.
+
+The monopsonist hires where MRP = MFC, then pays the lowest wage that attracts that many workers, read from the supply curve. It hires fewer people and pays less than a competitive labor market would.
+
+<Graph model="monopsony" caption="Hiring is set where MRP meets MFC, but the wage is read down on the supply curve. Turn on the minimum wage to see how it changes the firm's choice." />
+
+This is why economists say a minimum wage can, in some ranges, raise both wages and employment. With a wage floor, the firm's MFC becomes flat at the minimum wage up to the supply curve, so hiring an extra worker no longer means raising everyone's pay.
+
+<Callout kind="exam">
+On a monopsony graph, the three curves you need are MRP (the labor demand), S (labor supply, which is also average factor cost), and MFC above S. Find quantity where MRP = MFC, then drop down to S to find the wage. A common error is reading the wage off the MFC curve.
+</Callout>
+
+## Other factor markets
+
+The same logic applies to land and capital. A farm rents land until the extra revenue from one more acre equals the rent. A firm buys a machine if the extra revenue it generates is worth at least what it costs, including the interest the firm could have earned on the money instead.

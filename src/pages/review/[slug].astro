@@ -1,0 +1,225 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProGate from '../../components/ProGate.astro';
+import { units, unitLabel } from '../../data/units';
+import { review } from '../../data/review';
+import { termsFor } from '../../data/glossary';
+import { url } from '../../lib/url';
+import { site } from '../../site';
+
+export function getStaticPaths() {
+  return units.map((u) => ({ params: { slug: u.slug } }));
+}
+const { slug } = Astro.params;
+const unit = units.find((u) => u.slug === slug)!;
+const sheet = review[slug!];
+const terms = termsFor(slug!);
+---
+<Base title={`Review sheet: ${unit.title}`} description={`A printable one-page review of ${unit.title} for AP Economics.`} noindex>
+  <div class="wrap body">
+    <nav class="crumbs no-print" aria-label="Breadcrumb">
+      <a href={url('/review/')}>Review sheets</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{unitLabel(unit)}</span>
+    </nav>
+    <ProGate feature="Review sheets">
+      <article class="sheet">
+        <header class="sheet-head">
+          <div>
+            <p class="eyebrow">{unitLabel(unit)} · Review sheet</p>
+            <h1 class="sheet-title">{unit.title}</h1>
+          </div>
+          <div class="sheet-actions no-print">
+            <button type="button" class="btn btn-small" data-print>Print this sheet</button>
+            <a class="btn btn-secondary btn-small" href={url(`/learn/${unit.slug}/`)}>Open the lesson</a>
+          </div>
+        </header>
+
+        <div class="sheet-grid">
+          <section class="box box-wide">
+            <h2>Must know</h2>
+            <ul>{sheet.points.map((p) => <li>{p}</li>)}</ul>
+          </section>
+          {sheet.formulas && (
+            <section class="box">
+              <h2>Formulas</h2>
+              <ul class="formulas">{sheet.formulas.map((f) => <li class="mono">{f}</li>)}</ul>
+            </section>
+          )}
+          <section class="box">
+            <h2>Graphs to practice drawing</h2>
+            <ul>{sheet.graphs.map((g) => <li>{g}</li>)}</ul>
+          </section>
+          <section class="box">
+            <h2>Traps that cost points</h2>
+            <ul>{sheet.traps.map((t) => <li>{t}</li>)}</ul>
+          </section>
+          <section class="box box-wide">
+            <h2>Key terms</h2>
+            <dl class="terms">
+              {terms.map((t) => (
+                <div><dt>{t.term}</dt><dd>{t.def}</dd></div>
+              ))}
+            </dl>
+          </section>
+        </div>
+        <p class="sheet-foot">{site.name} · {unitLabel(unit)}. AP is a trademark registered by the College Board, which does not endorse this material.</p>
+      </article>
+    </ProGate>
+  </div>
+</Base>
+
+<script>
+  document.querySelector('[data-print]')?.addEventListener('click', () => window.print());
+</script>
+
+<style>
+  .body {
+    padding-top: 1.5rem;
+    padding-bottom: 5rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+  .crumbs {
+    display: flex;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-2);
+  }
+  .crumbs a {
+    color: var(--ink);
+  }
+  .sheet {
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.1rem, 0.8rem + 1.5vw, 2rem);
+    max-width: 980px;
+  }
+  .sheet-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .sheet-title {
+    font-weight: 800;
+    font-stretch: 118%;
+    font-variation-settings: 'wdth' 118;
+    font-size: clamp(1.6rem, 1.2rem + 1.5vw, 2.2rem);
+    margin-top: 0.3rem;
+  }
+  .sheet-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .sheet-grid {
+    display: grid;
+    gap: 1.25rem 2rem;
+    margin-top: 1.25rem;
+  }
+  @media (min-width: 760px) {
+    .sheet-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .box-wide {
+      grid-column: 1 / -1;
+    }
+  }
+  .box h2 {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 0.6rem;
+  }
+  .box ul {
+    margin: 0;
+    padding-left: 1.1em;
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.97rem;
+    line-height: 1.45;
+  }
+  .box-wide ul {
+    columns: 2 320px;
+    display: block;
+  }
+  .box-wide ul li {
+    break-inside: avoid;
+    margin-bottom: 0.35rem;
+  }
+  .formulas {
+    list-style: none;
+    padding-left: 0 !important;
+  }
+  .formulas li {
+    font-size: 0.86rem;
+    background: var(--paper-sunk);
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+  }
+  .terms {
+    margin: 0;
+    columns: 2 300px;
+    column-gap: 2rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  .terms div {
+    break-inside: avoid;
+    margin-bottom: 0.5rem;
+  }
+  .terms dt {
+    font-weight: 700;
+    display: inline;
+  }
+  .terms dt::after {
+    content: ': ';
+  }
+  .terms dd {
+    display: inline;
+    margin: 0;
+    color: var(--ink-2);
+  }
+  .sheet-foot {
+    margin-top: 1.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.78rem;
+    color: var(--ink-2);
+  }
+  @media print {
+    .body {
+      padding: 0;
+    }
+    .sheet {
+      border: 0;
+      padding: 0;
+      max-width: none;
+      background: #fff;
+    }
+    .sheet-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem 1.2rem;
+    }
+    .box-wide {
+      grid-column: 1 / -1;
+    }
+    .box ul,
+    .terms {
+      font-size: 9.5pt;
+    }
+  }
+</style>

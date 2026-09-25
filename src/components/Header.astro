@@ -1,0 +1,215 @@
+---
+import Logo from './Logo.astro';
+import { url } from '../lib/url';
+import { site } from '../site';
+
+const links = [
+  { href: '/learn/', label: 'Learn' },
+  { href: '/practice/', label: 'Practice' },
+  { href: '/graph-lab/', label: 'Graph lab' },
+  { href: '/glossary/', label: 'Glossary' },
+  { href: '/pricing/', label: 'Pricing' },
+];
+const here = Astro.url.pathname;
+const isActive = (href: string) => here.startsWith(url(href));
+---
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href={url('/')} aria-label={`${site.name} home`}>
+      <Logo />
+      <span class="wordmark">{site.name}</span>
+    </a>
+
+    <button class="menu-btn btn btn-secondary btn-small" type="button" aria-expanded="false" aria-controls="site-nav">
+      Menu
+    </button>
+
+    <nav id="site-nav" class="nav" aria-label="Main">
+      <ul>
+        {links.map((l) => (
+          <li>
+            <a href={url(l.href)} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
+          </li>
+        ))}
+      </ul>
+      <button class="theme-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span class="theme-label">Theme</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<script>
+  import { currentTheme, store } from '../scripts/store';
+
+  const menuBtn = document.querySelector<HTMLButtonElement>('.menu-btn');
+  const nav = document.getElementById('site-nav');
+  menuBtn?.addEventListener('click', () => {
+    const open = menuBtn.getAttribute('aria-expanded') === 'true';
+    menuBtn.setAttribute('aria-expanded', String(!open));
+    nav?.classList.toggle('is-open', !open);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && nav?.classList.contains('is-open')) {
+      nav.classList.remove('is-open');
+      menuBtn?.setAttribute('aria-expanded', 'false');
+      menuBtn?.focus();
+    }
+  });
+
+  const themeBtn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const syncThemeBtn = () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    themeBtn?.setAttribute('aria-label', `Switch to ${next} theme`);
+    themeBtn?.setAttribute('data-current', currentTheme());
+  };
+  themeBtn?.addEventListener('click', () => {
+    store.setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+    syncThemeBtn();
+    window.dispatchEvent(new CustomEvent('tutorecon:theme'));
+  });
+  syncThemeBtn();
+</script>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+    position: relative;
+    z-index: 20;
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 68px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 820;
+    font-stretch: 122%;
+    font-variation-settings: 'wdth' 122;
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .nav ul {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0.35rem 0.7rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 560;
+    color: var(--ink-2);
+  }
+  .nav a:hover {
+    color: var(--ink);
+    background: var(--paper-sunk);
+  }
+  .nav a[aria-current='page'] {
+    color: var(--ink);
+    background-image: linear-gradient(var(--hl), var(--hl));
+    background-size: calc(100% - 1.4rem) 5px;
+    background-position: 0.7rem 78%;
+    background-repeat: no-repeat;
+  }
+  .theme-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 40px;
+    min-width: 40px;
+    justify-content: center;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+    margin-left: 0.5rem;
+  }
+  .theme-btn:hover {
+    color: var(--ink);
+    border-color: var(--rule-strong);
+  }
+  .theme-label {
+    font-size: 0.9rem;
+    font-weight: 560;
+  }
+  .icon-sun {
+    display: none;
+  }
+  .theme-btn[data-current='dark'] .icon-sun {
+    display: block;
+  }
+  .theme-btn[data-current='dark'] .icon-moon {
+    display: none;
+  }
+  .menu-btn {
+    display: none;
+  }
+
+  @media (max-width: 900px) {
+    .theme-label {
+      display: none;
+    }
+  }
+  @media (max-width: 780px) {
+    .menu-btn {
+      display: inline-flex;
+    }
+    .nav {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0.75rem var(--gutter) 1.25rem;
+      background: var(--paper);
+      border-bottom: 1px solid var(--rule);
+      box-shadow: var(--shadow);
+    }
+    .nav.is-open {
+      display: flex;
+    }
+    .nav ul {
+      flex-direction: column;
+    }
+    .nav a {
+      min-height: 48px;
+      font-size: 1.05rem;
+    }
+    .theme-btn {
+      margin: 0.5rem 0 0;
+      justify-content: flex-start;
+      min-height: 48px;
+    }
+    .theme-label {
+      display: inline;
+    }
+  }
+</style>

@@ -1,0 +1,177 @@
+---
+import Base from '../layouts/Base.astro';
+import { glossary, termSlug } from '../data/glossary';
+import { getUnit, unitLabel } from '../data/units';
+import { url } from '../lib/url';
+
+const terms = [...glossary].sort((a, b) => a.term.localeCompare(b.term));
+const letters = [...new Set(terms.map((t) => t.term[0].toUpperCase()))];
+---
+<Base title="Glossary" description="Plain-language definitions of every key term in AP Microeconomics and AP Macroeconomics.">
+  <header class="wrap page-head">
+    <p class="eyebrow">Glossary</p>
+    <h1 class="page-title">Glossary</h1>
+    <p class="lede">{terms.length} terms, each defined in a sentence or two and linked to the unit where it comes up.</p>
+    <div class="search">
+      <label for="term-search" class="label">Search terms and definitions</label>
+      <input id="term-search" class="input" type="search" autocomplete="off" spellcheck="false" placeholder="For example: elasticity" data-search />
+      <p class="hint" data-count aria-live="polite">Showing all {terms.length} terms.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav class="letters" aria-label="Jump to letter">
+      {letters.map((l) => <a href={`#letter-${l}`}>{l}</a>)}
+    </nav>
+    <div class="terms">
+      {letters.map((l) => (
+        <section class="letter-group" id={`letter-${l}`} data-group>
+          <h2 class="letter mono">{l}</h2>
+          <dl>
+            {terms.filter((t) => t.term[0].toUpperCase() === l).map((t) => {
+              const u = getUnit(t.unit)!;
+              return (
+                <div class="entry" id={termSlug(t.term)} data-entry data-text={`${t.term} ${t.def}`.toLowerCase()}>
+                  <dt>{t.term}</dt>
+                  <dd>
+                    <p>{t.def}</p>
+                    <a class="entry-unit mono" href={url(`/learn/${u.slug}/#term-${termSlug(t.term)}`)}>{unitLabel(u)}: {u.title}</a>
+                  </dd>
+                </div>
+              );
+            })}
+          </dl>
+        </section>
+      ))}
+      <p class="empty" data-empty hidden>No terms match that search. Try a shorter word, like "cost" or "rate".</p>
+    </div>
+  </div>
+</Base>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('[data-search]')!;
+  const count = document.querySelector<HTMLElement>('[data-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const entries = document.querySelectorAll<HTMLElement>('[data-entry]');
+  const groups = document.querySelectorAll<HTMLElement>('[data-group]');
+  const total = entries.length;
+  let timer = 0;
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    let shown = 0;
+    entries.forEach((e) => {
+      const match = !q || (e.dataset.text ?? '').includes(q);
+      e.hidden = !match;
+      if (match) shown++;
+    });
+    groups.forEach((g) => (g.hidden = !g.querySelector('[data-entry]:not([hidden])')));
+    empty.hidden = shown > 0;
+    clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      count.textContent = q ? `${shown} of ${total} terms match.` : `Showing all ${total} terms.`;
+    }, 250);
+  });
+</script>
+
+<style>
+  .page-head {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    padding-bottom: 1.5rem;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .search {
+    display: grid;
+    gap: 0.4rem;
+    max-width: 520px;
+    margin-top: 0.75rem;
+  }
+  .letters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .letters a {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.2rem;
+    min-height: 2.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    text-decoration: none;
+    border-radius: var(--radius);
+  }
+  .letters a:hover {
+    background: var(--paper-sunk);
+  }
+  .terms {
+    padding-bottom: 5rem;
+  }
+  .letter-group {
+    display: grid;
+    gap: 0.5rem;
+    padding-top: 2rem;
+    scroll-margin-top: 1rem;
+  }
+  @media (min-width: 820px) {
+    .letter-group {
+      grid-template-columns: 80px 1fr;
+    }
+  }
+  .letter-group[hidden],
+  .entry[hidden] {
+    display: none;
+  }
+  .letter {
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--ink-3);
+  }
+  .letter-group dl {
+    margin: 0;
+    border-top: 1.5px solid var(--ink);
+  }
+  .entry {
+    display: grid;
+    gap: 0.35rem 2rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule);
+    scroll-margin-top: 1rem;
+  }
+  @media (min-width: 820px) {
+    .entry {
+      grid-template-columns: minmax(200px, 0.8fr) 2fr;
+    }
+  }
+  .entry:target {
+    background: color-mix(in srgb, var(--hl) 25%, transparent);
+  }
+  .entry dt {
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .entry dd {
+    margin: 0;
+    display: grid;
+    gap: 0.35rem;
+    justify-items: start;
+  }
+  .entry dd p {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+  .entry-unit {
+    font-size: 0.74rem;
+    color: var(--ink-2);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .empty {
+    padding: 2rem 0;
+    font-weight: 600;
+  }
+</style>

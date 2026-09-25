@@ -1,0 +1,151 @@
+---
+import { url } from '../lib/url';
+import { site } from '../site';
+import Logo from './Logo.astro';
+
+const groups = [
+  {
+    title: 'Study',
+    links: [
+      ['/learn/', 'All units'],
+      ['/practice/', 'Practice questions'],
+      ['/mock-exam/', 'Mock exam (Pro)'],
+      ['/review/', 'Review sheets (Pro)'],
+      ['/graph-lab/', 'Graph lab'],
+      ['/glossary/', 'Glossary'],
+    ],
+  },
+  {
+    title: 'Site',
+    links: [
+      ['/about/', 'About'],
+      ['/pricing/', 'Pricing'],
+      ['/account/', 'Your data and settings'],
+    ],
+  },
+  {
+    title: 'Policies',
+    links: [
+      ['/privacy/', 'Privacy policy'],
+      ['/cookies/', 'Cookie policy'],
+      ['/terms/', 'Terms of use'],
+      ['/refunds/', 'Refund policy'],
+      ['/accessibility/', 'Accessibility'],
+    ],
+  },
+];
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="top">
+      <div class="about">
+        <a class="brand" href={url('/')}>
+          <Logo size={26} />
+          <span>{site.name}</span>
+        </a>
+        <p class="muted">
+          Free lessons for AP Microeconomics and AP Macroeconomics. No account, no ads, no tracking.
+        </p>
+        <p class="muted small">
+          Questions or corrections: <a href={site.contactUrl}>open an issue on GitHub</a>.
+        </p>
+      </div>
+      {groups.map((g) => (
+        <nav aria-label={g.title} class="group">
+          <h2 class="group-title">{g.title}</h2>
+          <ul>
+            {g.links.map(([href, label]) => (
+              <li><a href={url(href)}>{label}</a></li>
+            ))}
+          </ul>
+        </nav>
+      ))}
+    </div>
+    <div class="bottom">
+      <p>
+        AP is a trademark registered by the College Board, which is not affiliated with, and does not endorse, this site.
+      </p>
+      <p>&copy; {year} <a href={site.ownerUrl}>{site.owner}</a></p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--rule);
+    background: var(--paper-sunk);
+    padding-block: 3rem 2rem;
+    font-size: 0.95rem;
+  }
+  .top {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px) {
+    .top {
+      grid-template-columns: 1.6fr repeat(3, 1fr);
+    }
+  }
+  .about {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    max-width: 34ch;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-display);
+    font-weight: 820;
+    font-stretch: 122%;
+    font-variation-settings: 'wdth' 122;
+    font-size: 1.1rem;
+    text-decoration: none;
+  }
+  .small {
+    font-size: 0.9rem;
+  }
+  .group-title {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.76rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    margin-bottom: 0.6rem;
+  }
+  .group ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.15rem;
+  }
+  .group a {
+    display: inline-block;
+    padding-block: 0.3rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .group a:hover {
+    text-decoration: underline;
+  }
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-2);
+    font-size: 0.86rem;
+  }
+  .bottom p:first-child {
+    max-width: 62ch;
+  }
+</style>

@@ -1,0 +1,19 @@
+---
+import Doc from '../layouts/Doc.astro';
+import { site } from '../site';
+import { url } from '../lib/url';
+---
+<Doc title="Refund policy" eyebrow="Policies" updated={site.policiesUpdated} description="TutorEcon does not take payments, so there is nothing to refund.">
+  <div class="summary">
+    <p><strong>{site.name} does not take payments.</strong> The Pro checkout is a demo that never charges a card, so there is nothing to refund.</p>
+  </div>
+
+  <h2>Cancelling the Pro demo</h2>
+  <p>You can turn Pro off at any time on <a href={url('/account/')}>Your data and settings</a>. Nothing else is needed.</p>
+
+  <h2>If you see a charge that mentions TutorEcon</h2>
+  <p>It did not come from this site. Contact your bank or card issuer, and please <a href={site.contactUrl}>let us know on GitHub</a>.</p>
+
+  <h2>If payments are switched on later</h2>
+  <p>This page will be updated with the full cancellation and refund terms before the first charge is ever made.</p>
+</Doc>

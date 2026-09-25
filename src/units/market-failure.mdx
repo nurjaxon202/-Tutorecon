@@ -1,0 +1,90 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## When markets get it wrong
+
+A competitive market reaches the allocatively efficient quantity when the people making decisions face all the costs and benefits of their choices. **Market failure** happens when they do not. The market then produces too much or too little, and there is a deadweight loss.
+
+## Externalities
+
+An <mark>externality</mark> is a cost or benefit that falls on someone who is not part of the transaction.
+
+To separate the parties, economists use four curves:
+
+- **Marginal private cost (MPC)**: the cost to the producer. This is the ordinary supply curve.
+- **Marginal social cost (MSC)**: the cost to everyone, including third parties.
+- **Marginal private benefit (MPB)**: the benefit to the buyer. This is the ordinary demand curve.
+- **Marginal social benefit (MSB)**: the benefit to everyone.
+
+The market produces where MPB = MPC. Society is best off where **MSB = MSC**.
+
+### Negative externalities
+
+A steel mill that pollutes a river imposes a cost on people downstream. The mill does not pay that cost, so its private cost is below the social cost and the MSC curve sits above supply. The market **overproduces** steel and charges too little for it.
+
+<Graph model="externality-negative" caption="The vertical gap between MSC and MPC is the harm to others from each unit. The hatched triangle is the deadweight loss from overproduction." />
+
+The standard fix is a **Pigouvian tax** equal to the external cost per unit. It shifts the private cost curve up to match MSC, so the market settles at the socially best quantity. Other tools include regulations that limit pollution directly and **tradable permits** that cap total pollution and let firms buy and sell the right to emit.
+
+### Positive externalities
+
+When you get a flu shot, you are less likely to pass the flu to others. That benefit to other people is a positive externality. Buyers only count their own benefit, so MSB sits above demand and the market **underproduces**.
+
+<Graph model="externality-positive" caption="Turn on the subsidy to see the market reach the socially best quantity." />
+
+The fix is a **per-unit subsidy** equal to the external benefit, paid to buyers or sellers. Governments also provide such goods directly or require them, as with school vaccination rules.
+
+<Callout kind="mistake">
+Negative externality: the social cost curve goes **above** supply, and the market makes too much. Positive externality: the social benefit curve goes **above** demand, and the market makes too little. Draw the extra curve on the side where the missing cost or benefit belongs.
+</Callout>
+
+## Public goods
+
+Goods can be sorted by two properties:
+
+- **Rival**: one person's use leaves less for others. A sandwich is rival; a radio broadcast is not.
+- **Excludable**: people who do not pay can be kept from using it. A movie theater is excludable; a fireworks display in the sky is not.
+
+<div class="table-scroll">
+
+| | Excludable | Non-excludable |
+| --- | --- | --- |
+| **Rival** | Private goods: food, clothing, phones | Common resources: ocean fish, public grazing land |
+| **Non-rival** | Club goods: streaming services, toll roads when not crowded | Public goods: national defense, street lights, flood barriers |
+
+</div>
+
+A <mark>public good</mark> is non-rival and non-excludable. Because no one can be kept from benefiting, people have an incentive to let others pay. This is the **free-rider problem**, and it means private markets will produce too little of the good or none at all. That is why public goods are usually paid for with taxes.
+
+**Common resources** are rival but non-excludable, which leads to the **tragedy of the commons**: each user takes as much as they can, and the resource gets overused. Overfishing is the classic case. Fixes include quotas, licenses, and assigning property rights.
+
+## Inequality
+
+Markets reward people according to what their labor and property earn, which can leave large differences in income. Economists measure this with the **Lorenz curve**, which plots the share of income earned by the poorest share of households. If everyone earned the same, it would follow the diagonal **line of equality**.
+
+The **Gini coefficient** summarizes the gap in one number: the area between the line of equality and the Lorenz curve (area A), divided by the whole triangle under the line of equality. It runs from 0 (perfect equality) to 1 (one household has everything).
+
+<Graph model="lorenz" caption="The more the Lorenz curve sags away from the diagonal, the more unequal the distribution and the higher the Gini coefficient." />
+
+Income inequality comes from differences in skills and education, discrimination, inherited wealth, luck, and how much different jobs are valued by the market. Wealth, meaning what people own, is usually distributed more unequally than income.
+
+### How taxes affect inequality
+
+- A **progressive tax** takes a larger percentage of income from people with higher incomes. The US federal income tax is progressive.
+- A **proportional tax** (or flat tax) takes the same percentage from everyone.
+- A **regressive tax** takes a larger percentage of income from people with lower incomes. Sales taxes are regressive in this sense, because lower-income households spend a larger share of what they earn.
+
+<Worked title="Classifying a tax" prompt="A tax charges $1,000 to a household earning $20,000 and $3,000 to a household earning $100,000. Is it progressive, proportional, or regressive?">
+  <Step n={1} title="Find each household's tax as a share of income">
+    $1,000 ÷ $20,000 = 5%. $3,000 ÷ $100,000 = 3%.
+  </Step>
+  <Step n={2} title="Compare the percentages">
+    The higher-income household pays more dollars but a smaller percentage of its income. The tax is regressive. The label always depends on the percentage, not the dollar amount.
+  </Step>
+</Worked>
+
+## Government failure
+
+Government action can also make things worse. Taxes and subsidies set at the wrong level, rules that protect existing firms from competition, and programs that outlive their purpose all create inefficiency. The question in each case is whether the fix does more good than the problem it is meant to solve.

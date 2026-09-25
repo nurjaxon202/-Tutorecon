@@ -1,0 +1,126 @@
+---
+// Server-renders a first frame of the graph (so it shows without JavaScript),
+// plus its controls. The client script takes over and redraws at real size.
+import { graphs } from '../scripts/graphs/models';
+import { Plot, heightFor } from '../scripts/graphs/core';
+
+interface Props {
+  model: string;
+  caption?: string;
+  variant?: 'default' | 'hero' | 'lab';
+  title?: string;
+  showTitle?: boolean;
+  /** Override the plot's height-to-width ratio. */
+  ratio?: number;
+}
+const { model, caption, variant = 'default', title, showTitle = true, ratio } = Astro.props;
+const make = graphs[model];
+if (!make) throw new Error(`Unknown graph model: ${model}`);
+const setup = make();
+const id = `graph-${model}-${Math.random().toString(36).slice(2, 7)}`;
+const w = 640;
+const h = heightFor(w, ratio ?? setup.ratio);
+const plot = new Plot(w, h, setup.x, setup.y, `${id}-clip`);
+setup.draw(plot, setup.initial);
+const svg = plot.svg();
+const readout = setup.describe(setup.initial);
+const heading = title ?? setup.title;
+const fmt = (c: (typeof setup.controls)[number]) => {
+  const v = setup.initial[c.key];
+  if (c.type !== 'range') return '';
+  return c.fmt ? c.fmt(Number(v)) : String(v);
+};
+---
+<figure class:list={['graph', `graph-${variant}`]} data-graph={model} data-ratio={ratio} id={id}>
+  {showTitle && (
+    <div class="graph-head">
+      <span class="eyebrow">Interactive graph</span>
+      <p class="graph-title">{heading}</p>
+    </div>
+  )}
+  <div class="graph-layout">
+    <div class="graph-canvas" data-canvas>
+      <svg
+        data-svg
+        role="img"
+        aria-label={`${heading}. The current values are described in the text next to the graph.`}
+        viewBox={`0 0 ${w} ${h}`}
+        width={w}
+        height={h}
+        xmlns="http://www.w3.org/2000/svg"
+        set:html={svg}
+      />
+      {setup.drag && <p class="graph-drag-hint">Drag the round handles, or use the controls.</p>}
+    </div>
+
+    <div class="graph-side">
+      <div class="graph-readout">
+        <p class="graph-note" data-note hidden></p>
+        <p data-readout set:html={readout} />
+      </div>
+
+      {setup.scenarios && setup.scenarios.length > 0 && (
+        <div class="graph-scenarios">
+          <p class="ctl-heading" id={`${id}-sc`}>What happens when</p>
+          <ul aria-labelledby={`${id}-sc`}>
+            {setup.scenarios.map((sc, i) => (
+              <li>
+                <button type="button" class="scenario" data-scenario={i} aria-pressed="false">
+                  <span>{sc.label}</span>
+                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {setup.controls.length > 0 && (
+        <div class="graph-controls">
+          {setup.controls.map((c) => {
+            const cid = `${id}-${c.key}`;
+            if (c.type === 'range') {
+              return (
+                <div class="ctl-range">
+                  <div class="ctl-row">
+                    <label for={cid}>{c.label}</label>
+                    <output for={cid} data-out={c.key} class="mono">{fmt(c)}</output>
+                  </div>
+                  <input type="range" id={cid} data-key={c.key} min={c.min} max={c.max} step={c.step} value={String(setup.initial[c.key])} />
+                </div>
+              );
+            }
+            if (c.type === 'toggle') {
+              return (
+                <label class="ctl-check">
+                  <input type="checkbox" data-key={c.key} checked={Boolean(setup.initial[c.key])} />
+                  <span>{c.label}</span>
+                </label>
+              );
+            }
+            return (
+              <fieldset class="ctl-choice">
+                <legend>{c.label}</legend>
+                <div class="seg">
+                  {c.options.map((o) => (
+                    <label>
+                      <input type="radio" name={cid} data-key={c.key} value={o.value} checked={setup.initial[c.key] === o.value} />
+                      <span>{o.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            );
+          })}
+          <button type="button" class="btn btn-secondary btn-small reset" data-reset>Reset graph</button>
+        </div>
+      )}
+    </div>
+  </div>
+  <p class="visually-hidden" aria-live="polite" data-live></p>
+  {caption && <figcaption class="graph-caption">{caption}</figcaption>}
+</figure>
+
+<script>
+  import '../scripts/graphs/index';
+</script>

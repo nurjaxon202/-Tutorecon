@@ -1,0 +1,22 @@
+---
+import Doc from '../layouts/Doc.astro';
+import { site } from '../site';
+import { url } from '../lib/url';
+---
+<Doc title="Cookie policy" eyebrow="Policies" updated={site.policiesUpdated} description="TutorEcon does not set cookies. It uses local storage only to remember your progress and theme.">
+  <div class="summary">
+    <p><strong>{site.name} does not set cookies.</strong> That is why you do not see a cookie banner here.</p>
+  </div>
+
+  <h2>What we use instead</h2>
+  <p>The site uses your browser's local storage to remember two things you choose to save: your study progress and your theme. It only exists to make features you use work, it is never read by anyone but your own browser, and it is not used for tracking or advertising. The full list is on the <a href={url('/privacy/')}>privacy policy</a>.</p>
+
+  <h2>Third-party cookies</h2>
+  <p>There are none. The site does not load analytics, ads, social media widgets, video embeds, or fonts from other companies, so no other company can set cookies through it.</p>
+
+  <h2>How to clear stored data</h2>
+  <p>Use the "Delete all my data" button on <a href={url('/account/')}>Your data and settings</a>, or clear this site's data in your browser's privacy settings.</p>
+
+  <h2>Changes</h2>
+  <p>If the site ever needs cookies, for example for a payment provider, this page will be updated and you will be asked for consent where the law requires it.</p>
+</Doc>

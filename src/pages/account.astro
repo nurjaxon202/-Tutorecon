@@ -1,0 +1,268 @@
+---
+import Base from '../layouts/Base.astro';
+import { units } from '../data/units';
+import { url } from '../lib/url';
+---
+<Base title="Your data and settings" description="See and delete everything TutorEcon has saved in your browser, change the theme, and manage the Pro demo.">
+  <header class="wrap page-head">
+    <p class="eyebrow">Your data</p>
+    <h1 class="page-title">Your data and settings</h1>
+    <p class="lede">
+      TutorEcon has no accounts and no server that stores information about you. Everything below lives only in this
+      browser, and you can download it or delete it here.
+    </p>
+  </header>
+
+  <div class="wrap grid">
+    <section class="panel card" aria-labelledby="plan-title">
+      <h2 id="plan-title" class="h3">Plan</h2>
+      <div data-plan-free>
+        <p><strong>Free.</strong> Every lesson, graph, and practice question is included.</p>
+        <a class="btn btn-secondary btn-small" href={url('/pricing/')}>See what Pro adds</a>
+      </div>
+      <div data-plan-pro hidden>
+        <p><strong>Pro (demo).</strong> Turned on <span data-pro-since></span>. No payment was taken.</p>
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary btn-small" data-cancel-pro>Cancel Pro</button>
+        </div>
+      </div>
+      <p class="hint" data-plan-msg aria-live="polite"></p>
+    </section>
+
+    <section class="panel card" aria-labelledby="theme-title">
+      <h2 id="theme-title" class="h3">Theme</h2>
+      <fieldset class="ctl-choice">
+        <legend class="visually-hidden">Color theme</legend>
+        <div class="seg">
+          <label><input type="radio" name="theme" value="system" /><span>Match my device</span></label>
+          <label><input type="radio" name="theme" value="light" /><span>Light</span></label>
+          <label><input type="radio" name="theme" value="dark" /><span>Dark</span></label>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="panel card wide" aria-labelledby="progress-title">
+      <h2 id="progress-title" class="h3">Progress</h2>
+      <p data-progress-summary></p>
+      <div class="table-scroll">
+        <table class="progress-table">
+          <thead>
+            <tr><th scope="col">Unit</th><th scope="col">Marked done</th><th scope="col">Best quiz score</th></tr>
+          </thead>
+          <tbody>
+            {units.map((u) => (
+              <tr data-row={u.slug}>
+                <th scope="row"><a href={url(`/learn/${u.slug}/`)}>{u.title}</a></th>
+                <td data-done>No</td>
+                <td data-quiz class="mono">None yet</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel card wide" aria-labelledby="stored-title">
+      <h2 id="stored-title" class="h3">Exactly what is stored</h2>
+      <p>Two entries in this browser's local storage, and nothing else. No cookies.</p>
+      <dl class="stored">
+        <div>
+          <dt class="mono">tutorecon.v1</dt>
+          <dd>Units you marked done, your best quiz scores, your last 20 mock exam scores, and whether the Pro demo is on.</dd>
+        </div>
+        <div>
+          <dt class="mono">tutorecon.theme</dt>
+          <dd>Your light or dark theme choice, if you made one.</dd>
+        </div>
+      </dl>
+      <div class="btn-row">
+        <button type="button" class="btn btn-secondary btn-small" data-download>Download my data</button>
+        <button type="button" class="btn btn-secondary btn-small danger" data-delete>Delete all my data</button>
+      </div>
+      <div class="confirm" data-delete-confirm hidden>
+        <p><strong>Delete everything?</strong> Your progress, scores, theme, and Pro demo status will be removed from this browser. This cannot be undone.</p>
+        <div class="btn-row">
+          <button type="button" class="btn btn-small danger-solid" data-delete-yes>Yes, delete my data</button>
+          <button type="button" class="btn btn-secondary btn-small" data-delete-no>Keep my data</button>
+        </div>
+      </div>
+      <p class="hint" data-delete-msg aria-live="polite"></p>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import { store, currentTheme } from '../scripts/store';
+
+  const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
+
+  const render = () => {
+    const data = store.get();
+    $('[data-plan-free]').hidden = Boolean(data.pro);
+    $('[data-plan-pro]').hidden = !data.pro;
+    if (data.pro) $('[data-pro-since]').textContent = `on ${new Date(data.pro.since).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`;
+
+    let done = 0;
+    document.querySelectorAll<HTMLElement>('[data-row]').forEach((row) => {
+      const slug = row.dataset.row!;
+      const isDone = Boolean(data.done[slug]);
+      if (isDone) done++;
+      row.querySelector('[data-done]')!.textContent = isDone ? 'Yes' : 'No';
+      const q = data.quiz[slug];
+      row.querySelector('[data-quiz]')!.textContent = q ? `${q.best} of ${q.total}` : 'None yet';
+    });
+    const exams = data.exams.length;
+    $('[data-progress-summary]').textContent = `${done} of ${document.querySelectorAll('[data-row]').length} units marked done. ${exams ? `${exams} mock exam${exams === 1 ? '' : 's'} taken.` : 'No mock exams taken yet.'}`;
+
+    const saved = store.getTheme();
+    const value = saved ?? 'system';
+    document.querySelectorAll<HTMLInputElement>('input[name="theme"]').forEach((r) => (r.checked = r.value === value));
+  };
+
+  document.querySelectorAll<HTMLInputElement>('input[name="theme"]').forEach((r) =>
+    r.addEventListener('change', () => {
+      if (r.value === 'system') {
+        try {
+          localStorage.removeItem('tutorecon.theme');
+        } catch {
+          /* nothing stored */
+        }
+        delete document.documentElement.dataset.theme;
+      } else store.setTheme(r.value as 'light' | 'dark');
+      window.dispatchEvent(new CustomEvent('tutorecon:theme'));
+      document.querySelector('[data-theme-toggle]')?.setAttribute('data-current', currentTheme());
+    }),
+  );
+
+  $('[data-cancel-pro]').addEventListener('click', () => {
+    store.cancelPro();
+    $('[data-plan-msg]').textContent = 'Pro is off. Your progress and scores are still here.';
+    render();
+  });
+
+  $('[data-download]').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify({ 'tutorecon.v1': store.get(), 'tutorecon.theme': store.getTheme() }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'tutorecon-data.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
+  const confirmBox = $('[data-delete-confirm]');
+  $('[data-delete]').addEventListener('click', () => {
+    confirmBox.hidden = false;
+    $<HTMLButtonElement>('[data-delete-no]').focus();
+  });
+  $('[data-delete-no]').addEventListener('click', () => {
+    confirmBox.hidden = true;
+    $<HTMLButtonElement>('[data-delete]').focus();
+  });
+  $('[data-delete-yes]').addEventListener('click', () => {
+    store.clearAll();
+    confirmBox.hidden = true;
+    $('[data-delete-msg]').textContent = 'Deleted. This browser no longer holds any TutorEcon data.';
+    render();
+    $<HTMLButtonElement>('[data-delete]').focus();
+  });
+
+  window.addEventListener('tutorecon:change', render);
+  render();
+</script>
+
+<style>
+  .page-head {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    display: grid;
+    gap: 0.9rem;
+  }
+  .lede {
+    max-width: 58ch;
+  }
+  .grid {
+    display: grid;
+    gap: 1rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+    max-width: 1000px;
+    margin-inline: auto;
+    margin-left: 0;
+  }
+  @media (min-width: 820px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .wide {
+      grid-column: 1 / -1;
+    }
+  }
+  .card {
+    padding: 1.25rem;
+    display: grid;
+    gap: 0.9rem;
+    align-content: start;
+  }
+  .card > div {
+    display: grid;
+    gap: 0.75rem;
+    justify-items: start;
+  }
+  .card [hidden] {
+    display: none;
+  }
+  .progress-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .progress-table th,
+  .progress-table td {
+    text-align: left;
+    padding: 0.55rem 0.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .progress-table thead th {
+    border-bottom: 1.5px solid var(--ink);
+  }
+  .progress-table tbody th {
+    font-weight: 560;
+  }
+  .table-scroll {
+    overflow-x: auto;
+  }
+  .stored {
+    margin: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .stored div {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .stored dt {
+    font-size: 0.9rem;
+  }
+  .stored dd {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  .danger {
+    color: var(--bad);
+    border-color: var(--bad);
+  }
+  .danger-solid {
+    background: var(--bad);
+    border-color: var(--bad);
+    color: var(--btn-ink);
+  }
+  .danger-solid:hover {
+    background: var(--bad);
+    filter: brightness(0.92);
+  }
+  .confirm {
+    padding: 1rem;
+    border: 1.5px solid var(--bad);
+    border-radius: var(--radius);
+    background: var(--bad-bg);
+  }
+</style>

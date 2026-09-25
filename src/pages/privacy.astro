@@ -1,0 +1,42 @@
+---
+import Doc from '../layouts/Doc.astro';
+import { site } from '../site';
+import { url } from '../lib/url';
+---
+<Doc title="Privacy policy" eyebrow="Policies" updated={site.policiesUpdated} description="TutorEcon does not collect personal information. This page explains exactly what stays in your browser and what our host may log.">
+  <div class="summary">
+    <p><strong>The short version:</strong> TutorEcon does not collect personal information. There are no accounts, no analytics, no ads, no cookies, and no third-party scripts. Your progress is saved only in your own browser.</p>
+  </div>
+
+  <h2>Who runs this site</h2>
+  <p>{site.name} is run by <a href={site.ownerUrl}>{site.owner}</a>. You can reach us by <a href={site.contactUrl}>opening an issue on GitHub</a>.</p>
+
+  <h2>What we collect</h2>
+  <p>Nothing. The site is a set of static pages. It has no server-side code, no database, no sign-up, and no contact forms. We do not use analytics tools, tracking pixels, advertising networks, or embedded content from other companies. Fonts are served from this site, not from a font service.</p>
+
+  <h2>What is saved in your browser</h2>
+  <p>To remember your progress, the site writes two entries to your browser's local storage:</p>
+  <ul>
+    <li><code>tutorecon.v1</code>: units you marked done, your best practice scores, your last 20 mock exam scores, and whether the Pro demo is on.</li>
+    <li><code>tutorecon.theme</code>: your light or dark theme choice, if you made one.</li>
+  </ul>
+  <p>This data never leaves your device. We cannot see it. You can view, download, or delete it on the <a href={url('/account/')}>Your data and settings</a> page, or by clearing this site's data in your browser settings.</p>
+
+  <h2>The demo checkout</h2>
+  <p>The Pro checkout is a demonstration. Anything typed into it is checked in your browser and then discarded. Card numbers, names, and dates are not stored, logged, or sent anywhere, and only published test card numbers are accepted. Please do not type in a real card.</p>
+
+  <h2>Our host</h2>
+  <p>The site is hosted on GitHub Pages. Like most web hosts, GitHub may record technical information such as visitors' IP addresses in its server logs for security and to run the service. We do not receive those logs. GitHub's handling of that data is described in the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub General Privacy Statement</a>.</p>
+
+  <h2>Links to other sites</h2>
+  <p>Some pages link to GitHub. When you follow a link, the other site's privacy policy applies.</p>
+
+  <h2>Children and students</h2>
+  <p>{site.name} is made for students, including those under 13. Because the site collects no personal information from anyone, it does not collect it from children either.</p>
+
+  <h2>Your rights</h2>
+  <p>Privacy laws such as the GDPR and CCPA give you rights to access and delete personal data a service holds about you. We hold none. The only data related to your use of the site is in your own browser, under your control.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If the site ever starts collecting information, for example by switching on real payments, this policy will be updated before that happens, and the date at the top will change.</p>
+</Doc>

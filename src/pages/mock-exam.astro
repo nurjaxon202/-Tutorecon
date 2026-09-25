@@ -1,0 +1,494 @@
+---
+import Base from '../layouts/Base.astro';
+import ProGate from '../components/ProGate.astro';
+import { questions } from '../data/questions';
+import { units, unitLabel } from '../data/units';
+
+const bank = questions.map((q) => ({
+  id: q.id,
+  unit: q.unit,
+  prompt: q.prompt,
+  options: q.options.map((o) => o.text),
+  why: q.options.map((o) => o.why),
+  answer: q.answer,
+}));
+const unitInfo = Object.fromEntries(units.map((u) => [u.slug, { title: u.title, label: unitLabel(u), course: u.course }]));
+const COUNT = 20;
+const MINUTES = 25;
+---
+<Base title="Mock exam" description="A timed, mixed AP Economics practice exam with a score breakdown by unit. Part of TutorEcon Pro.">
+  <header class="wrap page-head">
+    <p class="eyebrow">Pro · Mock exam</p>
+    <h1 class="page-title">Mock exam</h1>
+    <p class="lede">{COUNT} multiple-choice questions in {MINUTES} minutes, close to the pace of the real AP exam. You get a score for each unit at the end.</p>
+  </header>
+
+  <div class="wrap body">
+    <ProGate feature="Mock exams">
+      <div class="exam" data-exam data-count={COUNT} data-minutes={MINUTES}>
+        <section class="stage panel setup" data-stage="setup" aria-labelledby="setup-title">
+          <h2 id="setup-title" class="h3">Set up your exam</h2>
+          <fieldset class="ctl-choice">
+            <legend>Questions from</legend>
+            <div class="seg">
+              <label><input type="radio" name="exam-course" value="all" checked /><span>All units</span></label>
+              <label><input type="radio" name="exam-course" value="micro" /><span>AP Micro</span></label>
+              <label><input type="radio" name="exam-course" value="macro" /><span>AP Macro</span></label>
+            </div>
+          </fieldset>
+          <p class="muted">The timer starts when you press Start. You can move between questions and change answers until you finish. If time runs out, the exam is scored as it stands.</p>
+          <button type="button" class="btn" data-start>Start the exam</button>
+          <div class="history" data-history hidden>
+            <h3 class="history-title">Your recent exams</h3>
+            <ol data-history-list></ol>
+          </div>
+        </section>
+
+        <section class="stage run" data-stage="run" hidden aria-label="Exam in progress">
+          <div class="run-bar">
+            <p class="mono run-count" data-count-label></p>
+            <p class="mono timer" role="timer" aria-label="Time remaining" data-timer></p>
+            <button type="button" class="btn btn-secondary btn-small" data-finish>Finish exam</button>
+          </div>
+          <p class="visually-hidden" aria-live="assertive" data-time-alert></p>
+
+          <div class="confirm panel" data-confirm hidden role="alertdialog" aria-labelledby="confirm-text">
+            <p id="confirm-text" data-confirm-text></p>
+            <div class="btn-row">
+              <button type="button" class="btn btn-small" data-confirm-yes>Finish and see my score</button>
+              <button type="button" class="btn btn-secondary btn-small" data-confirm-no>Keep going</button>
+            </div>
+          </div>
+
+          <form class="qcard exam-card" data-card onsubmit="return false">
+            <fieldset>
+              <legend>
+                <span class="q-unit mono" data-q-unit></span>
+                <span class="q-prompt" data-q-prompt tabindex="-1"></span>
+              </legend>
+              <div class="q-options" data-q-options></div>
+            </fieldset>
+          </form>
+
+          <div class="run-nav">
+            <button type="button" class="btn btn-secondary" data-prev>Previous</button>
+            <button type="button" class="btn" data-next>Next question</button>
+          </div>
+
+          <nav class="qmap" aria-label="Jump to a question">
+            <p class="ctl-heading">All questions</p>
+            <ol data-qmap></ol>
+          </nav>
+        </section>
+
+        <section class="stage results" data-stage="results" hidden aria-labelledby="results-title" tabindex="-1">
+          <p class="eyebrow">Results</p>
+          <h2 id="results-title" class="result-score" data-result-score></h2>
+          <p class="muted" data-result-meta></p>
+          <div class="table-wrap">
+            <table class="by-unit">
+              <caption class="visually-hidden">Score by unit</caption>
+              <thead><tr><th scope="col">Unit</th><th scope="col">Correct</th><th scope="col">Score</th></tr></thead>
+              <tbody data-by-unit></tbody>
+            </table>
+          </div>
+          <h3 class="h3 review-title">Questions to review</h3>
+          <ol class="review-list" data-review></ol>
+          <div class="btn-row">
+            <button type="button" class="btn" data-again>Take another exam</button>
+          </div>
+        </section>
+      </div>
+    </ProGate>
+  </div>
+  <script type="application/json" data-bank set:html={JSON.stringify({ bank, unitInfo })} />
+</Base>
+
+<script>
+  import { store } from '../scripts/store';
+
+  interface Q { id: string; unit: string; prompt: string; options: string[]; why: string[]; answer: number }
+  interface UnitInfo { title: string; label: string; course: string }
+
+  const root = document.querySelector<HTMLElement>('[data-exam]');
+  const raw = document.querySelector('[data-bank]')?.textContent;
+  if (root && raw) {
+    const { bank, unitInfo } = JSON.parse(raw) as { bank: Q[]; unitInfo: Record<string, UnitInfo> };
+    const COUNT = Number(root.dataset.count);
+    const SECONDS = Number(root.dataset.minutes) * 60;
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+    const stages = { setup: $('[data-stage="setup"]'), run: $('[data-stage="run"]'), results: $('[data-stage="results"]') };
+
+    let exam: Q[] = [];
+    let answers: (number | null)[] = [];
+    let current = 0;
+    let remaining = SECONDS;
+    let timer = 0;
+    let course = 'all';
+
+    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    const show = (name: keyof typeof stages) => {
+      Object.entries(stages).forEach(([k, el]) => (el.hidden = k !== name));
+    };
+    const shuffle = <T,>(a: T[]) => {
+      const b = [...a];
+      for (let i = b.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [b[i], b[j]] = [b[j], b[i]];
+      }
+      return b;
+    };
+
+    const renderHistory = () => {
+      const exams = store.get().exams;
+      const box = $('[data-history]');
+      box.hidden = exams.length === 0;
+      $('[data-history-list]').innerHTML = exams
+        .slice(0, 5)
+        .map((e) => `<li><span class="mono">${e.score}/${e.total}</span> ${e.course === 'all' ? 'All units' : e.course === 'micro' ? 'AP Micro' : 'AP Macro'} <span class="muted">${new Date(e.at).toLocaleDateString()}</span></li>`)
+        .join('');
+    };
+
+    const renderMap = () => {
+      $('[data-qmap]').innerHTML = exam
+        .map((_, i) => {
+          const done = answers[i] !== null;
+          return `<li><button type="button" data-jump="${i}" class="${done ? 'is-answered' : ''}" ${i === current ? 'aria-current="step"' : ''} aria-label="Question ${i + 1}, ${done ? 'answered' : 'not answered'}">${i + 1}</button></li>`;
+        })
+        .join('');
+    };
+
+    const renderQuestion = (focus = true) => {
+      const q = exam[current];
+      $('[data-count-label]').textContent = `Question ${current + 1} of ${exam.length}`;
+      $('[data-q-unit]').textContent = unitInfo[q.unit].label;
+      $('[data-q-prompt]').textContent = q.prompt;
+      $('[data-q-options]').innerHTML = q.options
+        .map(
+          (o, j) =>
+            `<label class="q-opt"><input type="radio" name="exam-q" value="${j}" ${answers[current] === j ? 'checked' : ''} /><span class="q-letter mono" aria-hidden="true">${letters[j]}</span><span class="q-text">${esc(o)}</span></label>`,
+        )
+        .join('');
+      $<HTMLButtonElement>('[data-prev]').disabled = current === 0;
+      $('[data-next]').textContent = current === exam.length - 1 ? 'Review and finish' : 'Next question';
+      renderMap();
+      if (focus) $('[data-q-prompt]').focus({ preventScroll: true });
+    };
+
+    const tick = () => {
+      remaining--;
+      $('[data-timer]').textContent = fmt(Math.max(0, remaining));
+      const alert = $('[data-time-alert]');
+      if (remaining === 300) alert.textContent = 'Five minutes left.';
+      if (remaining === 60) alert.textContent = 'One minute left.';
+      $('[data-timer]').classList.toggle('is-low', remaining <= 60);
+      if (remaining <= 0) finish();
+    };
+
+    const start = () => {
+      course = root.querySelector<HTMLInputElement>('input[name="exam-course"]:checked')?.value ?? 'all';
+      const pool = bank.filter((q) => course === 'all' || unitInfo[q.unit].course === course || unitInfo[q.unit].course === 'both');
+      exam = shuffle(pool).slice(0, COUNT);
+      answers = exam.map(() => null);
+      current = 0;
+      remaining = SECONDS;
+      $('[data-timer]').textContent = fmt(remaining);
+      $('[data-confirm]').hidden = true;
+      show('run');
+      renderQuestion();
+      window.clearInterval(timer);
+      timer = window.setInterval(tick, 1000);
+    };
+
+    const finish = () => {
+      window.clearInterval(timer);
+      const used = SECONDS - Math.max(0, remaining);
+      const score = exam.reduce((n, q, i) => n + (answers[i] === q.answer ? 1 : 0), 0);
+      store.saveExam({ score, total: exam.length, course, at: Date.now() });
+
+      $('[data-result-score]').innerHTML = `<span class="mono">${score}</span> of <span class="mono">${exam.length}</span> correct`;
+      const unanswered = answers.filter((a) => a === null).length;
+      $('[data-result-meta]').textContent = `${Math.round((score / exam.length) * 100)}% in ${fmt(used)}${unanswered ? `, with ${unanswered} left blank` : ''}.`;
+
+      const byUnit = new Map<string, { right: number; total: number }>();
+      exam.forEach((q, i) => {
+        const r = byUnit.get(q.unit) ?? { right: 0, total: 0 };
+        r.total++;
+        if (answers[i] === q.answer) r.right++;
+        byUnit.set(q.unit, r);
+      });
+      const order = Object.keys(unitInfo);
+      $('[data-by-unit]').innerHTML = [...byUnit.entries()]
+        .sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]))
+        .map(([u, r]) => {
+          const pct = Math.round((r.right / r.total) * 100);
+          return `<tr><th scope="row"><span class="mono small">${unitInfo[u].label}</span><br />${esc(unitInfo[u].title)}</th><td class="mono">${r.right}/${r.total}</td><td><span class="bar" style="--p:${pct}%"><span></span></span><span class="mono small">${pct}%</span></td></tr>`;
+        })
+        .join('');
+
+      const missed = exam.map((q, i) => ({ q, a: answers[i], n: i + 1 })).filter((x) => x.a !== x.q.answer);
+      $('[data-review]').innerHTML = missed.length
+        ? missed
+            .map(
+              ({ q, a, n }) =>
+                `<li class="review-item"><p class="mono small">Question ${n} · ${unitInfo[q.unit].label}</p><p class="review-prompt">${esc(q.prompt)}</p>` +
+                (a === null ? '<p class="q-wrong">You left this blank.</p>' : `<p class="q-wrong">You chose ${letters[a]}: ${esc(q.options[a])}. ${esc(q.why[a])}</p>`) +
+                `<p><strong>Answer ${letters[q.answer]}: ${esc(q.options[q.answer])}.</strong> ${esc(q.why[q.answer])}</p></li>`,
+            )
+            .join('')
+        : '<li class="review-item"><p>Nothing to review. Every answer was right.</p></li>';
+
+      show('results');
+      stages.results.focus();
+      renderHistory();
+    };
+
+    const askFinish = () => {
+      const blank = answers.filter((a) => a === null).length;
+      $('[data-confirm-text]').textContent = blank
+        ? `You have ${blank} unanswered question${blank === 1 ? '' : 's'}. Finish anyway?`
+        : 'You have answered every question. Finish and see your score?';
+      $('[data-confirm]').hidden = false;
+      $<HTMLButtonElement>('[data-confirm-yes]').focus();
+    };
+
+    root.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.name === 'exam-q') {
+        answers[current] = Number(t.value);
+        renderMap();
+      }
+    });
+    root.addEventListener('click', (e) => {
+      const t = (e.target as HTMLElement).closest<HTMLElement>('[data-jump]');
+      if (t) {
+        current = Number(t.dataset.jump);
+        renderQuestion();
+      }
+    });
+    $('[data-start]').addEventListener('click', start);
+    $('[data-again]').addEventListener('click', () => {
+      show('setup');
+      $('[data-start]').focus();
+    });
+    $('[data-prev]').addEventListener('click', () => {
+      if (current > 0) {
+        current--;
+        renderQuestion();
+      }
+    });
+    $('[data-next]').addEventListener('click', () => {
+      if (current < exam.length - 1) {
+        current++;
+        renderQuestion();
+      } else askFinish();
+    });
+    $('[data-finish]').addEventListener('click', askFinish);
+    $('[data-confirm-yes]').addEventListener('click', finish);
+    $('[data-confirm-no]').addEventListener('click', () => {
+      $('[data-confirm]').hidden = true;
+      $('[data-q-prompt]').focus();
+    });
+
+    renderHistory();
+  }
+</script>
+
+<style>
+  .page-head {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    display: grid;
+    gap: 0.9rem;
+  }
+  .lede {
+    max-width: 56ch;
+  }
+  .body {
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+  }
+  .exam {
+    max-width: 820px;
+  }
+  .stage[hidden] {
+    display: none;
+  }
+  .setup {
+    padding: 1.5rem;
+    display: grid;
+    gap: 1.1rem;
+    justify-items: start;
+  }
+  .history {
+    width: 100%;
+    border-top: 1px solid var(--rule);
+    padding-top: 1rem;
+  }
+  .history-title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .history :global(ol) {
+    margin: 0;
+    padding-left: 1.2em;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .run {
+    display: grid;
+    gap: 1rem;
+  }
+  .run-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius-lg);
+    background: var(--paper-raised);
+    position: sticky;
+    top: 0.5rem;
+    z-index: 5;
+  }
+  .run-count {
+    font-size: 0.9rem;
+  }
+  .timer {
+    font-size: 1.35rem;
+    font-weight: 500;
+  }
+  .timer.is-low {
+    color: var(--bad);
+  }
+  .confirm {
+    padding: 1rem 1.1rem;
+    display: grid;
+    gap: 0.75rem;
+    border-color: var(--ink);
+  }
+  .confirm[hidden] {
+    display: none;
+  }
+  .exam-card :global(.q-prompt:focus) {
+    outline: none;
+  }
+  .run-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .qmap ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+    gap: 0.4rem;
+  }
+  .qmap :global(button) {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  .qmap :global(button.is-answered) {
+    background: var(--paper-sunk);
+    border-color: var(--ink-3);
+    box-shadow: inset 0 -4px 0 var(--ink-3);
+  }
+  .qmap :global(button[aria-current]) {
+    border: 2px solid var(--ink);
+    font-weight: 700;
+  }
+  .results {
+    display: grid;
+    gap: 1rem;
+  }
+  .results:focus {
+    outline: none;
+  }
+  .result-score {
+    font-weight: 800;
+    font-stretch: 118%;
+    font-variation-settings: 'wdth' 118;
+    font-size: clamp(2rem, 1.5rem + 2vw, 2.8rem);
+  }
+  .table-wrap {
+    overflow-x: auto;
+  }
+  .by-unit {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .by-unit th,
+  .by-unit td {
+    text-align: left;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+  .by-unit thead th {
+    border-bottom: 1.5px solid var(--ink);
+    font-weight: 650;
+  }
+  .by-unit :global(th[scope='row']) {
+    font-weight: 600;
+  }
+  .by-unit :global(.small),
+  .results :global(.small) {
+    font-size: 0.74rem;
+    color: var(--ink-2);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .by-unit :global(.bar) {
+    display: inline-block;
+    vertical-align: middle;
+    width: 90px;
+    height: 8px;
+    margin-right: 0.5rem;
+    border-radius: 4px;
+    background: var(--paper-sunk);
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+  .by-unit :global(.bar span) {
+    display: block;
+    height: 100%;
+    width: var(--p);
+    background: var(--ink);
+  }
+  .review-title {
+    margin-top: 1.5rem;
+  }
+  .review-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .review-list :global(.review-item) {
+    padding: 1rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    background: var(--paper-raised);
+    display: grid;
+    gap: 0.4rem;
+    font-family: var(--font-body);
+    line-height: 1.5;
+  }
+  .review-list :global(.review-prompt) {
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,34 @@
+---
+import Doc from '../layouts/Doc.astro';
+import { site } from '../site';
+import { url } from '../lib/url';
+---
+<Doc title="Terms of use" eyebrow="Policies" updated={site.policiesUpdated} description="The terms for using TutorEcon, including the Pro demo.">
+  <p>These terms apply when you use {site.name}. By using the site, you agree to them. If you do not agree, please do not use the site.</p>
+
+  <h2>What the site is</h2>
+  <p>{site.name} provides free study material for AP Microeconomics and AP Macroeconomics: lessons, interactive graphs, practice questions, and a glossary. It is for learning, not professional, financial, or legal advice.</p>
+  <p>AP is a trademark registered by the College Board, which is not affiliated with, and does not endorse, this site. Unit numbers refer to the public AP course descriptions so you can match lessons to your class.</p>
+
+  <h2>Accuracy</h2>
+  <p>We work to keep the lessons correct and up to date, but they may contain mistakes. Check important points against your teacher and official College Board materials. If you find an error, please <a href={site.contactUrl}>report it on GitHub</a>.</p>
+
+  <h2>Pro and the demo checkout</h2>
+  <p>Pro is offered as a demonstration. No payment is collected, and the checkout accepts only test card numbers. Pro status is stored in your browser only, so it can disappear if you clear your browser data or use another device. We may change or remove Pro features at any time.</p>
+  <p>If real payments are ever introduced, these terms, the <a href={url('/refunds/')}>refund policy</a>, and the <a href={url('/privacy/')}>privacy policy</a> will be updated before anyone is charged.</p>
+
+  <h2>Using the content</h2>
+  <p>You may use the lessons for your own study, share links to any page, and print review sheets for personal use. Teachers may use the material in class with credit to {site.name}. For any other use, such as republishing the lessons elsewhere, please <a href={site.contactUrl}>ask first</a>.</p>
+
+  <h2>Acceptable use</h2>
+  <p>Do not try to disrupt the site, get around its security, or use it to break the law.</p>
+
+  <h2>No warranty</h2>
+  <p>The site is provided as it is, without any guarantee that it will always be available, free of errors, or right for your purpose. To the extent the law allows, we are not responsible for losses that come from using it, including exam results.</p>
+
+  <h2>Changes to these terms</h2>
+  <p>We may update these terms. The date at the top shows when they last changed. Continuing to use the site after a change means you accept the new terms.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about these terms: <a href={site.contactUrl}>open an issue on GitHub</a>.</p>
+</Doc>

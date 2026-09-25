@@ -1,0 +1,53 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  eyebrow: string;
+  updated?: string;
+}
+const { title, description, eyebrow, updated } = Astro.props;
+---
+<Base title={title} description={description}>
+  <div class="wrap doc">
+    <header class="doc-head">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1 class="page-title">{title}</h1>
+      {updated && <p class="mono updated">Last updated {updated}</p>}
+    </header>
+    <div class="prose doc-body">
+      <slot />
+    </div>
+  </div>
+</Base>
+
+<style>
+  .doc {
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    padding-bottom: 5rem;
+  }
+  .doc-head {
+    display: grid;
+    gap: 0.8rem;
+    padding-bottom: 1.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--rule);
+    max-width: 68ch;
+  }
+  .updated {
+    font-size: 0.82rem;
+    color: var(--ink-2);
+  }
+  .doc-body :global(h2:first-child) {
+    margin-top: 1.2em;
+  }
+  .doc-body :global(.summary) {
+    padding: 1rem 1.1rem;
+    border-left: 5px solid var(--hl);
+    background: color-mix(in srgb, var(--hl) 14%, var(--paper-raised));
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: 1.02rem;
+  }
+</style>

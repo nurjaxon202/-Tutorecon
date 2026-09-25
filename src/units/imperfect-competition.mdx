@@ -1,0 +1,118 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## Monopoly
+
+A <mark>monopoly</mark> is a market with a single seller of a product that has no close substitutes, protected by **barriers to entry**. Common barriers:
+
+- **Legal barriers**: patents, copyrights, and government licenses.
+- **Control of a key resource**: owning the only source of a raw material.
+- **Economies of scale**: when one large firm can supply the whole market at a lower average cost than two or more firms could. This is a **natural monopoly**, like a city's water pipes.
+- **Network effects**: a product becomes more valuable as more people use it.
+
+### Why marginal revenue is below the price
+
+A monopolist faces the whole market demand curve, which slopes down. To sell one more unit it has to lower the price, and not just on that unit but on every unit it sells. So the extra revenue from one more unit is less than the price. For a straight-line demand curve, the **marginal revenue curve** starts at the same point and falls twice as steeply.
+
+Here is an example with demand P = 50 − 2Q:
+
+<div class="table-scroll">
+
+| Quantity | Price | Total revenue | Marginal revenue |
+| --- | --- | --- | --- |
+| 1 | $48 | $48 | $48 |
+| 2 | $46 | $92 | $44 |
+| 3 | $44 | $132 | $40 |
+| 4 | $42 | $168 | $36 |
+
+</div>
+
+### How a monopolist chooses price and quantity
+
+The monopolist uses the same rule as every firm: produce where **MR = MC**. Then it goes up to the demand curve to find the highest price buyers will pay for that quantity.
+
+<Graph model="monopoly" caption="Quantity is set where MR meets MC. Price is read off the demand curve above that quantity." />
+
+Compared with a competitive market, a monopoly produces less and charges more. Because price is above marginal cost, some buyers who value the good more than it costs to make are left out. That lost value is the **deadweight loss** of monopoly, so monopoly is not allocatively efficient.
+
+<Callout kind="exam">
+A profit-maximizing monopolist always produces on the **elastic** part of its demand curve, where MR is positive. It never chooses a quantity where MR is negative, because it could raise price, sell less, and earn more.
+</Callout>
+
+<Callout kind="mistake">
+Monopolists cannot charge any price they like. They are limited by demand. Charge too much and buyers simply buy less.
+</Callout>
+
+### Price discrimination
+
+**Price discrimination** means charging different buyers different prices for the same good when the difference is not explained by costs. Student discounts, senior prices at the movies, and airline fares that depend on when you book are all examples. It requires three things: market power, a way to separate buyers by willingness to pay, and a way to stop resale.
+
+With **perfect price discrimination**, the firm charges every buyer exactly their maximum willingness to pay. Its MR curve becomes the demand curve, so it produces the allocatively efficient quantity and there is no deadweight loss. But consumer surplus is zero: the firm captures all of it.
+
+### Regulating a natural monopoly
+
+Regulators have two common choices:
+
+- Set price where **P = MC** (the socially optimal price). This gives the efficient quantity but may leave the firm with a loss, since for a natural monopoly MC is below ATC.
+- Set price where **P = ATC** (the fair-return price). The firm breaks even, and output is higher than the unregulated monopoly, though still below the efficient amount.
+
+## Monopolistic competition
+
+Restaurants, hair salons, clothing brands: **monopolistic competition** has many firms selling products that are similar but not identical, and entry is easy. Each firm has a little market power because its product is different, so it faces a downward-sloping demand curve.
+
+In the short run a firm can earn a profit, just like a small monopoly. But profits attract new firms, which take customers away, shifting each firm's demand to the left. In the **long run**, demand is just touching the ATC curve at the chosen quantity, so economic profit is zero.
+
+Even in the long run, monopolistic competition is not fully efficient:
+
+- Price is above marginal cost, so it is not allocatively efficient.
+- Firms produce at a point where ATC is still falling, not at its minimum. This gap is called **excess capacity**, so it is not productively efficient either.
+
+Firms compete through **non-price competition**: advertising, branding, location, and quality. The payoff for buyers is variety.
+
+## Oligopoly and game theory
+
+An **oligopoly** is a market with a few large firms, such as cell phone carriers or airlines. The defining feature is **interdependence**: each firm's best choice depends on what its rivals do. Economists use **game theory** to study this.
+
+A **payoff matrix** shows each firm's result for every combination of choices. By convention the first number in each cell belongs to the player on the left (the rows), and the second to the player on top (the columns).
+
+Two pizza shops each choose a high or low price. The payoffs are daily profits.
+
+<div class="table-scroll">
+
+| | Mario's: High price | Mario's: Low price |
+| --- | --- | --- |
+| **Luigi's: High price** | Luigi $50, Mario $50 | Luigi $10, Mario $70 |
+| **Luigi's: Low price** | Luigi $70, Mario $10 | Luigi $30, Mario $30 |
+
+</div>
+
+<Worked title="Finding dominant strategies and the Nash equilibrium" prompt="Using the pizza matrix above, does either shop have a dominant strategy? What is the Nash equilibrium, and why don't they end up at High/High?">
+  <Step n={1} title="Luigi's best response to each of Mario's choices">
+    If Mario goes High, Luigi compares $50 (High) with $70 (Low) and picks Low. If Mario goes Low, Luigi compares $10 (High) with $30 (Low) and picks Low. Low is best either way, so Low is Luigi's **dominant strategy**.
+  </Step>
+  <Step n={2} title="Mario's best response to each of Luigi's choices">
+    The game is symmetric. If Luigi goes High, Mario gets $50 from High and $70 from Low. If Luigi goes Low, Mario gets $10 from High and $30 from Low. Low is also Mario's dominant strategy.
+  </Step>
+  <Step n={3} title="Find the Nash equilibrium">
+    A **Nash equilibrium** is a cell where neither player can do better by changing only their own choice. Both choose Low, so the equilibrium is Low/Low with $30 each.
+  </Step>
+  <Step n={4} title="Why not High/High?">
+    Both would earn more at High/High ($50 each), but it is not stable: each has a reason to cut its price and grab $70. This is a **prisoner's dilemma**. It explains why firms are tempted to collude, and why cartels tend to break down when one member cheats. Collusion to fix prices is also illegal in many countries.
+  </Step>
+</Worked>
+
+## Comparing market structures
+
+<div class="table-scroll">
+
+| | Perfect competition | Monopolistic competition | Oligopoly | Monopoly |
+| --- | --- | --- | --- | --- |
+| Number of firms | Very many | Many | Few | One |
+| Product | Identical | Differentiated | Identical or differentiated | Unique |
+| Entry | Easy | Easy | Difficult | Blocked |
+| Long-run economic profit | Zero | Zero | Possible | Possible |
+| Allocatively efficient (P = MC) | Yes | No | Usually no | No |
+
+</div>

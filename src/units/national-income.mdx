@@ -1,0 +1,94 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+## Aggregate demand
+
+**Aggregate demand** (AD) is the total amount of real output that households, firms, the government, and foreign buyers want at each price level. It slopes down for three reasons that have nothing to do with the reasons a single demand curve slopes down:
+
+- **Real wealth effect**: a higher price level shrinks what people's savings can buy, so they spend less.
+- **Interest rate effect**: a higher price level makes people need more money for purchases, which pushes up interest rates and reduces borrowing for investment and big purchases.
+- **Exchange rate effect**: a higher price level makes a country's goods more expensive compared with foreign goods, so exports fall and imports rise.
+
+Anything that changes C, I, G, or net exports at every price level **shifts** AD:
+
+- **Consumption**: consumer wealth, confidence, household debt, and taxes on households.
+- **Investment**: interest rates, business expectations, business taxes, and new technology.
+- **Government purchases**: more spending shifts AD right.
+- **Net exports**: incomes abroad and exchange rates. A recession in a trading partner reduces exports and shifts AD left.
+
+## Aggregate supply
+
+**Short-run aggregate supply** (SRAS) slopes up. Many input prices, especially wages, are **sticky**: they are set by contracts and do not change right away. When the price level rises and wages stay put, producing more becomes more profitable, so firms expand output.
+
+SRAS shifts with anything that changes firms' costs across the whole economy:
+
+- **Input prices**, especially wages and energy. An oil price spike shifts SRAS left.
+- **Productivity**. Better technology shifts SRAS right.
+- **Business taxes, subsidies, and regulation.**
+- **Expected inflation.** If workers expect higher prices, they demand higher wages, shifting SRAS left.
+
+**Long-run aggregate supply** (LRAS) is vertical at the economy's full-employment output, also called potential output. In the long run all prices, including wages, have time to adjust, so the price level has no effect on how much the economy can produce. LRAS shifts only with the same things that shift the PPC: the quantity and quality of resources and technology.
+
+## Equilibrium and output gaps
+
+Short-run equilibrium is where AD crosses SRAS. The economy is in **long-run equilibrium** when that point is also on LRAS.
+
+Try each news event. The graph shows the new short-run equilibrium and whether the economy has fallen below or risen above full employment.
+
+<Graph model="adas" caption="LRAS marks full-employment output. The bracket along the bottom shows the size of the output gap." />
+
+- A **recessionary gap** exists when output is below full employment. Unemployment is above its natural rate.
+- An **inflationary gap** exists when output is above full employment. Unemployment is below its natural rate and there is upward pressure on prices.
+- A leftward shift of SRAS causes **stagflation**: lower output and a higher price level at the same time.
+
+<Callout kind="exam">
+When a question asks for the effect on the price level and real output, draw the graph before answering. AD shifts move price and output in the same direction. SRAS shifts move them in opposite directions.
+</Callout>
+
+### Self-correction in the long run
+
+If the government does nothing, gaps close by themselves, eventually. In a recessionary gap, high unemployment puts downward pressure on nominal wages. As wages fall, firms' costs fall, SRAS shifts right, and output returns to full employment at a lower price level. In an inflationary gap, the reverse happens: wages rise, SRAS shifts left, and output falls back to full employment at a higher price level. Click "Wages adjust after a recession" in the graph above to see the first case.
+
+The catch is time. Wages can take years to adjust, especially downward, which is why governments often use policy instead of waiting.
+
+## The spending multiplier
+
+When someone spends a dollar, it becomes someone else's income, and part of that gets spent again. So an initial change in spending causes a larger total change in GDP.
+
+The **marginal propensity to consume** (MPC) is the share of each extra dollar of income that people spend. The **marginal propensity to save** (MPS) is the share they save. MPC + MPS = 1.
+
+<div class="formula">Spending multiplier = 1 ÷ (1 − MPC) = 1 ÷ MPS<br />Tax multiplier = −MPC ÷ MPS</div>
+
+The tax multiplier is smaller than the spending multiplier because when taxes fall, people save part of the tax cut before it is ever spent. When government spending and taxes rise by the same amount, the two effects combine into a **balanced-budget multiplier** of 1.
+
+<Worked title="Closing a recessionary gap with fiscal policy" prompt="Real GDP is $200 billion below full employment and the MPC is 0.8. How much should government spending rise to close the gap? How big a tax cut would do the same?">
+  <Step n={1} title="Find the spending multiplier">
+    MPS = 1 − 0.8 = 0.2. The spending multiplier is 1 ÷ 0.2 = 5.
+  </Step>
+  <Step n={2} title="Size the increase in government spending">
+    $200 billion ÷ 5 = $40 billion. An extra $40 billion in government purchases raises GDP by $200 billion.
+  </Step>
+  <Step n={3} title="Find the tax multiplier">
+    Tax multiplier = −0.8 ÷ 0.2 = −4. Each dollar of tax cut raises GDP by $4.
+  </Step>
+  <Step n={4} title="Size the tax cut">
+    $200 billion ÷ 4 = $50 billion. The tax cut has to be bigger than the spending increase, because part of it is saved.
+  </Step>
+</Worked>
+
+## Fiscal policy
+
+**Fiscal policy** is the use of government spending and taxes to influence the economy.
+
+- **Expansionary fiscal policy** (more government spending, lower taxes, or higher transfers) shifts AD right. It is used to close a recessionary gap.
+- **Contractionary fiscal policy** (less government spending or higher taxes) shifts AD left. It is used to close an inflationary gap.
+
+Some fiscal policy happens without any new law. **Automatic stabilizers**, like progressive income taxes and unemployment insurance, push against the cycle on their own. In a recession, incomes fall, people drop into lower tax brackets, and more people collect unemployment benefits, which supports spending.
+
+**Discretionary** fiscal policy needs a decision from lawmakers, and it comes with **lags**: time to recognize the problem, time to pass a law, and time for the spending to reach the economy. By the time a stimulus arrives, the economy may already be recovering.
+
+<Callout kind="mistake">
+Transfer payments are not part of G in the GDP formula, but a change in transfers is still fiscal policy. It works like a tax change: it changes disposable income, and people spend only part of it, so it uses the tax multiplier, not the spending multiplier.
+</Callout>
