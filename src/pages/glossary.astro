@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
 import { glossary, termSlug } from '../data/glossary';
 import { getUnit, unitLabel } from '../data/units';
 import { url } from '../lib/url';
@@ -8,16 +9,13 @@ const terms = [...glossary].sort((a, b) => a.term.localeCompare(b.term));
 const letters = [...new Set(terms.map((t) => t.term[0].toUpperCase()))];
 ---
 <Base title="Glossary" description="Plain-language definitions of every key term in AP Microeconomics and AP Macroeconomics.">
-  <header class="wrap page-head">
-    <p class="eyebrow">Glossary</p>
-    <h1 class="page-title">Glossary</h1>
-    <p class="lede">{terms.length} terms, each defined in a sentence or two and linked to the unit where it comes up.</p>
+  <PageBand eyebrow="Glossary" title="Glossary" lede={`${terms.length} terms, each defined in a sentence or two and linked to the unit where it comes up.`}>
     <div class="search">
       <label for="term-search" class="label">Search terms and definitions</label>
       <input id="term-search" class="input" type="search" autocomplete="off" spellcheck="false" placeholder="For example: elasticity" data-search />
       <p class="hint" data-count aria-live="polite">Showing all {terms.length} terms.</p>
     </div>
-  </header>
+  </PageBand>
 
   <div class="wrap">
     <nav class="letters" aria-label="Jump to letter">
@@ -74,12 +72,6 @@ const letters = [...new Set(terms.map((t) => t.term[0].toUpperCase()))];
 </script>
 
 <style>
-  .page-head {
-    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
-    padding-bottom: 1.5rem;
-    display: grid;
-    gap: 0.9rem;
-  }
   .search {
     display: grid;
     gap: 0.4rem;

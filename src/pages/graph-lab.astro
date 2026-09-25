@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
 import Graph from '../components/Graph.astro';
 import { graphList } from '../scripts/graphs/models';
 import { units, unitLabel, getUnit } from '../data/units';
@@ -9,13 +10,11 @@ const order = (slug: string) => units.findIndex((u) => u.slug === slug);
 const list = [...graphList].sort((a, b) => order(a.unit) - order(b.unit));
 ---
 <Base title="Graph lab" description="Every interactive economics graph on TutorEcon in one place: supply and demand, price controls, taxes, cost curves, monopoly, AD-AS, the money market, and more.">
-  <header class="wrap page-head">
-    <p class="eyebrow">Graph lab</p>
-    <h1 class="page-title">Every graph, ready to move</h1>
-    <p class="lede">
-      Pick a diagram and change it until the pattern makes sense. Each one links back to the unit that explains it.
-    </p>
-  </header>
+  <PageBand
+    eyebrow="Graph lab"
+    title="Every graph, ready to move"
+    lede="Pick a diagram and push it around until the pattern makes sense. Each one links back to the unit that explains it."
+  />
 
   <div class="wrap lab">
     <nav class="lab-nav" aria-label="Graphs">
@@ -87,11 +86,6 @@ const list = [...graphList].sort((a, b) => order(a.unit) - order(b.unit));
 </script>
 
 <style>
-  .page-head {
-    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
-    display: grid;
-    gap: 0.9rem;
-  }
   .lede {
     max-width: 56ch;
   }

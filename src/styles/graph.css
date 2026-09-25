@@ -3,43 +3,84 @@
 .graph {
   container-type: inline-size;
   margin: 0;
-  padding: clamp(0.75rem, 0.5rem + 1vw, 1.25rem);
+  padding: clamp(0.85rem, 0.5rem + 1.2vw, 1.4rem);
   background: var(--paper-raised);
   border: 1px solid var(--rule);
   border-radius: var(--radius-lg);
-  font-family: var(--font-ui);
+  font-family: var(--font-text);
   font-size: 1rem;
   line-height: 1.5;
+  box-shadow: var(--shadow);
 }
 .graph-head {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.25rem 1rem;
-  margin-bottom: 0.75rem;
+  gap: 0.35rem 1rem;
+  margin-bottom: 0.9rem;
 }
 .graph-title {
-  order: -1;
   font-family: var(--font-display);
-  font-weight: 720;
-  font-stretch: 108%;
-  font-variation-settings: 'wdth' 108;
-  font-size: 1.12rem;
+  font-size: 1.28rem;
   line-height: 1.2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
 }
+.graph-fig:empty {
+  display: none;
+}
+.graph-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 5px;
+}
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--third);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--third) 25%, transparent);
+}
+
+/* Figure numbers inside lessons: "Figure 2.1" */
+.lesson-prose {
+  counter-reset: fig;
+}
+.lesson-prose .graph {
+  counter-increment: fig;
+}
+.lesson-prose .graph-fig::before {
+  content: 'Figure ' var(--unit-n) '.' counter(fig);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.lesson-prose .graph-fig {
+  display: inline;
+  width: 100%;
+}
+
 .graph-layout {
   display: grid;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 @container (min-width: 760px) {
   .graph-layout {
-    grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr);
+    grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr);
     align-items: start;
-    gap: 1.5rem;
-  }
-  .graph-readout {
-    min-height: 8em;
+    gap: 1.6rem;
   }
 }
 .graph-canvas {
@@ -53,47 +94,145 @@
   -webkit-user-select: none;
 }
 .graph-drag-hint {
-  margin-top: 0.35rem;
-  font-size: 0.82rem;
+  margin-top: 0.4rem;
+  font-size: 0.84rem;
   color: var(--ink-2);
 }
 .graph-side {
   display: grid;
-  gap: 1.1rem;
+  gap: 1.15rem;
   align-content: start;
   min-width: 0;
 }
+
+/* Readout: the tutor's voice */
 .graph-readout {
-  border-left: 4px solid var(--ink);
-  padding: 0.15rem 0 0.15rem 0.9rem;
-  font-family: var(--font-body);
-  font-size: 1.02rem;
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--radius);
+  background: var(--paper-sunk);
+  border-left: 4px solid var(--hl);
+  font-size: 1rem;
   line-height: 1.5;
 }
-.graph-readout .mono {
+.graph-values .mono {
   font-size: 0.9em;
   font-weight: 500;
   white-space: nowrap;
+  padding: 0 0.2em;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--hl) 28%, transparent);
+}
+.on-board .graph-values .mono {
+  background: rgba(255, 216, 77, 0.16);
+  color: var(--hl);
 }
 .graph-note {
-  font-family: var(--font-ui);
-  font-weight: 620;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+/* The four moves */
+.moves {
+  display: grid;
+  gap: 0.5rem;
+}
+.moves-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.moves-head .ctl-heading {
+  margin: 0;
+}
+.moves-replay {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 32px;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--control);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.moves-replay:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.moves ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+.move {
+  display: grid;
+  grid-template-columns: 1.7rem 1fr;
+  gap: 0.6rem;
+  align-items: start;
+  transition: opacity 0.3s ease;
+}
+.move-n {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--control);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+.move-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  padding-top: 0.15rem;
+}
+.move-text {
   font-size: 0.95rem;
   line-height: 1.45;
-  margin-bottom: 0.5rem;
+  color: var(--ink-2);
+  transition: opacity 0.35s ease;
 }
-.graph-note[hidden] {
-  display: none;
+.move[data-state='todo'] {
+  opacity: 0.45;
 }
+.move[data-state='todo'] .move-text {
+  visibility: hidden;
+  opacity: 0;
+}
+.move[data-state='active'] .move-n {
+  background: var(--hl);
+  border-color: var(--hl);
+  color: #0f1e19;
+}
+.move[data-state='active'] .move-text {
+  color: var(--ink);
+}
+.move[data-state='done'] .move-n {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper-raised);
+}
+
+/* Scenarios */
 .ctl-heading,
 .ctl-choice legend {
   font-family: var(--font-mono);
   font-size: 0.74rem;
   font-weight: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-2);
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.5rem;
   padding: 0;
 }
 .graph-scenarios ul {
@@ -101,7 +240,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 .scenario {
   display: flex;
@@ -109,37 +248,70 @@
   justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
-  min-height: 44px;
-  padding: 0.55rem 0.75rem;
+  min-height: 46px;
+  padding: 0.6rem 0.8rem;
   border: 1px solid var(--control);
   border-radius: var(--radius);
   background: var(--paper);
   color: var(--ink);
-  font-weight: 560;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 0.97rem;
   line-height: 1.3;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
 }
 .scenario svg {
   flex: none;
   color: var(--ink-3);
+  transition: transform 0.15s ease;
 }
 .scenario:hover {
   border-color: var(--ink);
 }
+.scenario:hover svg {
+  transform: translateX(2px);
+}
+.scenario:active {
+  transform: translateY(1px);
+}
 .scenario[aria-pressed='true'] {
   border-color: var(--ink);
   background: var(--paper-raised);
-  box-shadow: inset 4px 0 0 var(--ink);
+  box-shadow: inset 5px 0 0 var(--hl);
 }
-.scenario[aria-pressed='true'] svg {
-  color: var(--ink);
+
+/* Controls */
+.graph-controls-wrap > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+  margin: 0;
+}
+.graph-controls-wrap > summary::-webkit-details-marker {
+  display: none;
+}
+.graph-controls-wrap > summary::before {
+  content: '+';
+  display: inline-grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid var(--control);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.graph-controls-wrap[open] > summary::before {
+  content: '\2212';
 }
 .graph-controls {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.95rem;
+  margin-top: 0.6rem;
 }
 .ctl-range {
   display: grid;
@@ -150,11 +322,11 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 0.75rem;
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-size: 0.94rem;
+  font-weight: 700;
 }
 .ctl-row output {
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 500;
   color: var(--ink-2);
   text-align: right;
@@ -163,8 +335,8 @@
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
-  font-size: 0.93rem;
-  font-weight: 560;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
   line-height: 1.35;
 }
@@ -202,9 +374,9 @@
 }
 .seg span {
   display: block;
-  padding: 0.45rem 0.85rem;
-  font-size: 0.9rem;
-  font-weight: 600;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 .seg input:checked + span {
   background: var(--btn-bg);
@@ -218,11 +390,43 @@
   justify-self: start;
 }
 .graph-caption {
-  margin-top: 0.9rem;
-  padding-top: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
   border-top: 1px solid var(--rule);
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   color: var(--ink-2);
+}
+
+/* Hero: the big stage on the board */
+.graph-hero {
+  background-color: var(--board-deep);
+  border: 1px solid rgba(243, 246, 240, 0.14);
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.6);
+  padding: clamp(0.9rem, 0.5rem + 1.5vw, 1.6rem);
+}
+.graph-hero .graph-readout {
+  background: rgba(0, 0, 0, 0.18);
+}
+.graph-hero .scenario {
+  background: rgba(243, 246, 240, 0.05);
+  border-color: rgba(243, 246, 240, 0.22);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.04rem;
+  letter-spacing: 0;
+}
+.graph-hero .scenario:hover {
+  background: rgba(243, 246, 240, 0.1);
+  border-color: rgba(243, 246, 240, 0.6);
+}
+.graph-hero .scenario[aria-pressed='true'] {
+  background: rgba(255, 216, 77, 0.1);
+  border-color: var(--hl);
+}
+.graph-hero .move[data-state='done'] .move-n {
+  background: var(--chalk);
+  border-color: var(--chalk);
+  color: var(--board-ink);
 }
 
 /* SVG parts */
@@ -236,21 +440,21 @@
 }
 .g-axis {
   stroke: var(--ink);
-  stroke-width: 1.6;
+  stroke-width: 1.8;
   fill: none;
-  stroke-linecap: square;
+  stroke-linecap: round;
 }
 .g-tick {
   font: 400 11px var(--font-mono);
   fill: var(--ink-3);
 }
 .g-axis-label {
-  font: 600 12.5px var(--font-ui);
+  font: 700 12.5px var(--font-text);
   fill: var(--ink-2);
 }
 .g-curve {
   fill: none;
-  stroke-width: 3;
+  stroke-width: 3.2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -267,13 +471,20 @@
   stroke: var(--fourth);
 }
 .g-ghost {
-  stroke-opacity: 0.4;
+  stroke-opacity: 0.42;
   stroke-dasharray: 7 6;
   stroke-width: 2.4;
 }
 .g-dashed {
   stroke-dasharray: 8 6;
-  stroke-width: 2.2;
+  stroke-width: 2.3;
+}
+.g-glow {
+  fill: none;
+  stroke: var(--hl);
+  stroke-opacity: 0.5;
+  stroke-width: 16;
+  stroke-linecap: round;
 }
 .g-control-line {
   stroke: var(--ink);
@@ -290,6 +501,13 @@
 .g-guide-soft {
   opacity: 0.6;
 }
+.g-arrow path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .g-dot {
   fill: var(--ink);
 }
@@ -297,6 +515,9 @@
   fill: var(--hl);
   stroke: var(--ink);
   stroke-width: 2;
+}
+.on-board .g-dot-eq {
+  stroke: var(--board-ink);
 }
 .g-dot-ghost {
   fill: var(--paper-raised);
@@ -313,8 +534,27 @@
   stroke: var(--ink);
   stroke-width: 1.5;
 }
+.g-ring {
+  fill: none;
+  stroke: var(--hl);
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: g-ring 0.9s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes g-ring {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(3.4);
+    opacity: 0;
+  }
+}
 .g-label {
-  font: 700 14px var(--font-ui);
+  font: 700 14px var(--font-text);
   fill: var(--ink);
 }
 .g-label-demand {
@@ -336,7 +576,7 @@
   font-size: 10px;
 }
 .g-note {
-  font: 500 12px var(--font-ui);
+  font: 600 12px var(--font-text);
   fill: var(--ink-2);
 }
 .g-note-strong {
@@ -344,22 +584,22 @@
   fill: var(--ink);
 }
 .g-area-label {
-  font: 700 12.5px var(--font-ui);
+  font: 700 12.5px var(--font-text);
   fill: var(--ink);
   opacity: 0.85;
   pointer-events: none;
 }
 .fill-cs {
   fill: var(--demand);
-  fill-opacity: 0.15;
+  fill-opacity: 0.16;
 }
 .fill-ps {
   fill: var(--supply);
-  fill-opacity: 0.15;
+  fill-opacity: 0.16;
 }
 .fill-tax {
   fill: var(--ink-3);
-  fill-opacity: 0.24;
+  fill-opacity: 0.25;
 }
 .fill-profit {
   fill: var(--good);
@@ -374,7 +614,7 @@
   fill-opacity: 0.6;
 }
 .g-hatch-line {
-  stroke: var(--ink);
+  stroke: #0f1e19;
   stroke-opacity: 0.45;
   stroke-width: 1.4;
 }
@@ -384,7 +624,7 @@
   stroke-width: 1.4;
 }
 .g-span text {
-  font: 700 12.5px var(--font-ui);
+  font: 700 12.5px var(--font-text);
   fill: var(--ink);
 }
 .g-chip rect {
@@ -393,6 +633,12 @@
 .g-chip text {
   font: 500 11px var(--font-mono);
   fill: var(--paper-raised);
+}
+.on-board .g-chip rect {
+  fill: var(--hl);
+}
+.on-board .g-chip text {
+  fill: var(--board-ink);
 }
 .g-handle {
   cursor: grab;
@@ -418,8 +664,42 @@
   fill: var(--hl);
 }
 
-/* Hero variant */
-.graph-hero {
-  box-shadow: var(--shadow);
-  border-color: var(--rule-strong);
+/* First paint on the hero: curves are drawn in, then the point appears */
+.is-intro .g-curve[pathLength] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: g-draw 1s cubic-bezier(0.6, 0.1, 0.2, 1) forwards;
+}
+.is-intro .g-supply[pathLength] {
+  animation-delay: 0.2s;
+}
+.is-intro .g-dot-eq,
+.is-intro .g-chip,
+.is-intro .g-guide,
+.is-intro .g-handle,
+.is-intro .g-label {
+  opacity: 0;
+  animation: g-fade 0.35s ease 1.05s forwards;
+}
+@keyframes g-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes g-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Static thumbnails */
+.graph-thumb svg {
+  width: 100%;
+  height: auto;
+}
+.graph-thumb .g-curve {
+  stroke-width: 3.4;
+}
+.graph-thumb .g-label {
+  font-size: 15px;
 }

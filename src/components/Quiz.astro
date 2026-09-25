@@ -13,6 +13,7 @@ interface Props {
   headingLevel?: 'h2' | 'h3';
   /** Show "Question 1 of 6" labels. */
   numbered?: boolean;
+  eyebrow?: string;
 }
 const {
   questions,
@@ -22,6 +23,7 @@ const {
   sample,
   headingLevel = 'h2',
   numbered = true,
+  eyebrow = 'Practice',
 } = Astro.props;
 const Heading = headingLevel;
 const letters = ['A', 'B', 'C', 'D', 'E'];
@@ -32,10 +34,19 @@ const id = `quiz-${saveAs}`;
 ---
 <section class="quiz" data-quiz data-save={saveAs} data-sample={sample} aria-labelledby={`${id}-title`}>
   <div class="quiz-head">
-    <p class="eyebrow">Practice</p>
+    <p class="eyebrow">{eyebrow}</p>
     <Heading id={`${id}-title`} class="h2">{title}</Heading>
     <p class="muted">{intro}</p>
     <p class="quiz-best mono" data-best hidden></p>
+  </div>
+
+  <div class="quiz-meta">
+    {questions.length > 1 && (
+      <ol class="quiz-strip" aria-hidden="true" data-strip>
+        {questions.map((q) => <li data-strip-q={q.id}></li>)}
+      </ol>
+    )}
+    <p class="quiz-keys">Keyboard: <kbd>A</kbd> to <kbd>D</kbd> to choose, <kbd>Enter</kbd> to check</p>
   </div>
 
   {sample && (
@@ -82,7 +93,7 @@ const id = `quiz-${saveAs}`;
     })}
   </ol>
 
-  <div class="quiz-score" data-score aria-live="polite" hidden></div>
+  <div class="quiz-score on-board" data-score aria-live="polite" hidden></div>
   <script type="application/json" data-quiz-data set:html={JSON.stringify(data)} />
 </section>
 

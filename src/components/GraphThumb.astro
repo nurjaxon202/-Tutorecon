@@ -1,0 +1,35 @@
+---
+// A small, static drawing from the real graph engine. Used as artwork on
+// cards, so every picture on the site is an actual economics diagram.
+import { graphs, type State } from '../scripts/graphs/models';
+import { Plot } from '../scripts/graphs/core';
+
+interface Props {
+  model: string;
+  state?: State;
+  width?: number;
+  height?: number;
+  /** Give it a label only when the picture carries meaning on its own. */
+  label?: string;
+}
+const { model, state = {}, width = 320, height = 220, label } = Astro.props;
+const make = graphs[model];
+if (!make) throw new Error(`Unknown graph model: ${model}`);
+const setup = make();
+const id = `thumb-${model}-${Math.random().toString(36).slice(2, 7)}`;
+const plot = new Plot(width, height, setup.x, setup.y, id, { compact: true });
+setup.draw(plot, { ...setup.initial, ...state });
+---
+<div class="graph-thumb">
+  <svg
+    viewBox={`0 0 ${width} ${height}`}
+    width={width}
+    height={height}
+    xmlns="http://www.w3.org/2000/svg"
+    role={label ? 'img' : undefined}
+    aria-label={label}
+    aria-hidden={label ? undefined : 'true'}
+    focusable="false"
+    set:html={plot.svg()}
+  />
+</div>

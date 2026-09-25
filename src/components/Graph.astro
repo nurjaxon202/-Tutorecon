@@ -1,19 +1,30 @@
 ---
 // Server-renders a first frame of the graph (so it shows without JavaScript),
 // plus its controls. The client script takes over and redraws at real size.
-import { graphs } from '../scripts/graphs/models';
+import { graphs, MOVE_TITLES } from '../scripts/graphs/models';
 import { Plot, heightFor } from '../scripts/graphs/core';
 
 interface Props {
   model: string;
   caption?: string;
+  /** 'hero' sits on the green board with a large stage. */
   variant?: 'default' | 'hero' | 'lab';
   title?: string;
   showTitle?: boolean;
   /** Override the plot's height-to-width ratio. */
   ratio?: number;
+  /** Heading for the list of news events. */
+  scenarioHeading?: string;
 }
-const { model, caption, variant = 'default', title, showTitle = true, ratio } = Astro.props;
+const {
+  model,
+  caption,
+  variant = 'default',
+  title,
+  showTitle = true,
+  ratio,
+  scenarioHeading = 'What happens when',
+} = Astro.props;
 const make = graphs[model];
 if (!make) throw new Error(`Unknown graph model: ${model}`);
 const setup = make();
@@ -25,17 +36,25 @@ setup.draw(plot, setup.initial);
 const svg = plot.svg();
 const readout = setup.describe(setup.initial);
 const heading = title ?? setup.title;
+const hasMoves = setup.scenarios?.some((s) => s.moves) ?? false;
+const hero = variant === 'hero';
 const fmt = (c: (typeof setup.controls)[number]) => {
   const v = setup.initial[c.key];
   if (c.type !== 'range') return '';
   return c.fmt ? c.fmt(Number(v)) : String(v);
 };
 ---
-<figure class:list={['graph', `graph-${variant}`]} data-graph={model} data-ratio={ratio} id={id}>
+<figure
+  class:list={['graph', `graph-${variant}`, { 'on-board': hero }]}
+  data-graph={model}
+  data-ratio={ratio}
+  data-intro={hero ? 'true' : undefined}
+  id={id}
+>
   {showTitle && (
     <div class="graph-head">
-      <span class="eyebrow">Interactive graph</span>
-      <p class="graph-title">{heading}</p>
+      <p class="graph-title"><span class="graph-fig" aria-hidden="true"></span>{heading}</p>
+      <span class="graph-live mono"><span class="live-dot" aria-hidden="true"></span>Live graph</span>
     </div>
   )}
   <div class="graph-layout">
@@ -54,20 +73,15 @@ const fmt = (c: (typeof setup.controls)[number]) => {
     </div>
 
     <div class="graph-side">
-      <div class="graph-readout">
-        <p class="graph-note" data-note hidden></p>
-        <p data-readout set:html={readout} />
-      </div>
-
       {setup.scenarios && setup.scenarios.length > 0 && (
         <div class="graph-scenarios">
-          <p class="ctl-heading" id={`${id}-sc`}>What happens when</p>
+          <p class="ctl-heading" id={`${id}-sc`}>{scenarioHeading}</p>
           <ul aria-labelledby={`${id}-sc`}>
             {setup.scenarios.map((sc, i) => (
               <li>
                 <button type="button" class="scenario" data-scenario={i} aria-pressed="false">
                   <span>{sc.label}</span>
-                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 </button>
               </li>
             ))}
@@ -75,45 +89,75 @@ const fmt = (c: (typeof setup.controls)[number]) => {
         </div>
       )}
 
-      {setup.controls.length > 0 && (
-        <div class="graph-controls">
-          {setup.controls.map((c) => {
-            const cid = `${id}-${c.key}`;
-            if (c.type === 'range') {
-              return (
-                <div class="ctl-range">
-                  <div class="ctl-row">
-                    <label for={cid}>{c.label}</label>
-                    <output for={cid} data-out={c.key} class="mono">{fmt(c)}</output>
+      <div class="graph-readout">
+        {hasMoves && (
+          <div class="moves" data-moves hidden>
+            <div class="moves-head">
+              <p class="ctl-heading">The four moves</p>
+              <button type="button" class="moves-replay" data-replay>
+                <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.5M3 2.5v3h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                Replay
+              </button>
+            </div>
+            <ol>
+              {MOVE_TITLES.map((t, i) => (
+                <li class="move" data-move={i} data-state="todo">
+                  <span class="move-n mono" aria-hidden="true">{i + 1}</span>
+                  <div>
+                    <p class="move-title">{t}</p>
+                    <p class="move-text" data-move-text></p>
                   </div>
-                  <input type="range" id={cid} data-key={c.key} min={c.min} max={c.max} step={c.step} value={String(setup.initial[c.key])} />
-                </div>
-              );
-            }
-            if (c.type === 'toggle') {
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+        <p class="graph-note" data-note hidden></p>
+        <p class="graph-values" data-readout set:html={readout} />
+      </div>
+
+      {setup.controls.length > 0 && (
+        <details class="graph-controls-wrap" open={!hero}>
+          <summary class="ctl-heading">Adjust it yourself</summary>
+          <div class="graph-controls">
+            {setup.controls.map((c) => {
+              const cid = `${id}-${c.key}`;
+              if (c.type === 'range') {
+                return (
+                  <div class="ctl-range">
+                    <div class="ctl-row">
+                      <label for={cid}>{c.label}</label>
+                      <output for={cid} data-out={c.key} class="mono">{fmt(c)}</output>
+                    </div>
+                    <input type="range" id={cid} data-key={c.key} min={c.min} max={c.max} step={c.step} value={String(setup.initial[c.key])} />
+                  </div>
+                );
+              }
+              if (c.type === 'toggle') {
+                return (
+                  <label class="ctl-check">
+                    <input type="checkbox" data-key={c.key} checked={Boolean(setup.initial[c.key])} />
+                    <span>{c.label}</span>
+                  </label>
+                );
+              }
               return (
-                <label class="ctl-check">
-                  <input type="checkbox" data-key={c.key} checked={Boolean(setup.initial[c.key])} />
-                  <span>{c.label}</span>
-                </label>
+                <fieldset class="ctl-choice">
+                  <legend>{c.label}</legend>
+                  <div class="seg">
+                    {c.options.map((o) => (
+                      <label>
+                        <input type="radio" name={cid} data-key={c.key} value={o.value} checked={setup.initial[c.key] === o.value} />
+                        <span>{o.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
               );
-            }
-            return (
-              <fieldset class="ctl-choice">
-                <legend>{c.label}</legend>
-                <div class="seg">
-                  {c.options.map((o) => (
-                    <label>
-                      <input type="radio" name={cid} data-key={c.key} value={o.value} checked={setup.initial[c.key] === o.value} />
-                      <span>{o.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-            );
-          })}
-          <button type="button" class="btn btn-secondary btn-small reset" data-reset>Reset graph</button>
-        </div>
+            })}
+            <button type="button" class="btn btn-secondary btn-small reset" data-reset>Reset graph</button>
+          </div>
+        </details>
       )}
     </div>
   </div>

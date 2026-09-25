@@ -47,13 +47,25 @@ export class Plot {
   private ticks: { x: number; y: number; text: string; anchor: string; axis: 'x' | 'y' }[] = [];
   private chips: { x: number; y: number; w: number; axis: 'x' | 'y' }[] = [];
 
-  constructor(w: number, h: number, xa: Axis, ya: Axis, clipId: string) {
+  /** Thumbnails: no numbers, no axis titles, no value chips. */
+  readonly compact: boolean;
+  /** First paint: curves get pathLength="1" so CSS can draw them in. */
+  readonly intro: boolean;
+
+  constructor(w: number, h: number, xa: Axis, ya: Axis, clipId: string, opts: { compact?: boolean; intro?: boolean } = {}) {
     this.w = w;
     this.h = h;
     this.xa = xa;
     this.ya = ya;
     this.clipId = clipId;
-    if (w < 420) {
+    this.compact = Boolean(opts.compact);
+    this.intro = Boolean(opts.intro);
+    if (this.compact) {
+      this.m.t = 14;
+      this.m.r = 14;
+      this.m.b = 14;
+      this.m.l = 16;
+    } else if (w < 420) {
       this.m.l = 48;
       this.m.r = 16;
     }
@@ -111,6 +123,10 @@ export class Plot {
     out.push(
       `<path class="g-axis" d="M${this.left} ${this.top - 8} V${this.bottom} H${this.right + 8}"/>`,
     );
+    if (this.compact) {
+      this.front.push(`<g>${out.join('')}</g>`);
+      return;
+    }
     if (xa.ticks !== false) {
       const every = this.w < 420 ? 2 : 1;
       let i = 0;
@@ -145,7 +161,8 @@ export class Plot {
       const y = f(x);
       if (Number.isFinite(y)) pts.push([x, y]);
     }
-    this.mid.push(`<path class="${cls}" d="${this.d(pts)}" clip-path="url(#${this.clipId})"/>`);
+    const len = this.intro && !cls.includes('g-ghost') && !cls.includes('g-dashed') ? ' pathLength="1"' : '';
+    this.mid.push(`<path class="${cls}"${len} d="${this.d(pts)}" clip-path="url(#${this.clipId})"/>`);
     let last: Pt | null = null;
     for (const p of pts) if (this.inside(p[0], p[1])) last = p;
     return last;
@@ -219,6 +236,7 @@ export class Plot {
     const px = r1(this.X(x));
     const py = r1(this.Y(y));
     this.back.push(`<path class="${cls}" d="M${this.left} ${py} H${px} V${this.bottom}"/>`);
+    if (this.compact) return;
     if (yText) this.chip(this.left - 6, py, yText, 'end');
     if (xText) this.chip(px, this.bottom + 17, xText, 'middle', true);
   }
@@ -236,6 +254,7 @@ export class Plot {
 
   /** Horizontal bracket spanning x1..x2 at height y, with a label. */
   span(x1: number, x2: number, y: number, text: string, cls = 'g-span', above = true) {
+    if (this.compact) return;
     const a = r1(this.X(Math.min(x1, x2)));
     const b = r1(this.X(Math.max(x1, x2)));
     const py = r1(this.Y(y) + (above ? -12 : 12));
@@ -246,9 +265,53 @@ export class Plot {
     );
   }
 
+  /**
+   * An arrow drawn just inside an axis, from one value to another, the way a
+   * teacher marks "price rises" or "quantity falls" on an exam graph.
+   */
+  axisArrow(axis: 'x' | 'y', from: number, to: number, cls = 'g-arrow') {
+    const minPx = 14;
+    if (axis === 'y') {
+      const a = this.Y(from);
+      const b = this.Y(to);
+      if (Math.abs(b - a) < minPx) return;
+      const x = this.left + 13;
+      const dir = b < a ? -1 : 1;
+      this.front.push(
+        `<g class="${cls}"><path d="M${r1(x)} ${r1(a)} V${r1(b - dir * 2)}"/>` +
+          `<path class="g-arrow-head" d="M${r1(x - 5)} ${r1(b - dir * 7)} L${r1(x)} ${r1(b)} L${r1(x + 5)} ${r1(b - dir * 7)}"/></g>`,
+      );
+    } else {
+      const a = this.X(from);
+      const b = this.X(to);
+      if (Math.abs(b - a) < minPx) return;
+      const y = this.bottom - 13;
+      const dir = b > a ? 1 : -1;
+      this.front.push(
+        `<g class="${cls}"><path d="M${r1(a)} ${r1(y)} H${r1(b - dir * 2)}"/>` +
+          `<path class="g-arrow-head" d="M${r1(b - dir * 7)} ${r1(y - 5)} L${r1(b)} ${r1(y)} L${r1(b - dir * 7)} ${r1(y + 5)}"/></g>`,
+      );
+    }
+  }
+
+  /** A soft highlighter glow under a curve that is being talked about. */
+  glow(f: (x: number) => number, from = this.xa.min, to = this.xa.max) {
+    const pts: Pt[] = [];
+    for (let i = 0; i <= 60; i++) {
+      const x = from + ((to - from) * i) / 60;
+      const y = f(x);
+      if (Number.isFinite(y)) pts.push([x, y]);
+    }
+    this.back.push(`<path class="g-glow" d="${this.d(pts)}" clip-path="url(#${this.clipId})"/>`);
+  }
+
+  vglow(x: number) {
+    this.back.push(`<path class="g-glow" d="M${r1(this.X(x))} ${this.top} V${this.bottom}" clip-path="url(#${this.clipId})"/>`);
+  }
+
   /** A grab point the reader can drag. */
   handle(id: string, x: number, y: number) {
-    if (!this.inside(x, y)) return;
+    if (this.compact || !this.inside(x, y)) return;
     this.handles.push({ id, x, y });
     this.front.push(
       `<g class="g-handle" data-handle="${id}"><circle cx="${r1(this.X(x))}" cy="${r1(this.Y(y))}" r="14" class="g-handle-hit"/>` +

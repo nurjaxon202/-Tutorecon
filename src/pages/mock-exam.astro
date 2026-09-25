@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
 import ProGate from '../components/ProGate.astro';
 import { questions } from '../data/questions';
 import { units, unitLabel } from '../data/units';
@@ -17,11 +18,11 @@ const COUNT = 20;
 const MINUTES = 25;
 ---
 <Base title="Mock exam" description="A timed, mixed AP Economics practice exam with a score breakdown by unit. Part of TutorEcon Pro.">
-  <header class="wrap page-head">
-    <p class="eyebrow">Pro · Mock exam</p>
-    <h1 class="page-title">Mock exam</h1>
-    <p class="lede">{COUNT} multiple-choice questions in {MINUTES} minutes, close to the pace of the real AP exam. You get a score for each unit at the end.</p>
-  </header>
+  <PageBand
+    eyebrow="Pro · Mock exam"
+    title="Mock exam"
+    lede={`${COUNT} multiple-choice questions in ${MINUTES} minutes, close to the pace of the real AP exam. You get a score for each unit at the end.`}
+  />
 
   <div class="wrap body">
     <ProGate feature="Mock exams">
@@ -297,11 +298,6 @@ const MINUTES = 25;
 </script>
 
 <style>
-  .page-head {
-    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
-    display: grid;
-    gap: 0.9rem;
-  }
   .lede {
     max-width: 56ch;
   }
@@ -416,9 +412,7 @@ const MINUTES = 25;
     outline: none;
   }
   .result-score {
-    font-weight: 800;
-    font-stretch: 118%;
-    font-variation-settings: 'wdth' 118;
+    font-weight: 400;
     font-size: clamp(2rem, 1.5rem + 2vw, 2.8rem);
   }
   .table-wrap {

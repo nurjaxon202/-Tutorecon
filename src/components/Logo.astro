@@ -2,22 +2,13 @@
 interface Props {
   size?: number;
 }
-const { size = 30 } = Astro.props;
+const { size = 32 } = Astro.props;
 ---
 <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" focusable="false" class="logo-mark">
-  <rect width="32" height="32" rx="7" class="lm-bg" />
-  <path d="M8 6v18h18" fill="none" class="lm-axis" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M11 9l13 12" class="lm-d" stroke-width="2.6" stroke-linecap="round" />
-  <path d="M11 21l13-12" class="lm-s" stroke-width="2.6" stroke-linecap="round" />
-  <circle cx="17.5" cy="15" r="2.6" fill="#ffe25a" />
+  <rect width="32" height="32" rx="8" fill="#0b2a21" />
+  <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="7.25" fill="none" stroke="rgba(243,246,240,0.18)" stroke-width="1.5" />
+  <path d="M8 6v18h18" fill="none" stroke="#c3d5cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M11 9l13 12" stroke="#8ec5ff" stroke-width="2.6" stroke-linecap="round" />
+  <path d="M11 21l13-12" stroke="#ff9c80" stroke-width="2.6" stroke-linecap="round" />
+  <circle cx="17.5" cy="15" r="2.8" fill="#ffd84d" />
 </svg>
-<style>
-  .lm-bg { fill: #122030; }
-  .lm-axis { stroke: #9fb0a8; }
-  .lm-d { stroke: #7aa9ff; }
-  .lm-s { stroke: #ff8a6b; }
-  :global([data-theme='dark']) .lm-bg { fill: #223140; }
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme='light'])) .lm-bg { fill: #223140; }
-  }
-</style>
