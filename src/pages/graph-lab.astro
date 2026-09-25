@@ -108,10 +108,9 @@ const list = [...graphList].sort((a, b) => order(a.unit) - order(b.unit));
       max-height: calc(100vh - 116px);
       overflow-y: auto;
       padding: 0.6rem;
-      border: 2px solid var(--line);
-      border-radius: 20px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
       background: var(--card);
-      box-shadow: 0 4px 0 var(--line);
     }
     .lab-select {
       display: none;
@@ -163,7 +162,7 @@ const list = [...graphList].sort((a, b) => order(a.unit) - order(b.unit));
     background: var(--sun-lip);
   }
   .lab-name {
-    font-weight: 800;
+    font-weight: 700;
     font-size: 0.95rem;
   }
   .lab-unit {

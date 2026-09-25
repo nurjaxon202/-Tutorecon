@@ -2,39 +2,43 @@
 import Base from '../layouts/Base.astro';
 import PageBand from '../components/PageBand.astro';
 import ProGate from '../components/ProGate.astro';
-import { questions } from '../data/questions';
-import { units, unitLabel } from '../data/units';
+import { courses } from '../data/ced';
+import { url } from '../lib/url';
 
-const bank = questions.map((q) => ({
-  id: q.id,
-  unit: q.unit,
-  prompt: q.prompt,
-  options: q.options.map((o) => o.text),
-  why: q.options.map((o) => o.why),
-  answer: q.answer,
-}));
-const unitInfo = Object.fromEntries(units.map((u) => [u.slug, { title: u.title, label: unitLabel(u), course: u.course }]));
-const COUNT = 20;
-const MINUTES = 25;
+// Unit weights use the midpoint of each published range, so a full exam
+// draws questions in roughly the same proportions as the real one.
+const mid = (w: string) => {
+  const [a, b] = w.replace('%', '').split(' to ').map(Number);
+  return (a + b) / 2;
+};
+const plan = Object.fromEntries(
+  courses.map((c) => [c.id, { short: c.short, prefix: c.id === 'micro' ? 'mi' : 'ma', units: c.units.map((u) => ({ n: u.n, title: u.title, weight: mid(u.weight) })) }]),
+);
 ---
 <Base title="Mock exam" description="A timed, mixed AP Economics practice exam with a score breakdown by unit. Part of TutorEcon Pro.">
   <PageBand
     eyebrow="Pro · Mock exam"
     title="Mock exam"
-    lede={`${COUNT} multiple-choice questions in ${MINUTES} minutes, close to the pace of the real AP exam. You get a score for each unit at the end.`}
+    lede="A timed multiple-choice exam at the real pace: 60 questions in 70 minutes, or a 30-question half exam in 35. Questions are drawn in proportion to each unit’s share of the exam, and you get a score for each unit at the end."
   />
 
   <div class="wrap body">
     <ProGate feature="Mock exams">
-      <div class="exam" data-exam data-count={COUNT} data-minutes={MINUTES}>
+      <div class="exam" data-exam data-src={url('/questions.json')}>
         <section class="stage panel setup" data-stage="setup" aria-labelledby="setup-title">
           <h2 id="setup-title" class="h3">Set up your exam</h2>
           <fieldset class="ctl-choice">
-            <legend>Questions from</legend>
+            <legend>Course</legend>
             <div class="seg">
-              <label><input type="radio" name="exam-course" value="all" checked /><span>All units</span></label>
-              <label><input type="radio" name="exam-course" value="micro" /><span>AP Micro</span></label>
+              <label><input type="radio" name="exam-course" value="micro" checked /><span>AP Micro</span></label>
               <label><input type="radio" name="exam-course" value="macro" /><span>AP Macro</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="ctl-choice">
+            <legend>Length</legend>
+            <div class="seg">
+              <label><input type="radio" name="exam-length" value="60" checked /><span>Full: 60 questions, 70 minutes</span></label>
+              <label><input type="radio" name="exam-length" value="30" /><span>Half: 30 questions, 35 minutes</span></label>
             </div>
           </fieldset>
           <p class="muted">The timer starts when you press Start. You can move between questions and change answers until you finish. If time runs out, the exam is scored as it stands.</p>
@@ -67,6 +71,7 @@ const MINUTES = 25;
                 <span class="q-unit mono" data-q-unit></span>
                 <span class="q-prompt" data-q-prompt tabindex="-1"></span>
               </legend>
+              <div class="q-table" data-q-table hidden></div>
               <div class="q-options" data-q-options></div>
             </fieldset>
           </form>
@@ -102,33 +107,44 @@ const MINUTES = 25;
       </div>
     </ProGate>
   </div>
-  <script type="application/json" data-bank set:html={JSON.stringify({ bank, unitInfo })} />
+  <script type="application/json" data-plan set:html={JSON.stringify(plan)} />
 </Base>
 
 <script>
   import { store } from '../scripts/store';
 
-  interface Q { id: string; unit: string; prompt: string; options: string[]; why: string[]; answer: number }
-  interface UnitInfo { title: string; label: string; course: string }
+  interface Q {
+    id: string;
+    t: string[];
+    p: string;
+    tb?: { head: string[]; rows: (string | number)[][] };
+    o: [string, string][];
+    a: number;
+  }
+  interface Plan {
+    short: string;
+    prefix: string;
+    units: { n: number; title: string; weight: number }[];
+  }
 
   const root = document.querySelector<HTMLElement>('[data-exam]');
-  const raw = document.querySelector('[data-bank]')?.textContent;
-  if (root && raw) {
-    const { bank, unitInfo } = JSON.parse(raw) as { bank: Q[]; unitInfo: Record<string, UnitInfo> };
-    const COUNT = Number(root.dataset.count);
-    const SECONDS = Number(root.dataset.minutes) * 60;
+  const planRaw = document.querySelector('[data-plan]')?.textContent;
+  if (root && planRaw) {
+    const plans = JSON.parse(planRaw) as Record<'micro' | 'macro', Plan>;
     const letters = ['A', 'B', 'C', 'D', 'E'];
     const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
     const stages = { setup: $('[data-stage="setup"]'), run: $('[data-stage="run"]'), results: $('[data-stage="results"]') };
 
-    let exam: Q[] = [];
+    let bank: Q[] = [];
+    let exam: { q: Q; unit: number }[] = [];
     let answers: (number | null)[] = [];
     let current = 0;
-    let remaining = SECONDS;
+    let seconds = 0;
+    let remaining = 0;
     let timer = 0;
-    let course = 'all';
+    let course: 'micro' | 'macro' = 'micro';
 
-    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const esc = (s: string | number) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
     const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
     const show = (name: keyof typeof stages) => {
       Object.entries(stages).forEach(([k, el]) => (el.hidden = k !== name));
@@ -142,13 +158,41 @@ const MINUTES = 25;
       return b;
     };
 
+    // Pick questions unit by unit in proportion to each unit's weight.
+    const build = (c: 'micro' | 'macro', n: number) => {
+      const plan = plans[c];
+      const total = plan.units.reduce((s, u) => s + u.weight, 0);
+      const targets = plan.units.map((u) => ({ n: u.n, want: (u.weight / total) * n }));
+      const counts = targets.map((t) => Math.floor(t.want));
+      let left = n - counts.reduce((a, b) => a + b, 0);
+      targets
+        .map((t, i) => ({ i, frac: t.want - Math.floor(t.want) }))
+        .sort((a, b) => b.frac - a.frac)
+        .forEach(({ i }) => {
+          if (left > 0) {
+            counts[i]++;
+            left--;
+          }
+        });
+      const used = new Set<string>();
+      const out: { q: Q; unit: number }[] = [];
+      plan.units.forEach((u, i) => {
+        const pool = shuffle(bank.filter((q) => !used.has(q.id) && q.t.some((t) => t.startsWith(`${plan.prefix}${u.n}.`))));
+        for (const q of pool.slice(0, counts[i])) {
+          used.add(q.id);
+          out.push({ q, unit: u.n });
+        }
+      });
+      return shuffle(out);
+    };
+
     const renderHistory = () => {
       const exams = store.get().exams;
       const box = $('[data-history]');
       box.hidden = exams.length === 0;
       $('[data-history-list]').innerHTML = exams
         .slice(0, 5)
-        .map((e) => `<li><span class="mono">${e.score}/${e.total}</span> ${e.course === 'all' ? 'All units' : e.course === 'micro' ? 'AP Micro' : 'AP Macro'} <span class="muted">${new Date(e.at).toLocaleDateString()}</span></li>`)
+        .map((e) => `<li><span class="mono">${e.score}/${e.total}</span> ${e.course === 'micro' ? 'AP Micro' : e.course === 'macro' ? 'AP Macro' : 'Mixed'} <span class="muted">${new Date(e.at).toLocaleDateString()}</span></li>`)
         .join('');
     };
 
@@ -162,13 +206,20 @@ const MINUTES = 25;
     };
 
     const renderQuestion = (focus = true) => {
-      const q = exam[current];
+      const { q, unit } = exam[current];
       $('[data-count-label]').textContent = `Question ${current + 1} of ${exam.length}`;
-      $('[data-q-unit]').textContent = unitInfo[q.unit].label;
-      $('[data-q-prompt]').textContent = q.prompt;
-      $('[data-q-options]').innerHTML = q.options
+      $('[data-q-unit]').textContent = `${plans[course].short} Unit ${unit}`;
+      $('[data-q-prompt]').textContent = q.p;
+      const tb = $('[data-q-table]');
+      tb.hidden = !q.tb;
+      tb.innerHTML = q.tb
+        ? `<table><thead><tr>${q.tb.head.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${q.tb.rows
+            .map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`)
+            .join('')}</tbody></table>`
+        : '';
+      $('[data-q-options]').innerHTML = q.o
         .map(
-          (o, j) =>
+          ([o], j) =>
             `<label class="q-opt"><input type="radio" name="exam-q" value="${j}" ${answers[current] === j ? 'checked' : ''} /><span class="q-letter mono" aria-hidden="true">${letters[j]}</span><span class="q-text">${esc(o)}</span></label>`,
         )
         .join('');
@@ -189,12 +240,14 @@ const MINUTES = 25;
     };
 
     const start = () => {
-      course = root.querySelector<HTMLInputElement>('input[name="exam-course"]:checked')?.value ?? 'all';
-      const pool = bank.filter((q) => course === 'all' || unitInfo[q.unit].course === course || unitInfo[q.unit].course === 'both');
-      exam = shuffle(pool).slice(0, COUNT);
+      if (!bank.length) return;
+      course = (root.querySelector<HTMLInputElement>('input[name="exam-course"]:checked')?.value ?? 'micro') as 'micro' | 'macro';
+      const n = Number(root.querySelector<HTMLInputElement>('input[name="exam-length"]:checked')?.value ?? 60);
+      exam = build(course, n);
       answers = exam.map(() => null);
       current = 0;
-      remaining = SECONDS;
+      seconds = Math.round((n / 60) * 70 * 60);
+      remaining = seconds;
       $('[data-timer]').textContent = fmt(remaining);
       $('[data-confirm]').hidden = true;
       show('run');
@@ -205,38 +258,41 @@ const MINUTES = 25;
 
     const finish = () => {
       window.clearInterval(timer);
-      const used = SECONDS - Math.max(0, remaining);
-      const score = exam.reduce((n, q, i) => n + (answers[i] === q.answer ? 1 : 0), 0);
+      const used = seconds - Math.max(0, remaining);
+      const score = exam.reduce((n, { q }, i) => n + (answers[i] === q.a ? 1 : 0), 0);
       store.saveExam({ score, total: exam.length, course, at: Date.now() });
+      exam.forEach(({ q }, i) => {
+        if (answers[i] !== null) store.recordAnswer(q.id, answers[i] === q.a);
+      });
 
       $('[data-result-score]').innerHTML = `<span class="mono">${score}</span> of <span class="mono">${exam.length}</span> correct`;
       const unanswered = answers.filter((a) => a === null).length;
       $('[data-result-meta]').textContent = `${Math.round((score / exam.length) * 100)}% in ${fmt(used)}${unanswered ? `, with ${unanswered} left blank` : ''}.`;
 
-      const byUnit = new Map<string, { right: number; total: number }>();
-      exam.forEach((q, i) => {
-        const r = byUnit.get(q.unit) ?? { right: 0, total: 0 };
+      const byUnit = new Map<number, { right: number; total: number }>();
+      exam.forEach(({ q, unit }, i) => {
+        const r = byUnit.get(unit) ?? { right: 0, total: 0 };
         r.total++;
-        if (answers[i] === q.answer) r.right++;
-        byUnit.set(q.unit, r);
+        if (answers[i] === q.a) r.right++;
+        byUnit.set(unit, r);
       });
-      const order = Object.keys(unitInfo);
-      $('[data-by-unit]').innerHTML = [...byUnit.entries()]
-        .sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]))
-        .map(([u, r]) => {
+      $('[data-by-unit]').innerHTML = plans[course].units
+        .filter((u) => byUnit.has(u.n))
+        .map((u) => {
+          const r = byUnit.get(u.n)!;
           const pct = Math.round((r.right / r.total) * 100);
-          return `<tr><th scope="row"><span class="mono small">${unitInfo[u].label}</span><br />${esc(unitInfo[u].title)}</th><td class="mono">${r.right}/${r.total}</td><td><span class="bar" style="--p:${pct}%"><span></span></span><span class="mono small">${pct}%</span></td></tr>`;
+          return `<tr><th scope="row">Unit ${u.n}: ${esc(u.title)}</th><td class="mono">${r.right}/${r.total}</td><td><span class="bar" style="--p:${pct}%"><span></span></span><span class="mono small">${pct}%</span></td></tr>`;
         })
         .join('');
 
-      const missed = exam.map((q, i) => ({ q, a: answers[i], n: i + 1 })).filter((x) => x.a !== x.q.answer);
+      const missed = exam.map(({ q, unit }, i) => ({ q, unit, a: answers[i], n: i + 1 })).filter((x) => x.a !== x.q.a);
       $('[data-review]').innerHTML = missed.length
         ? missed
             .map(
-              ({ q, a, n }) =>
-                `<li class="review-item"><p class="mono small">Question ${n} · ${unitInfo[q.unit].label}</p><p class="review-prompt">${esc(q.prompt)}</p>` +
-                (a === null ? '<p class="q-wrong">You left this blank.</p>' : `<p class="q-wrong">You chose ${letters[a]}: ${esc(q.options[a])}. ${esc(q.why[a])}</p>`) +
-                `<p><strong>Answer ${letters[q.answer]}: ${esc(q.options[q.answer])}.</strong> ${esc(q.why[q.answer])}</p></li>`,
+              ({ q, unit, a, n }) =>
+                `<li class="review-item"><p class="small">Question ${n} · ${plans[course].short} Unit ${unit}</p><p class="review-prompt">${esc(q.p)}</p>` +
+                (a === null ? '<p class="q-wrong">You left this blank.</p>' : `<p class="q-wrong">You chose ${letters[a]}: ${esc(q.o[a][0])}. ${esc(q.o[a][1])}</p>`) +
+                `<p><strong>Answer ${letters[q.a]}: ${esc(q.o[q.a][0])}.</strong> ${esc(q.o[q.a][1].replace(/^Correct\.\s*/, ''))}</p></li>`,
             )
             .join('')
         : '<li class="review-item"><p>Nothing to review. Every answer was right.</p></li>';
@@ -269,10 +325,12 @@ const MINUTES = 25;
         renderQuestion();
       }
     });
-    $('[data-start]').addEventListener('click', start);
+    const startBtn = $<HTMLButtonElement>('[data-start]');
+    startBtn.disabled = true;
+    startBtn.addEventListener('click', start);
     $('[data-again]').addEventListener('click', () => {
       show('setup');
-      $('[data-start]').focus();
+      startBtn.focus();
     });
     $('[data-prev]').addEventListener('click', () => {
       if (current > 0) {
@@ -293,6 +351,12 @@ const MINUTES = 25;
       $('[data-q-prompt]').focus();
     });
 
+    fetch(root.dataset.src!)
+      .then((r) => r.json())
+      .then((data: Q[]) => {
+        bank = data;
+        startBtn.disabled = false;
+      });
     renderHistory();
   }
 </script>
@@ -442,8 +506,6 @@ const MINUTES = 25;
     font-size: 0.74rem;
     color: var(--ink-2);
     font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
   }
   .by-unit :global(.bar) {
     display: inline-block;

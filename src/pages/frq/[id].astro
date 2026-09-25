@@ -1,0 +1,359 @@
+---
+import Base from '../../layouts/Base.astro';
+import { frqs, frqPoints } from '../../data/frqs';
+import { getCourse, topicById } from '../../data/ced';
+import { graphList } from '../../scripts/graphs/models';
+import { url } from '../../lib/url';
+
+export function getStaticPaths() {
+  return frqs.map((f) => ({ params: { id: f.id } }));
+}
+
+const f = frqs.find((x) => x.id === Astro.params.id)!;
+const course = getCourse(f.course);
+const total = frqPoints(f);
+const minutes = f.kind === 'long' ? 25 : 12;
+const siblings = frqs.filter((x) => x.course === f.course);
+const i = siblings.indexOf(f);
+const prev = siblings[i - 1];
+const next = siblings[i + 1];
+const graphName = (key: string) => graphList.find((g) => g.key === key)?.label ?? key;
+let n = 0;
+---
+<Base title={`${f.title} (FRQ)`} description={`An original ${course.short} ${f.kind} free-response question worth ${total} points, with a point-by-point scoring guide.`}>
+  <div class="wrap frq">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href={url('/frq/')}>Free-response questions</a>
+      <span aria-hidden="true">/</span>
+      <span>{course.short}</span>
+    </nav>
+
+    <header class="frq-head">
+      <h1 class="page-title">{f.title}</h1>
+      <p class="meta">
+        {course.short} · {f.kind === 'long' ? 'Long question' : 'Short question'} · {total} points · Unit{f.units.length > 1 ? 's' : ''} {f.units.join(', ')} · Suggested time about {minutes} minutes
+      </p>
+      <p class="topics">
+        {f.topics.map((t) => topicById.get(t) && <span>{topicById.get(t)!.code} {topicById.get(t)!.title}</span>)}
+      </p>
+    </header>
+
+    <div class="frq-grid">
+      <article class="question" aria-labelledby="q-title">
+        <h2 id="q-title" class="visually-hidden">Question</h2>
+        <p class="stem">{f.stem}</p>
+        {f.table && (
+          <div class="q-table">
+            <table>
+              <thead><tr>{f.table.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+              <tbody>{f.table.rows.map((r) => <tr>{r.map((c) => <td>{c}</td>)}</tr>)}</tbody>
+            </table>
+          </div>
+        )}
+        <ol class="parts">
+          {f.parts.map((p) => (
+            <li>
+              <span class="label">{p.label}</span>
+              <p>{p.text}</p>
+            </li>
+          ))}
+        </ol>
+      </article>
+
+      <aside class="tools" aria-label="Tools for this question">
+        <div class="timer" data-timer data-minutes={minutes}>
+          <p class="timer-label">Timer</p>
+          <p class="timer-time mono" role="timer" data-time>{minutes}:00</p>
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary btn-small" data-timer-toggle>Start</button>
+            <button type="button" class="btn btn-secondary btn-small" data-timer-reset>Reset</button>
+          </div>
+          <p class="visually-hidden" aria-live="assertive" data-timer-alert></p>
+        </div>
+        {f.graphs && f.graphs.length > 0 && (
+          <div class="graphs">
+            <p class="timer-label">Practice these graphs</p>
+            <ul>
+              {f.graphs.map((g) => <li><a href={url(`/graph-lab/#${g}`)}>{graphName(g)}</a></li>)}
+            </ul>
+          </div>
+        )}
+      </aside>
+    </div>
+
+    <section class="guide" aria-labelledby="guide-title" data-frq={f.id} data-total={total}>
+      <h2 id="guide-title" class="h2">Scoring guide</h2>
+      <p class="muted" data-guide-intro>Finish your answer first. Then open the guide and check each point you earned. Each bullet is worth one point.</p>
+      <button type="button" class="btn" data-guide-open aria-expanded="false" aria-controls="guide-body">Show the scoring guide</button>
+      <div id="guide-body" class="guide-body" data-guide hidden>
+        {f.parts.map((p) => (
+          <div class="guide-part">
+            <p class="guide-label">Part {p.label}</p>
+            <ul>
+              {p.points.map((pt) => {
+                n += 1;
+                return (
+                  <li>
+                    <label>
+                      <input type="checkbox" data-point value={n} />
+                      <span>{pt}</span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+        <div class="total">
+          <p class="total-num"><span data-got>0</span> of {total} points</p>
+          <button type="button" class="btn" data-save>Save my score</button>
+          <p class="hint" data-saved aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <nav class="pager" aria-label="More questions">
+      {prev ? <a href={url(`/frq/${prev.id}/`)}>&larr; {prev.title}</a> : <span />}
+      {next ? <a href={url(`/frq/${next.id}/`)}>{next.title} &rarr;</a> : <a href={url('/frq/')}>All free-response questions &rarr;</a>}
+    </nav>
+  </div>
+</Base>
+
+<script>
+  import { store } from '../../scripts/store';
+
+  // Timer
+  const timer = document.querySelector<HTMLElement>('[data-timer]')!;
+  const timeEl = timer.querySelector<HTMLElement>('[data-time]')!;
+  const toggle = timer.querySelector<HTMLButtonElement>('[data-timer-toggle]')!;
+  const alertEl = timer.querySelector<HTMLElement>('[data-timer-alert]')!;
+  const full = Number(timer.dataset.minutes) * 60;
+  let left = full;
+  let tick = 0;
+  const paint = () => {
+    const m = Math.floor(left / 60);
+    const s = left % 60;
+    timeEl.textContent = `${m}:${String(s).padStart(2, '0')}`;
+  };
+  const stop = () => {
+    clearInterval(tick);
+    tick = 0;
+    toggle.textContent = left < full && left > 0 ? 'Resume' : 'Start';
+  };
+  toggle.addEventListener('click', () => {
+    if (tick) return stop();
+    toggle.textContent = 'Pause';
+    tick = window.setInterval(() => {
+      left = Math.max(0, left - 1);
+      paint();
+      if (left === 60) alertEl.textContent = 'One minute left.';
+      if (left === 0) {
+        alertEl.textContent = 'Time is up.';
+        stop();
+      }
+    }, 1000);
+  });
+  timer.querySelector('[data-timer-reset]')!.addEventListener('click', () => {
+    stop();
+    left = full;
+    paint();
+    toggle.textContent = 'Start';
+  });
+
+  // Scoring guide
+  const guide = document.querySelector<HTMLElement>('[data-frq]')!;
+  const id = guide.dataset.frq!;
+  const total = Number(guide.dataset.total);
+  const body = guide.querySelector<HTMLElement>('[data-guide]')!;
+  const openBtn = guide.querySelector<HTMLButtonElement>('[data-guide-open]')!;
+  const boxes = [...guide.querySelectorAll<HTMLInputElement>('[data-point]')];
+  const got = guide.querySelector<HTMLElement>('[data-got]')!;
+  const saved = guide.querySelector<HTMLElement>('[data-saved]')!;
+  const count = () => {
+    got.textContent = String(boxes.filter((b) => b.checked).length);
+    saved.textContent = '';
+  };
+  openBtn.addEventListener('click', () => {
+    const open = body.hidden;
+    body.hidden = !open;
+    openBtn.setAttribute('aria-expanded', String(open));
+    openBtn.textContent = open ? 'Hide the scoring guide' : 'Show the scoring guide';
+    if (open) boxes[0]?.focus();
+  });
+  boxes.forEach((b) => b.addEventListener('change', count));
+  guide.querySelector('[data-save]')!.addEventListener('click', () => {
+    const score = boxes.filter((b) => b.checked).length;
+    store.saveFrq(id, score, total);
+    saved.textContent = `Saved: ${score} of ${total}. Your score shows on the list of questions.`;
+  });
+  const prior = store.get().frq[id];
+  if (prior) saved.textContent = `Your last saved score: ${prior.score} of ${prior.total}.`;
+</script>
+
+<style>
+  .frq {
+    padding-top: 1.5rem;
+    padding-bottom: 5rem;
+  }
+  .crumbs {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+  }
+  .frq-head {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .meta {
+    color: var(--ink-2);
+  }
+  .topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .topics span {
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: var(--bg-2);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .frq-grid {
+    display: grid;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .frq-grid {
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 3rem;
+    }
+    .tools {
+      position: sticky;
+      top: 84px;
+    }
+  }
+  .question {
+    max-width: 70ch;
+  }
+  .stem {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    line-height: 1.5;
+  }
+  .question .q-table {
+    margin-top: 1.25rem;
+  }
+  .parts {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1.1rem;
+  }
+  .parts li {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr;
+    gap: 0.25rem;
+    font-size: 1.08rem;
+    line-height: 1.6;
+  }
+  .label {
+    font-weight: 700;
+  }
+  .tools {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .timer,
+  .graphs {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+  }
+  .timer-label {
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .timer-time {
+    font-size: 2rem;
+    font-weight: 500;
+    margin: 0.2rem 0 0.6rem;
+  }
+  .graphs ul {
+    margin: 0.4rem 0 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .guide {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+    max-width: 75ch;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .guide-body {
+    display: grid;
+    gap: 1.25rem;
+    width: 100%;
+  }
+  .guide-part {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+  .guide-label {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .guide-part ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .guide-part label {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.7rem;
+    align-items: start;
+    cursor: pointer;
+    line-height: 1.5;
+  }
+  .guide-part input {
+    margin-top: 0.2rem;
+  }
+  .total {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+  .total-num {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 650;
+  }
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    font-weight: 600;
+  }
+</style>

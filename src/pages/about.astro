@@ -2,16 +2,25 @@
 import Doc from '../layouts/Doc.astro';
 import { site } from '../site';
 import { units } from '../data/units';
+import { questions } from '../data/questions';
+import { frqs } from '../data/frqs';
+import { glossary } from '../data/glossary';
+import { allTopics } from '../data/ced';
 import { url } from '../lib/url';
 ---
 <Doc title="About TutorEcon" eyebrow="About" description="What TutorEcon is, who runs it, and how the lessons are put together.">
   <p>{site.name} is a free study site for AP Microeconomics and AP Macroeconomics. It is built around one idea: economics graphs make more sense when you can move them. Most textbooks show a diagram you can only look at. Here you shift the curve yourself and read what happened to price and quantity.</p>
 
   <h2>What is here</h2>
-  <p>{units.length} units that follow the structure of the AP course descriptions, each with short explanations, interactive graphs, worked problems, and practice questions that explain every answer choice. There is also a <a href={url('/graph-lab/')}>graph lab</a> with every diagram in one place and a searchable <a href={url('/glossary/')}>glossary</a>.</p>
+  <p>{units.length} lessons that cover all {allTopics.length} topics in the College Board course descriptions for AP Microeconomics and AP Macroeconomics, organized into the same six units per course. Each lesson has short explanations, interactive graphs, worked problems, and a six-question check.</p>
+  <p>For practice there is a <a href={url('/practice/')}>question bank</a> of {questions.length} multiple-choice questions, {frqs.length} <a href={url('/frq/')}>free-response questions</a> with scoring guides, {glossary.length} <a href={url('/flashcards/')}>flashcards</a>, a <a href={url('/graph-lab/')}>graph lab</a>, and a <a href={url('/score-calculator/')}>score calculator</a> that shows how the exam weights each section.</p>
 
   <h2>Who runs it</h2>
   <p>{site.name} is run by <a href={site.ownerUrl}>{site.owner}</a>. The source code is public on <a href={site.sourceUrl}>GitHub</a>.</p>
+
+  <h2>How the questions are written</h2>
+  <p>Every question is original. None are copied from released College Board exams. Each one follows the exam format, with five answer choices for multiple choice and point-by-point scoring for free response. Each is tagged with the official topic it tests and a difficulty level: recall, apply, or multi-step.</p>
+  <p>Every multiple-choice option has its own explanation, including the wrong ones, because knowing why an answer is wrong is often what fixes a misunderstanding. Every time the site is built, an automatic check confirms that each question has five choices, exactly one marked answer, an explanation for every choice, and a real official topic, and that each free-response question adds up to 10 or 5 points.</p>
 
   <h2>How the lessons are checked</h2>
   <p>Each lesson is written against the topics in the public AP course descriptions, and every number in the worked problems and graphs is calculated, not estimated. Mistakes still slip through. If you spot one, <a href={site.contactUrl}>open an issue</a> and it will be fixed.</p>

@@ -5,12 +5,22 @@ import Logo from './Logo.astro';
 
 const groups = [
   {
-    title: 'Study',
+    title: 'Courses',
     links: [
-      ['/learn/', 'All units'],
-      ['/practice/', 'Practice questions'],
-      ['/graph-lab/', 'Graph lab'],
+      ['/ap-micro/', 'AP Microeconomics'],
+      ['/ap-macro/', 'AP Macroeconomics'],
+      ['/learn/', 'All lessons'],
       ['/glossary/', 'Glossary'],
+    ],
+  },
+  {
+    title: 'Practice',
+    links: [
+      ['/practice/', 'Question bank'],
+      ['/frq/', 'Free-response questions'],
+      ['/flashcards/', 'Flashcards'],
+      ['/graph-lab/', 'Graph lab'],
+      ['/score-calculator/', 'Score calculator'],
       ['/mock-exam/', 'Mock exam (Pro)'],
       ['/review/', 'Review sheets (Pro)'],
     ],
@@ -21,11 +31,6 @@ const groups = [
       ['/about/', 'About'],
       ['/pricing/', 'Pricing'],
       ['/account/', 'Your data and settings'],
-    ],
-  },
-  {
-    title: 'Policies',
-    links: [
       ['/privacy/', 'Privacy policy'],
       ['/cookies/', 'Cookie policy'],
       ['/terms/', 'Terms of use'],
@@ -36,7 +41,7 @@ const groups = [
 ];
 const year = new Date().getFullYear();
 ---
-<footer class="site-footer on-board">
+<footer class="site-footer">
   <div class="wrap">
     <div class="top">
       <div class="about">
@@ -44,11 +49,10 @@ const year = new Date().getFullYear();
           <Logo size={30} />
           <span>{site.name}</span>
         </a>
-        <p class="sign">Stop memorizing graphs. Start moving them.</p>
         <p class="note">
-          Free lessons for AP Microeconomics and AP Macroeconomics. No account, no ads, no tracking.
-          Found a mistake? <a href={site.contactUrl}>Tell us on GitHub</a>.
+          Free review for AP Microeconomics and AP Macroeconomics, organized by the official course topics. No account, no ads, no tracking.
         </p>
+        <p class="note">Found a mistake in a lesson or question? <a href={site.contactUrl}>Tell us on GitHub</a>.</p>
       </div>
       {groups.map((g) => (
         <nav aria-label={g.title} class="group">
@@ -71,81 +75,72 @@ const year = new Date().getFullYear();
 <style>
   .site-footer {
     margin-top: auto;
-    padding-block: 4.5rem 2rem;
-    font-size: 0.97rem;
+    padding-block: 3.5rem 2rem;
+    font-size: 0.95rem;
+    background: var(--bg-2);
+    border-top: 1px solid var(--line);
   }
   .top {
     display: grid;
-    gap: 2.5rem;
+    gap: 2rem;
   }
   @media (min-width: 860px) {
     .top {
-      grid-template-columns: 1.8fr repeat(3, 1fr);
+      grid-template-columns: 1.6fr repeat(3, 1fr);
     }
   }
   .about {
     display: grid;
-    gap: 1rem;
+    gap: 0.75rem;
     align-content: start;
     max-width: 38ch;
   }
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.55rem;
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.35rem;
-    letter-spacing: -0.03em;
+    font-weight: 700;
+    font-size: 1.3rem;
     text-decoration: none;
     justify-self: start;
   }
-  .sign {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem);
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-  }
   .note {
     color: var(--ink-2);
-    font-size: 0.95rem;
   }
   .group-title {
     font-family: var(--font-text);
-    font-weight: 800;
-    font-size: 0.78rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--sun);
-    margin-bottom: 0.8rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+    margin-bottom: 0.6rem;
   }
   .group ul {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
-    gap: 0.1rem;
+    gap: 0.05rem;
   }
   .group a {
     display: inline-block;
-    padding-block: 0.3rem;
+    padding-block: 0.25rem;
     text-decoration: none;
     color: var(--ink-2);
-    font-weight: 600;
   }
   .group a:hover {
     color: var(--ink);
+    text-decoration: underline;
   }
   .bottom {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.75rem 2rem;
-    margin-top: 3.5rem;
+    margin-top: 2.5rem;
     padding-top: 1.25rem;
     border-top: 1px solid var(--line);
-    color: var(--ink-3);
+    color: var(--ink-2);
     font-size: 0.87rem;
   }
   .bottom p:first-child {

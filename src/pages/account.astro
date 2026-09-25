@@ -66,7 +66,7 @@ import { url } from '../lib/url';
       <dl class="stored">
         <div>
           <dt class="mono">tutorecon.v1</dt>
-          <dd>Units you marked done, how far you read in each lesson, your best quiz scores, which questions you already got right, your XP and streak, your last 20 mock exam scores, and whether the Pro demo is on.</dd>
+          <dd>Units you marked done, how far you read in each lesson, your best quiz scores, which questions you already got right, how many times you tried each question-bank question and whether your last try was right, your free-response self-scores, which flashcards you marked as known, your XP and streak, your last 20 mock exam scores, and whether the Pro demo is on.</dd>
         </div>
         <div>
           <dt class="mono">tutorecon.theme</dt>
@@ -196,7 +196,6 @@ import { url } from '../lib/url';
   }
   .card {
     padding: 1.4rem;
-    box-shadow: 0 4px 0 var(--line);
     display: grid;
     gap: 0.9rem;
     align-content: start;
@@ -218,13 +217,11 @@ import { url } from '../lib/url';
   .progress-table td {
     text-align: left;
     padding: 0.65rem 0.6rem;
-    border-bottom: 2px solid var(--line);
+    border-bottom: 1px solid var(--line);
   }
   .progress-table thead th {
     font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-weight: 700;
     color: var(--ink-3);
   }
   .progress-table tbody th {
@@ -264,7 +261,7 @@ import { url } from '../lib/url';
     gap: 0.8rem;
     padding: 1.1rem;
     border: 2px solid var(--bad-fill);
-    border-radius: 16px;
+    border-radius: 10px;
     background: var(--bad-tint);
   }
 </style>
