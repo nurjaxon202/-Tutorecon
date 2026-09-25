@@ -1,0 +1,543 @@
+---
+// Everything the reader has done, in one place: streak and totals, the next
+// lesson, the exam countdown, the weakest topics, and unit-by-unit mastery.
+// It reads the same saved progress as the rest of the site, so it works with
+// or without an account.
+import Base from '../layouts/Base.astro';
+import { courses, allTopics } from '../data/ced';
+import { questions } from '../data/questions';
+import { units } from '../data/units';
+import { glossary } from '../data/glossary';
+import { lesson } from '../lib/lessons';
+import { placeOf, sameAs, topicPath } from '../lib/topics';
+import { accountsOn } from '../lib/accounts';
+import { url } from '../lib/url';
+
+const unitTopicIds = (n: number, cid: string) => courses.find((c) => c.id === cid)!.units.find((u) => u.n === n)!.topics.map((t) => t.id);
+const data = {
+  q: Object.fromEntries(questions.map((x) => [x.id, x.topics])),
+  topics: Object.fromEntries(
+    allTopics.map((t) => {
+      const { course, unit } = placeOf(t.id);
+      return [t.id, [t.code, t.title, course.id, unit.n, url(topicPath(t.id)), course.short]];
+    }),
+  ),
+  courses: courses.map((c) => ({
+    id: c.id,
+    short: c.short,
+    path: url(c.path),
+    units: c.units.map((u) => {
+      const ids = unitTopicIds(u.n, c.id);
+      return { n: u.n, title: u.title, total: questions.filter((x) => x.topics.some((t) => ids.includes(t))).length, topics: ids };
+    }),
+  })),
+  lessons: units.map((u) => ({ slug: u.slug, title: u.title, n: u.apUnit, course: u.course, total: lesson(u.slug).headings.length, href: url(`/learn/${u.slug}/`) })),
+  cards: glossary.length,
+  same: sameAs,
+  links: {
+    practice: url('/practice/'),
+    missed: url('/missed/'),
+    plan: url('/study-plan/'),
+    welcome: url('/welcome/'),
+    mock: url('/mock-exam/'),
+    frq: url('/frq/'),
+    cards: url('/flashcards/'),
+    signin: url('/sign-in/?next=' + encodeURIComponent(url('/dashboard/'))),
+    signup: url('/sign-up/'),
+    account: url('/account/'),
+  },
+  accountsOn,
+};
+---
+<Base title="Dashboard" description="Your AP Economics progress in one place: streak, accuracy, weakest topics, unit mastery, and your exam countdown.">
+  <header class="d-head">
+    <div class="wrap">
+      <p class="eyebrow" data-today></p>
+      <h1 class="d-title" data-greet>Your dashboard</h1>
+      <p class="d-sub" data-sub>Your progress is saved in this browser as you study.</p>
+    </div>
+  </header>
+
+  <div class="wrap d-body" data-dash>
+    <section aria-label="Totals" class="tiles">
+      <div class="tile"><span class="t-num" data-n="streak">0</span><span class="t-label">day streak</span></div>
+      <div class="tile"><span class="t-num" data-n="xp">0</span><span class="t-label">XP earned</span></div>
+      <div class="tile"><span class="t-num" data-n="answered">0</span><span class="t-label">questions answered</span></div>
+      <div class="tile"><span class="t-num" data-n="accuracy">None yet</span><span class="t-label">answered right</span></div>
+      <div class="tile"><span class="t-num" data-n="lessons">0</span><span class="t-label">lessons finished</span></div>
+    </section>
+
+    <div class="two">
+      <section class="card box" aria-labelledby="next-title">
+        <h2 id="next-title" class="h3">Pick up where you left off</h2>
+        <div data-next></div>
+      </section>
+      <section class="card box" aria-labelledby="exam-title">
+        <h2 id="exam-title" class="h3">Your exam</h2>
+        <div data-exam></div>
+      </section>
+    </div>
+
+    <section class="card box" aria-labelledby="weak-title">
+      <div class="box-head">
+        <h2 id="weak-title" class="h3">Topics to work on</h2>
+        <a href={url('/missed/')} data-missed-link>Missed and flagged questions</a>
+      </div>
+      <p class="muted">Topics where you have missed the most, from at least three tries. Read the guide, then practice just that topic.</p>
+      <ol class="weak" data-weak></ol>
+    </section>
+
+    <section aria-labelledby="mastery-title" class="mastery-wrap">
+      <h2 id="mastery-title" class="h3">Mastery by unit</h2>
+      <p class="muted">The bar shows how much of each unit’s question bank you have tried. The percentage is how often you got those questions right.</p>
+      <div class="mastery" data-mastery></div>
+    </section>
+
+    <section class="card box" aria-labelledby="recent-title">
+      <h2 id="recent-title" class="h3">Recent results</h2>
+      <div class="recent" data-recent></div>
+    </section>
+  </div>
+
+  <script type="application/json" data-dash-info set:html={JSON.stringify(data)} />
+</Base>
+
+<script>
+  import { store, dayKey } from '../scripts/store';
+  import { accountsOn, currentSession, displayName, onAuth, syncState } from '../scripts/account';
+
+  interface Info {
+    q: Record<string, string[]>;
+    topics: Record<string, [string, string, string, number, string, string]>;
+    courses: { id: string; short: string; path: string; units: { n: number; title: string; total: number; topics: string[] }[] }[];
+    lessons: { slug: string; title: string; n: number; course: string; total: number; href: string }[];
+    cards: number;
+    /** Macro topics taught exactly like a Micro topic, which share one guide. */
+    same: Record<string, string>;
+    links: Record<string, string>;
+  }
+  const info: Info = JSON.parse(document.querySelector('[data-dash-info]')!.textContent!);
+  const root = document.querySelector<HTMLElement>('[data-dash]')!;
+  const $ = (s: string) => document.querySelector<HTMLElement>(s)!;
+  const esc = (s: string | number) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const pct = (a: number, b: number) => (b ? Math.round((100 * a) / b) : 0);
+  const parse = (k: string) => {
+    const [y, m, d] = k.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  };
+  const fmtDate = (d: Date | number) => new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+  $('[data-today]').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
+  const greet = () => {
+    const h = new Date().getHours();
+    const part = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    const name = displayName(currentSession()?.user);
+    $('[data-greet]').textContent = name ? `${part}, ${name}` : store.hasProgress() ? 'Welcome back' : 'Your dashboard';
+  };
+
+  const ago = (iso: string) => {
+    const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`;
+    return new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  };
+  const sub = () => {
+    const el = $('[data-sub]');
+    const s = currentSession();
+    if (!accountsOn) {
+      el.textContent = 'Your progress is saved in this browser as you study. Nothing is sent anywhere.';
+    } else if (s) {
+      const st = syncState();
+      const when = st.state === 'saving' ? 'Saving to your account now.' : st.state === 'error' ? 'Could not reach your account just now. Your progress is safe here and will be saved next time.' : st.at ? `Saved to your account ${ago(st.at)}.` : 'Saved to your account as you study.';
+      el.textContent = `Signed in as ${s.user.email ?? 'you'}. ${when}`;
+    } else {
+      el.innerHTML = `Your progress is saved in this browser. <a href="${info.links.signup}">Create a free account</a> or <a href="${info.links.signin}">sign in</a> to keep it on every device.`;
+    }
+  };
+
+  const render = () => {
+    const data = store.get();
+    const stats = Object.entries(data.qstats);
+    const answered = stats.length;
+    const tries = stats.reduce((n, [, s]) => n + s.a, 0);
+    const right = stats.reduce((n, [, s]) => n + s.c, 0);
+    const lessonsDone = info.lessons.filter((l) => data.done[l.slug]).length;
+    const set = (k: string, v: string | number) => (root.querySelector(`[data-n="${k}"]`)!.textContent = String(v));
+    set('streak', store.currentStreak());
+    set('xp', data.xp.toLocaleString());
+    set('answered', answered.toLocaleString());
+    set('accuracy', tries ? `${pct(right, tries)}%` : 'None yet');
+    set('lessons', `${lessonsDone} of ${info.lessons.length}`);
+    greet();
+
+    // Next lesson: one already started, or the first one not finished.
+    const pc = data.plan?.course;
+    const order = info.lessons.filter((l) => !pc || l.course === pc || l.course === 'both');
+    const started = order.find((l) => !data.done[l.slug] && (data.steps[l.slug] ?? 0) > 0);
+    const next = started ?? order.find((l) => !data.done[l.slug]);
+    if (next) {
+      const p = Math.min(100, pct(data.steps[next.slug] ?? 0, next.total));
+      $('[data-next]').innerHTML = `<p class="next-unit">Unit ${next.n}</p><p class="next-title">${esc(next.title)}</p>
+        <div class="pbar" role="img" aria-label="${p}% of the lesson read"><span style="width:${p}%"></span></div>
+        <p class="muted">${p ? `${p}% read` : 'Not started yet'}</p>
+        <a class="btn" href="${next.href}">${p ? 'Continue lesson' : 'Start lesson'}</a>`;
+    } else {
+      $('[data-next]').innerHTML = `<p>You have finished every lesson${pc ? ' in your course' : ''}. Take a <a href="${info.links.mock}">mock exam</a> to see where you stand, or work on the topics below.</p>`;
+    }
+
+    // Exam countdown from the study plan.
+    const plan = data.plan;
+    if (plan) {
+      const today = parse(dayKey());
+      const exam = parse(plan.exam);
+      const left = Math.round((exam.getTime() - today.getTime()) / 86400000);
+      let studyLeft = 0;
+      for (let d = new Date(today); d < exam; d.setDate(d.getDate() + 1)) if (plan.days.includes(d.getDay())) studyLeft++;
+      const checked = Object.keys(plan.done).length;
+      const short = plan.course === 'macro' ? 'AP Macro' : 'AP Micro';
+      $('[data-exam]').innerHTML =
+        left > 0
+          ? `<p class="count"><span class="count-n">${left}</span> day${left === 1 ? '' : 's'} until your ${short} exam</p>
+             <p class="muted">${exam.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}. ${studyLeft} study day${studyLeft === 1 ? '' : 's'} left in your plan, ${checked} checked off so far.</p>
+             <a class="btn btn-secondary" href="${info.links.plan}">Open today’s plan</a>`
+          : `<p>Your plan’s exam date has passed. <a href="${info.links.welcome}">Make a new plan</a> for your next exam.</p>`;
+    } else {
+      $('[data-exam]').innerHTML = `<p>Add your exam date and the days you can study, and you get a day-by-day plan weighted by how much each unit counts.</p>
+        <a class="btn btn-secondary" href="${info.links.welcome}">Set up my plan</a>`;
+    }
+
+    // Weakest topics.
+    // Topics that share a guide count once, under the reader's own course.
+    const back = Object.fromEntries(Object.entries(info.same).map(([ma, mi]) => [mi, ma]));
+    const canon = (t: string) => (pc === 'macro' ? (back[t] ?? t) : (info.same[t] ?? t));
+    const agg: Record<string, { a: number; c: number }> = {};
+    for (const [id, s] of stats) {
+      for (const t of new Set((info.q[id] ?? []).map(canon))) {
+        const x = (agg[t] ??= { a: 0, c: 0 });
+        x.a += s.a;
+        x.c += s.c;
+      }
+    }
+    const weak = Object.entries(agg)
+      .filter(([, x]) => x.a >= 3 && x.c / x.a < 0.8)
+      .sort((a, b) => a[1].c / a[1].a - b[1].c / b[1].a || b[1].a - a[1].a)
+      .slice(0, 5);
+    $('[data-weak]').innerHTML = weak.length
+      ? weak
+          .map(([id, x]) => {
+            const [code, title, cid, n, href, short] = info.topics[id];
+            const p = pct(x.c, x.a);
+            return `<li class="weak-row">
+              <div class="weak-main"><span class="weak-meta">${esc(short)} ${esc(code)}</span><a class="weak-title" href="${href}">${esc(title)}</a></div>
+              <div class="weak-score"><div class="pbar pbar-bad" role="img" aria-label="${p}% right"><span style="width:${p}%"></span></div><span>${p}% right, ${x.c} of ${x.a}</span></div>
+              <div class="weak-go"><a class="btn btn-secondary btn-small" href="${href}#practice">Review</a><a class="btn btn-small" href="${info.links.practice}?course=${cid}&unit=${n}&topic=${id}">Practice</a></div>
+            </li>`;
+          })
+          .join('')
+      : `<li class="empty">${tries ? 'No weak spots right now. Topics you miss more than one time in five, after three or more tries, will show up here.' : `Nothing here yet. Answer some questions in the <a href="${info.links.practice}">question bank</a>, and the topics you miss most will show up here.`}</li>`;
+
+    // Mastery by unit, per course.
+    $('[data-mastery]').innerHTML = info.courses
+      .map(
+        (c) => `<div class="card course-card"><h3 class="course-name"><a href="${c.path}">${esc(c.short)}</a></h3><ol class="units">${c.units
+          .map((u) => {
+            const ids = Object.keys(info.q).filter((qid) => info.q[qid].some((t) => u.topics.includes(t)));
+            let tried = 0;
+            let a = 0;
+            let r = 0;
+            for (const qid of ids) {
+              const s = data.qstats[qid];
+              if (!s) continue;
+              tried++;
+              a += s.a;
+              r += s.c;
+            }
+            const cover = pct(tried, u.total);
+            return `<li><div class="u-line"><span class="u-name">Unit ${u.n}: ${esc(u.title)}</span><span class="u-acc">${a ? `${pct(r, a)}% right` : ''}</span></div>
+              <div class="pbar" role="img" aria-label="${tried} of ${u.total} questions tried"><span style="width:${cover}%"></span></div>
+              <span class="u-count">${tried} of ${u.total} tried</span></li>`;
+          })
+          .join('')}</ol></div>`,
+      )
+      .join('');
+
+    // Recent results.
+    const exams = data.exams.slice(0, 4);
+    const frqs = Object.values(data.frq);
+    const frqPct = frqs.length ? pct(frqs.reduce((n, f) => n + f.score, 0), frqs.reduce((n, f) => n + f.total, 0)) : 0;
+    const missed = stats.filter(([, s]) => s.l === 0).length;
+    const flagged = Object.keys(data.flags).length;
+    const known = Object.keys(data.cards).length;
+    $('[data-recent]').innerHTML = `
+      <div class="r-col"><h3 class="r-title">Mock exams</h3>${
+        exams.length
+          ? `<ul class="r-list">${exams.map((e) => `<li><span>${esc(e.course === 'macro' ? 'AP Macro' : e.course === 'micro' ? 'AP Micro' : e.course)}, ${fmtDate(e.at)}</span><strong>${e.score} of ${e.total}</strong></li>`).join('')}</ul>`
+          : `<p class="muted">None yet. <a href="${info.links.mock}">Take a timed mock exam</a>.</p>`
+      }</div>
+      <div class="r-col"><h3 class="r-title">Free response</h3>${
+        frqs.length ? `<p><strong>${frqs.length}</strong> question${frqs.length === 1 ? '' : 's'} self-scored, ${frqPct}% of points earned.</p>` : `<p class="muted">None yet. <a href="${info.links.frq}">Try a free-response question</a>.</p>`
+      }</div>
+      <div class="r-col"><h3 class="r-title">Review</h3><ul class="r-list">
+        <li><a href="${info.links.missed}">Missed last time</a><strong>${missed}</strong></li>
+        <li><a href="${info.links.missed}">Flagged</a><strong>${flagged}</strong></li>
+        <li><a href="${info.links.cards}">Flashcards known</a><strong>${known} of ${info.cards}</strong></li>
+      </ul></div>`;
+  };
+
+  render();
+  sub();
+  window.addEventListener('tutorecon:change', render);
+  window.addEventListener('tutorecon:sync', sub);
+  onAuth(() => {
+    greet();
+    sub();
+  });
+</script>
+
+<style>
+  .d-head {
+    padding-block: clamp(1.75rem, 1.2rem + 2vw, 3rem) 1.75rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .d-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.6rem + 1.6vw, 2.8rem);
+    line-height: 1.1;
+    margin-top: 0.3rem;
+  }
+  .d-sub {
+    margin-top: 0.6rem;
+    color: var(--ink-2);
+    max-width: 70ch;
+  }
+  .d-body {
+    display: grid;
+    gap: 1.5rem;
+    padding-top: 1.75rem;
+    padding-bottom: 5rem;
+  }
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  @media (min-width: 720px) {
+    .tiles {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  .tile {
+    display: grid;
+    gap: 0.15rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+  }
+  .t-num {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+  .t-label {
+    color: var(--ink-2);
+    font-size: 0.92rem;
+  }
+  .two {
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media (min-width: 860px) {
+    .two {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .box {
+    display: grid;
+    gap: 0.8rem;
+    align-content: start;
+    padding: 1.25rem 1.35rem;
+  }
+  .box :global(.btn) {
+    justify-self: start;
+  }
+  .box-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem 1rem;
+  }
+  .box :global(.next-unit) {
+    color: var(--ink-2);
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+  .box :global(.next-title) {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .box :global([data-next]),
+  .box :global([data-exam]) {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .box :global(.count) {
+    font-size: 1.1rem;
+  }
+  .box :global(.count-n) {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--brand);
+    margin-right: 0.2rem;
+  }
+  :global(.pbar) {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  :global(.pbar > span) {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--brand-fill);
+  }
+  :global(.pbar-bad > span) {
+    background: var(--orange);
+  }
+  .weak {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+  .weak :global(.weak-row) {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.9rem 0;
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 860px) {
+    .weak :global(.weak-row) {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1.25rem;
+    }
+  }
+  .weak :global(.weak-main) {
+    display: grid;
+    gap: 0.1rem;
+  }
+  .weak :global(.weak-meta) {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .weak :global(.weak-title) {
+    font-weight: 700;
+  }
+  .weak :global(.weak-score) {
+    display: grid;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    color: var(--ink-2);
+  }
+  .weak :global(.weak-go) {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .weak :global(.empty) {
+    padding: 0.9rem 0 0.2rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-2);
+  }
+  .mastery-wrap {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .mastery {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 0.4rem;
+  }
+  @media (min-width: 860px) {
+    .mastery {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .mastery :global(.course-card) {
+    padding: 1.1rem 1.25rem;
+  }
+  .mastery :global(.course-name) {
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+  }
+  .mastery :global(.units) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.85rem;
+  }
+  .mastery :global(.units li) {
+    display: grid;
+    gap: 0.3rem;
+  }
+  .mastery :global(.u-line) {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.95rem;
+  }
+  .mastery :global(.u-name) {
+    font-weight: 600;
+  }
+  .mastery :global(.u-acc) {
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .mastery :global(.u-count) {
+    font-size: 0.85rem;
+    color: var(--ink-2);
+  }
+  .recent {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 860px) {
+    .recent {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
+  .recent :global(.r-col) {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+  }
+  .recent :global(.r-title) {
+    font-size: 1rem;
+  }
+  .recent :global(.r-list) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .recent :global(.r-list li) {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--line);
+  }
+</style>

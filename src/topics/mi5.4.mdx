@@ -1,0 +1,49 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+A monopsony is a market with a single buyer of a factor, like the only large employer in a remote town. It is the mirror image of a monopoly, and it explains why a minimum wage can raise employment in some markets.
+
+## Why MFC is above the wage
+
+A monopsonist faces the whole upward-sloping **market labor supply curve**. To hire one more worker, it must raise the wage, and it pays the higher wage to **every** worker, not just the new one. So the cost of one more worker (MFC) is **greater than the wage**. The **MFC curve lies above the labor supply curve**.
+
+## The monopsony outcome
+
+1. Hire where **MRP = MFC**.
+2. Pay the **lowest wage that attracts that many workers**, read from the **labor supply curve**.
+
+Compared with a competitive labor market, a monopsonist:
+
+- hires **fewer workers**,
+- pays a **lower wage**,
+- pays workers **less than their MRP**,
+- creates **deadweight loss**.
+
+## Minimum wage in a monopsony
+
+In a competitive labor market, a minimum wage above equilibrium lowers employment. In a monopsony, a minimum wage set **between the monopsony wage and the competitive wage** can **raise both the wage and employment**. The minimum wage makes MFC flat at that wage up to the supply curve, so the firm no longer has to raise everyone’s pay to hire one more worker.
+
+<Graph model="monopsony" caption="Add a minimum wage and watch employment change." />
+
+## Worked example
+
+<Worked title="MFC from a table" prompt="A monopsonist must pay $10 to hire 1 worker, $11 each to hire 2, and $12 each to hire 3. What is the marginal factor cost of the third worker?">
+  <Step n={1} title="Total cost of labor">
+    1 worker: $10. 2 workers: $22. 3 workers: $36.
+  </Step>
+  <Step n={2} title="MFC of the third worker">
+    $36 − $22 = $14, which is more than the $12 wage, because the other two workers also get a raise.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Draw the monopsony graph: supply, MFC above it, MRP, and the wage read from supply.
+- Compare wage and employment with a competitive labor market.
+- Explain how a minimum wage can raise employment in a monopsony.
+
+<Callout kind="mistake">
+Reading the monopsony wage where MRP meets MFC. That height is the MFC, not the wage. The wage comes from the supply curve directly below that quantity.
+</Callout>

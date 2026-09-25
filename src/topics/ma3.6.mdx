@@ -1,0 +1,56 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Most AP Macro questions give you an event and ask what happens to real GDP, the price level, and unemployment in the short run. The method is the same four steps as supply and demand, applied to AD and SRAS.
+
+## Demand shocks
+
+A **positive demand shock** shifts AD right: real GDP rises, the price level rises, and unemployment falls. Examples: more consumer confidence, a stock market boom, a tax cut, more government spending, lower interest rates, a recovery abroad that raises exports.
+
+A **negative demand shock** shifts AD left: real GDP falls, the price level falls, and unemployment rises.
+
+## Supply shocks
+
+A **negative supply shock** shifts SRAS left: real GDP falls and the price level rises, so unemployment and inflation rise together. This is **stagflation**. Examples: a jump in oil prices, a drought, a sharp rise in wages across the economy.
+
+A **positive supply shock** shifts SRAS right: real GDP rises and the price level falls. Examples: cheaper energy, a productivity-boosting technology.
+
+<Graph model="adas" caption="Try each news event and watch the price level and real GDP move." />
+
+## Both curves at once
+
+As with supply and demand, when AD and SRAS both shift, one of real GDP or the price level is certain and the other depends on the sizes of the shifts.
+
+<div class="table-scroll">
+
+| Change | Price level | Real GDP |
+| --- | --- | --- |
+| AD right, SRAS right | Indeterminate | Rises |
+| AD left, SRAS left | Indeterminate | Falls |
+| AD right, SRAS left | Rises | Indeterminate |
+| AD left, SRAS right | Falls | Indeterminate |
+
+</div>
+
+## Worked example
+
+<Worked title="An oil shock" prompt="A war abroad sharply raises the price of oil. Using the AD-AS model, what happens in the short run to real GDP, the price level, and unemployment?">
+  <Step n={1} title="Which curve?">
+    Oil is an input to almost everything, so production costs rise. SRAS shifts left.
+  </Step>
+  <Step n={2} title="Result">
+    Real GDP falls, the price level rises, and unemployment rises. This is stagflation.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Decide whether an event shifts AD or SRAS and in which direction.
+- State the short-run changes in real GDP, the price level, and unemployment.
+- Handle a double shift and name what is indeterminate.
+
+<Callout kind="mistake">
+Putting a higher oil price on the demand side. Oil is a production cost, so it shifts SRAS. It may also affect spending, but the AP answer is a leftward SRAS shift.
+</Callout>

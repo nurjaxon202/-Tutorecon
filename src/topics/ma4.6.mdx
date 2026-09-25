@@ -1,0 +1,59 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Monetary policy is how a central bank, the Federal Reserve in the United States, steers interest rates to stabilize prices and employment. The course covers two systems: limited reserves and ample reserves.
+
+## The goals
+
+The Fed’s dual mandate is **stable prices** and **maximum employment**. It fights recessions with **expansionary** (easy) policy and inflation with **contractionary** (tight) policy.
+
+## Tools in a limited-reserves system
+
+When banks hold few excess reserves, the Fed changes the money supply:
+
+- **Open market operations:** buying or selling government bonds. **Buying bonds** adds reserves to banks, so they lend more and the money supply rises. **Selling bonds** does the opposite. This is the most-used tool in this system.
+- **The discount rate:** the interest rate the Fed charges banks for loans. Lowering it encourages bank borrowing and lending.
+- **The reserve requirement:** lowering it lets banks lend more of each deposit.
+
+## Tools in an ample-reserves system
+
+Today banks hold large reserves, so small changes in reserves do not move rates. The Fed instead sets **administered rates**:
+
+- **Interest on reserve balances (IORB):** the rate the Fed pays banks on their reserves. Banks will not lend to others for less than they can earn at the Fed, so **raising IORB raises** the federal funds rate and other short-term rates, and **lowering it lowers** them.
+- The Fed also uses a rate on overnight reverse repurchase agreements to keep short-term rates in its target range.
+
+The **federal funds rate** is the rate banks charge each other for overnight loans of reserves. It is the Fed’s main policy target.
+
+## The chain of effects
+
+**Expansionary:** buy bonds (or lower IORB, the discount rate, or the reserve requirement) → lower interest rates → more investment and interest-sensitive consumption → **AD shifts right** → real GDP and the price level rise, unemployment falls.
+
+**Contractionary:** sell bonds (or raise IORB, the discount rate, or the reserve requirement) → higher interest rates → less investment and consumption → **AD shifts left** → real GDP and the price level fall.
+
+## Worked example
+
+<Worked title="Fighting a recession" prompt="The economy is in a recessionary gap and the Fed works in a limited-reserves system. Name an open market operation and trace its effects.">
+  <Step n={1} title="Action">
+    Buy government bonds from banks and the public.
+  </Step>
+  <Step n={2} title="Money market">
+    Bank reserves and the money supply rise, so the nominal interest rate falls.
+  </Step>
+  <Step n={3} title="Spending">
+    Cheaper borrowing raises investment and consumption, shifting AD right.
+  </Step>
+  <Step n={4} title="Result">
+    Real GDP rises toward potential, the price level rises, and unemployment falls.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Choose the right tool and direction for a gap in either reserve system.
+- Trace the chain from the tool to interest rates, AD, output, and prices.
+- Explain why monetary policy is weaker when interest rates are already near zero or when investment does not respond to rates.
+
+<Callout kind="mistake">
+Saying the Fed buys bonds to fight inflation. Buying bonds adds money to the economy and lowers rates. To fight inflation, the Fed sells bonds or raises its administered rates.
+</Callout>

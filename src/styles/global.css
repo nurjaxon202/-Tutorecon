@@ -788,3 +788,101 @@ input[type='radio'] {
     margin: 12mm;
   }
 }
+
+/* Short notices at the bottom of the screen (src/scripts/toast.ts) */
+.toasts {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 60;
+  display: grid;
+  gap: 0.5rem;
+  width: min(420px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.toast {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.toast.is-in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition: none;
+  }
+}
+
+/* Account forms: a divider, the Google button, and the password meter */
+.or {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--ink-3);
+  font-size: 0.9rem;
+}
+.or::before,
+.or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line-strong);
+}
+.btn-google {
+  width: 100%;
+  justify-content: center;
+  gap: 0.6rem;
+}
+.meter {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-top: 0.1rem;
+}
+.meter span {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+}
+.meter[data-score='1'] span:nth-child(-n + 1) {
+  background: var(--bad-fill);
+}
+.meter[data-score='2'] span:nth-child(-n + 2) {
+  background: var(--sun-lip);
+}
+.meter[data-score='3'] span:nth-child(-n + 3) {
+  background: var(--good-fill);
+}
+.meter[data-score='4'] span {
+  background: var(--good-lip);
+}
+.meter-text {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--brand-fill);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}

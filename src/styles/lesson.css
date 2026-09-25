@@ -562,3 +562,26 @@
   margin-top: 0.3rem;
   color: var(--ink-2);
 }
+
+/* Graphs inside questions */
+.q-fig {
+  margin: 0.9rem 0 0.4rem;
+  max-width: 460px;
+}
+.q-fig svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.q-fig .g-area-label {
+  font-size: 15px;
+  opacity: 1;
+}
+.q-fig .g-label {
+  font-size: 13.5px;
+}
+.fill-q {
+  fill: var(--ink-3);
+  fill-opacity: 0.07;
+}

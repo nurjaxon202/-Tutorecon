@@ -14,6 +14,9 @@ export interface QTable {
 
 export type Level = 1 | 2 | 3;
 
+export type { QFigure } from './figures';
+import type { QFigure } from './figures';
+
 export interface Question {
   id: string;
   /** The lesson that teaches it. */
@@ -24,6 +27,8 @@ export interface Question {
   level: Level;
   prompt: string;
   table?: QTable;
+  /** A graph shown with the question. */
+  figure?: QFigure;
   options: Option[];
   answer: number;
   /** Part of the six-question check at the end of the lesson. */
@@ -32,6 +37,7 @@ export interface Question {
 
 interface Extra {
   table?: QTable;
+  figure?: QFigure;
   check?: boolean;
 }
 

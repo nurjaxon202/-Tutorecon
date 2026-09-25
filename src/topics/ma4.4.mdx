@@ -1,0 +1,63 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Banks do not just store money. When they make loans, they create new money. This topic covers the bank balance sheet, reserves, and the money multiplier, which appear in free-response questions almost every year.
+
+## Fractional reserve banking
+
+Banks keep only a fraction of deposits as **reserves** and lend out the rest. Under a **reserve requirement**, a bank must hold at least a set percentage of its checkable deposits as reserves.
+
+- **Required reserves = deposits × reserve requirement**
+- **Excess reserves = total reserves − required reserves**
+
+A single bank can safely lend out its **excess reserves**.
+
+## The balance sheet (T-account)
+
+- **Assets** (left): reserves, loans, government bonds (securities), property.
+- **Liabilities and owner’s equity** (right): deposits, and the owners’ stake.
+
+Assets must equal liabilities plus owner’s equity.
+
+## How loans create money
+
+When a bank makes a loan, it usually adds the amount to the borrower’s checking account. That new deposit **is money**, so the money supply rises. When the borrower spends it, the money is deposited in another bank, which keeps part as reserves and lends out the rest, and the process repeats.
+
+## The money multiplier
+
+**Money multiplier = 1 ÷ reserve requirement**
+
+- With a 10% requirement, the multiplier is 10.
+- **Maximum change in the money supply = excess reserves created × money multiplier**
+
+Two cases to handle carefully:
+
+- A **cash deposit** already counted in M1 does not change M1 at first (currency falls, deposits rise). The potential **new** money comes only from lending the excess reserves.
+- When the **Fed buys bonds from the public**, the seller’s new deposit adds to M1 right away, and the excess reserves it creates can be lent out and multiplied.
+
+The actual multiplier is usually **smaller** than the simple one, because banks may hold extra reserves and people hold some money as cash instead of depositing it.
+
+## Worked example
+
+<Worked title="A new deposit" prompt="The reserve requirement is 20%. Someone deposits $1,000 in cash into a checking account. How much can this bank lend? What is the most the money supply can change, including the whole banking system?">
+  <Step n={1} title="Required reserves">
+    20% of $1,000 = $200.
+  </Step>
+  <Step n={2} title="Excess reserves">
+    $1,000 − $200 = $800. This bank can lend $800.
+  </Step>
+  <Step n={3} title="System-wide">
+    Money multiplier = 1 ÷ 0.2 = 5. Maximum new money = $800 × 5 = $4,000. The $1,000 deposit itself was already money as cash, so it adds nothing new.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Fill in a T-account and find required and excess reserves.
+- Calculate how much one bank can lend and how much the system can create.
+- Explain why the real multiplier is smaller than the simple one.
+
+<Callout kind="mistake">
+Multiplying the whole deposit by the multiplier. Only excess reserves can be lent out, so multiply the excess reserves, not the full deposit.
+</Callout>

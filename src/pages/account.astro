@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PageBand from '../components/PageBand.astro';
 import { units } from '../data/units';
-import { accountsOn, MIN_PASSWORD } from '../lib/accounts';
+import { accountsOn, MAX_NAME, MIN_PASSWORD } from '../lib/accounts';
 import { url } from '../lib/url';
 
 const title = accountsOn ? 'Your account and data' : 'Your data and settings';
@@ -29,14 +29,49 @@ const lede = accountsOn
           </div>
 
           <div data-acct-in hidden>
-            <p>Signed in as <strong data-acct-email></strong>.</p>
+            <div class="profile">
+              <span class="avatar avatar-lg" data-acct-avatar aria-hidden="true"></span>
+              <div class="profile-text">
+                <p class="p-name" data-acct-name></p>
+                <p class="muted" data-acct-email></p>
+                <p class="muted small" data-acct-since></p>
+              </div>
+            </div>
             <p class="sync-line" data-sync-line aria-live="polite"></p>
             <div class="btn-row">
+              <a class="btn btn-small" href={url('/dashboard/')}>Open dashboard</a>
               <button type="button" class="btn btn-secondary btn-small" data-sync-now>Sync now</button>
-              <button type="button" class="btn btn-secondary btn-small" data-toggle="pw" aria-expanded="false" aria-controls="pw-box">Change password</button>
+              <button type="button" class="btn btn-secondary btn-small" data-toggle="name" aria-expanded="false" aria-controls="name-box">Edit name</button>
+              <button type="button" class="btn btn-secondary btn-small" data-toggle="email" data-email-only aria-expanded="false" aria-controls="email-box">Change email</button>
+              <button type="button" class="btn btn-secondary btn-small" data-toggle="pw" data-email-only aria-expanded="false" aria-controls="pw-box">Change password</button>
               <button type="button" class="btn btn-secondary btn-small" data-toggle="out" aria-expanded="false" aria-controls="out-box">Sign out</button>
               <button type="button" class="btn btn-secondary btn-small danger" data-toggle="del" aria-expanded="false" aria-controls="del-box">Delete account</button>
             </div>
+
+            <form id="name-box" class="auth-form sub" novalidate data-box="name" hidden>
+              <div class="field">
+                <label for="acct-name">First name</label>
+                <input id="acct-name" type="text" class="input" autocomplete="given-name" maxlength={MAX_NAME} aria-describedby="acct-name-hint" />
+                <p id="acct-name-hint" class="hint">Used only to greet you. Leave it empty to remove it.</p>
+              </div>
+              <p class="error-text form-error" role="alert" data-error="form"></p>
+              <div class="btn-row">
+                <button type="submit" class="btn btn-small" data-name-save>Save name</button>
+              </div>
+            </form>
+
+            <form id="email-box" class="auth-form sub" novalidate data-box="email" hidden>
+              <div class="field">
+                <label for="acct-email">New email address</label>
+                <input id="acct-email" type="email" class="input" autocomplete="email" spellcheck="false" aria-describedby="acct-email-hint acct-email-error" aria-invalid="false" />
+                <p id="acct-email-hint" class="hint">We send a link to the new address. Your email changes once you open it.</p>
+                <p id="acct-email-error" class="error-text" data-error="email"></p>
+              </div>
+              <p class="error-text form-error" role="alert" data-error="form"></p>
+              <div class="btn-row">
+                <button type="submit" class="btn btn-small" data-email-save>Send confirmation link</button>
+              </div>
+            </form>
 
             <form id="pw-box" class="auth-form sub" novalidate data-box="pw" hidden>
               <div class="field">
@@ -45,6 +80,8 @@ const lede = accountsOn
                   <input id="acct-password" type="password" class="input" autocomplete="new-password" minlength={MIN_PASSWORD} aria-describedby="acct-password-hint acct-password-error" aria-invalid="false" />
                   <button type="button" class="reveal" data-reveal aria-controls="acct-password" aria-pressed="false" aria-label="Show password">Show</button>
                 </div>
+                <div class="meter" data-meter="acct-password" data-score="0" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                <p class="meter-text" data-meter-text="acct-password" aria-live="polite"></p>
                 <p id="acct-password-hint" class="hint">At least {MIN_PASSWORD} characters.</p>
                 <p id="acct-password-error" class="error-text" data-error="password"></p>
               </div>
@@ -126,7 +163,7 @@ const lede = accountsOn
 
     <section class="panel card wide" aria-labelledby="stored-title">
       <h2 id="stored-title" class="h3">Exactly what is stored</h2>
-      <p>{accountsOn ? 'Up to five entries in this browser’s local storage, and nothing else. No cookies.' : 'Up to three entries in this browser’s local storage, and nothing else. No cookies.'}</p>
+      <p>{accountsOn ? 'Up to five entries in this browser’s local storage, and nothing else. No cookies.' : 'Up to three entries in this browser’s local storage, and nothing else. No cookies.'} After some actions, a one-line notice waits in session storage (<span class="mono">tutorecon.toast</span>) until the next page shows it.</p>
       <dl class="stored">
         <div>
           <dt class="mono">tutorecon.v1</dt>
@@ -144,7 +181,7 @@ const lede = accountsOn
           <>
             <div>
               <dt class="mono">tutorecon.auth</dt>
-              <dd>Only while you are signed in: the sign-in tokens that keep you signed in. Removed when you sign out.</dd>
+              <dd>Only while you are signed in: the sign-in tokens that keep you signed in. Removed when you sign out. Without “Keep me signed in”, they sit in session storage instead and go away when you close the tab.</dd>
             </div>
             <div>
               <dt class="mono">tutorecon.sync</dt>
@@ -153,7 +190,7 @@ const lede = accountsOn
           </>
         )}
       </dl>
-      {accountsOn && <p>When you are signed in, the <span class="mono">tutorecon.v1</span> entry is also saved to your account, along with your email address. Nothing else goes to the account service.</p>}
+      {accountsOn && <p>When you are signed in, the <span class="mono">tutorecon.v1</span> entry is also saved to your account, along with your email address and the first name you gave, if any. Nothing else goes to the account service.</p>}
       <div class="btn-row">
         <button type="button" class="btn btn-secondary btn-small" data-download>Download my data</button>
         <label class="btn btn-secondary btn-small file-btn">
@@ -185,13 +222,19 @@ const lede = accountsOn
     connect,
     currentSession,
     deleteAccount,
+    displayName,
+    initials,
     onAuth,
+    provider,
+    saveName,
     signOut,
+    siteLink,
     syncNow,
     syncState,
   } from '../scripts/account';
   import { MIN_PASSWORD } from '../lib/accounts';
-  import { busy, fieldError, wireReveal } from '../scripts/forms';
+  import { busy, emailOk, fieldError, wireMeter, wireReveal } from '../scripts/forms';
+  import { toast } from '../scripts/toast';
 
   const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
 
@@ -314,7 +357,7 @@ const lede = accountsOn
     };
     window.addEventListener('tutorecon:sync', showSync);
 
-    const boxes = ['pw', 'out', 'del'];
+    const boxes = ['name', 'email', 'pw', 'out', 'del'];
     const openBox = (name: string | null) => {
       for (const b of boxes) {
         const open = b === name;
@@ -335,8 +378,19 @@ const lede = accountsOn
       q('[data-acct-loading]').hidden = true;
       q('[data-acct-out]').hidden = Boolean(s);
       q('[data-acct-in]').hidden = !s;
-      if (s) q('[data-acct-email]').textContent = s.user.email ?? 'your account';
-      else openBox(null);
+      if (s) {
+        const u = s.user;
+        const name = displayName(u);
+        q('[data-acct-avatar]').textContent = initials(u);
+        q('[data-acct-name]').textContent = name || 'No name added';
+        q('[data-acct-name]').classList.toggle('muted', !name);
+        q('[data-acct-email]').textContent = u.email ?? '';
+        const since = u.created_at ? new Date(u.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+        const via = provider(u) === 'google' ? 'Signs in with Google.' : 'Signs in with email and password.';
+        q('[data-acct-since]').textContent = `${since ? `Member since ${since}. ` : ''}${via}`;
+        acct.querySelectorAll<HTMLElement>('[data-email-only]').forEach((el) => (el.hidden = provider(u) === 'google'));
+        q<HTMLInputElement>('#acct-name').value = name;
+      } else openBox(null);
       showSync();
     });
 
@@ -346,13 +400,61 @@ const lede = accountsOn
       if (syncState().state === 'saved') say('Up to date. This browser and your account now match.');
     });
 
+    const nameForm = q<HTMLFormElement>('[data-box="name"]');
+    const nameSave = q<HTMLButtonElement>('[data-name-save]');
+    nameForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      fieldError(nameForm, 'form', '');
+      const value = q<HTMLInputElement>('#acct-name').value.trim().replace(/\s+/g, ' ').slice(0, 40);
+      busy(nameSave, true, 'Saving');
+      try {
+        await saveName(value);
+        const u = currentSession()?.user;
+        q('[data-acct-name]').textContent = displayName(u) || 'No name added';
+        q('[data-acct-name]').classList.toggle('muted', !displayName(u));
+        q('[data-acct-avatar]').textContent = initials(u);
+        openBox(null);
+        toast(value ? 'Name saved.' : 'Name removed.');
+      } catch (err) {
+        fieldError(nameForm, 'form', authMessage(err));
+      } finally {
+        busy(nameSave, false, 'Save name');
+      }
+    });
+
+    const emailForm = q<HTMLFormElement>('[data-box="email"]');
+    const newEmail = q<HTMLInputElement>('#acct-email');
+    const emailSave = q<HTMLButtonElement>('[data-email-save]');
+    emailForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      fieldError(emailForm, 'form', '');
+      const e = newEmail.value.trim();
+      const msg = !e ? 'Enter the new email address.' : !emailOk(e) ? 'Enter an email address like name@example.com.' : e.toLowerCase() === (currentSession()?.user.email ?? '').toLowerCase() ? 'That is already your email address.' : '';
+      fieldError(emailForm, 'email', msg, newEmail);
+      if (msg) return newEmail.focus();
+      busy(emailSave, true, 'Sending');
+      try {
+        const client = await connect();
+        const { error } = await client.auth.updateUser({ email: e }, { emailRedirectTo: siteLink('/account/') });
+        if (error) throw error;
+        newEmail.value = '';
+        openBox(null);
+        say(`Check ${e} for a confirmation link. Your email changes once you open it. For extra safety, you may also get a link at your current address, and both need to be opened.`);
+      } catch (err) {
+        fieldError(emailForm, 'form', authMessage(err));
+      } finally {
+        busy(emailSave, false, 'Send confirmation link');
+      }
+    });
+
     const pwForm = q<HTMLFormElement>('[data-box="pw"]');
     const pw = q<HTMLInputElement>('#acct-password');
+    const pwMeter = wireMeter(pw, null, MIN_PASSWORD);
     const pwSave = q<HTMLButtonElement>('[data-pw-save]');
     pwForm.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       fieldError(pwForm, 'form', '');
-      const msg = pw.value.length >= MIN_PASSWORD ? '' : `Use at least ${MIN_PASSWORD} characters.`;
+      const msg = pwMeter().problem;
       fieldError(pwForm, 'password', msg, pw);
       if (msg) return pw.focus();
       busy(pwSave, true, 'Saving');
@@ -361,8 +463,9 @@ const lede = accountsOn
         const { error } = await client.auth.updateUser({ password: pw.value });
         if (error) throw error;
         pw.value = '';
+        pwMeter();
         openBox(null);
-        say('Password changed.');
+        toast('Password changed.');
       } catch (err) {
         fieldError(pwForm, 'form', authMessage(err));
       } finally {
@@ -491,6 +594,29 @@ const lede = accountsOn
   .sub {
     width: 100%;
     max-width: 560px;
+  }
+  .profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .avatar-lg {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    font-size: 1.2rem;
+  }
+  .profile-text {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+  .profile-text p {
+    overflow-wrap: anywhere;
+  }
+  .p-name {
+    font-weight: 700;
+    font-size: 1.1rem;
   }
   .sync-line {
     color: var(--ink-2);

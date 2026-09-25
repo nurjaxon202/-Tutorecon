@@ -1,0 +1,62 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Inflation is a rise in the overall price level. To measure it, economists price a fixed basket of goods over time. This topic covers how the index is built, how to turn it into an inflation rate, and where it goes wrong.
+
+## Price indices
+
+A **price index** compares the cost of a fixed basket of goods with its cost in a **base year**:
+
+**Price index = cost of the basket this year ÷ cost in the base year × 100**
+
+The index is 100 in the base year by definition. The **consumer price index (CPI)** uses a basket of goods and services bought by a typical urban household. The **GDP deflator** covers everything in GDP (Topic 2.6).
+
+## The inflation rate
+
+**Inflation rate = (index this year − index last year) ÷ index last year × 100**
+
+If the CPI rises from 150 to 156, inflation is 6 ÷ 150 = 4%.
+
+- **Inflation:** the price level is rising.
+- **Deflation:** the price level is falling (negative inflation).
+- **Disinflation:** inflation is still positive but **slowing**, for example from 6% to 3%. Prices are still rising, just more slowly.
+
+## Why the CPI overstates the cost of living
+
+- **Substitution bias:** the basket is fixed, but people switch to cheaper goods when prices rise, so their actual cost rises less.
+- **New products:** new goods enter the basket late.
+- **Quality improvements:** some price increases buy a better product, which is not really inflation.
+
+## Real values
+
+A price index lets you compare dollars across years. To express a past amount in today’s dollars:
+
+**Value today = past value × (index today ÷ index then)**
+
+A **real wage** is the nominal wage adjusted for prices. If nominal wages rise 3% while prices rise 5%, the real wage falls about 2%.
+
+## Worked example
+
+<Worked title="Build an index" prompt="A basket has 10 pizzas and 5 movie tickets. In the base year pizzas cost $6 and tickets $8. This year pizzas cost $9 and tickets $10. Find the price index this year and the inflation since the base year.">
+  <Step n={1} title="Base-year cost">
+    10 × $6 + 5 × $8 = $100.
+  </Step>
+  <Step n={2} title="This year’s cost">
+    10 × $9 + 5 × $10 = $140.
+  </Step>
+  <Step n={3} title="Index and inflation">
+    $140 ÷ $100 × 100 = 140. Prices rose 40% since the base year.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Calculate a price index and an inflation rate.
+- Tell inflation, deflation, and disinflation apart.
+- Convert a nominal amount to real terms or across years.
+- Name a reason the CPI overstates inflation.
+
+<Callout kind="mistake">
+Calling disinflation “falling prices.” During disinflation, prices are still rising, only more slowly. Falling prices are deflation.
+</Callout>

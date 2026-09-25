@@ -1,0 +1,54 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+An externality is a cost or benefit that lands on someone who is not part of the trade. Because buyers and sellers ignore it, the market makes the wrong amount. Externality graphs are among the most common free-response questions in AP Micro.
+
+## Negative externalities
+
+A **negative externality** is a cost imposed on third parties: pollution from a factory, noise from an airport, secondhand smoke.
+
+- The firm’s **marginal private cost (MPC)**, which is the supply curve, leaves out the harm.
+- **Marginal social cost (MSC) = MPC + marginal external cost (MEC)**, so MSC lies **above** supply.
+- The market produces where demand meets MPC, which is **more than the socially optimal quantity** where MSB = MSC.
+- The market price is **too low**, and there is **deadweight loss** from the units whose social cost is above their benefit.
+
+## Positive externalities
+
+A **positive externality** is a benefit to third parties: vaccines that protect others, education that makes better citizens, a neighbor’s garden.
+
+- Demand shows **marginal private benefit (MPB)**.
+- **Marginal social benefit (MSB) = MPB + marginal external benefit (MEB)**, so MSB lies **above** demand.
+- The market produces **less than the socially optimal quantity**, and there is deadweight loss from units that are worth more to society than they cost but are not made.
+
+<Graph model="externality-negative" caption="Turn on the tax and watch the deadweight loss disappear." />
+
+## Fixing externalities
+
+- **Per-unit (Pigouvian) tax** equal to the marginal external cost shifts supply up to MSC, so the market produces the efficient quantity.
+- **Per-unit subsidy** equal to the marginal external benefit, paid to buyers or sellers, raises output to the efficient quantity.
+- **Regulation**: limits on pollution or required safety standards.
+- **Tradable pollution permits**: the government caps total pollution and lets firms buy and sell permits. Firms that can cut pollution cheaply do so and sell their permits, so the cap is met at the **lowest total cost**.
+- **Property rights and bargaining**: if rights are clear and bargaining is cheap, the parties can sometimes solve it privately.
+
+## Worked example
+
+<Worked title="The right tax" prompt="Each unit of a good causes $5 of pollution damage to people nearby, no matter how many units are made. What tax would lead to the efficient quantity, and what happens to price and quantity?">
+  <Step n={1} title="Size of the tax">
+    A per-unit tax of $5, equal to the marginal external cost.
+  </Step>
+  <Step n={2} title="Effect">
+    Supply shifts up by $5 to match MSC. The price buyers pay rises, the quantity falls to the socially optimal level, and the deadweight loss disappears.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Draw MPC, MSC, and demand (or MPB, MSB, and supply), and label the market and socially optimal quantities.
+- Shade the deadweight loss. For a negative externality, it points toward the optimal quantity from the market quantity on the right.
+- Pick the right policy: a tax for negative externalities, a subsidy for positive ones, and say how large it should be.
+
+<Callout kind="mistake">
+Shifting demand for a negative production externality. Pollution from making a good is a cost of production, so it is the cost curve (MSC above MPC) that differs. Demand stays where it is.
+</Callout>

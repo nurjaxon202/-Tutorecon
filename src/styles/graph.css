@@ -672,3 +672,7 @@
 .graph-thumb .g-label {
   font-size: 15px;
 }
+.g-label-ink {
+  fill: var(--ink);
+  font-weight: 700;
+}

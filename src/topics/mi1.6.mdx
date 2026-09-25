@@ -1,0 +1,55 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Most real choices are not all or nothing. A store decides whether to stay open one more hour, and you decide whether to buy one more slice. Thinking one extra unit at a time is called marginal analysis, and it runs through the whole course.
+
+## What you need to know
+
+**Marginal** means “one more.” **Marginal benefit (MB)** is the extra benefit from one more unit of something. **Marginal cost (MC)** is the extra cost of one more unit.
+
+The rule for the best amount of any activity:
+
+- If MB > MC, do more. The next unit adds more than it costs.
+- If MB < MC, do less. The last unit cost more than it was worth.
+- Stop where **MB = MC**. That is the **optimal quantity**.
+
+Total benefit keeps rising as long as marginal benefit is positive, so “total benefit is highest” is not the same as “best choice.” The best choice looks at the gap between benefit and cost.
+
+## Diminishing marginal utility
+
+**Marginal utility (MU)** is the extra satisfaction from one more unit. The **law of diminishing marginal utility** says each additional unit usually adds less satisfaction than the one before. The first slice of pizza is great, and the fifth is less exciting.
+
+Diminishing marginal utility is one reason demand curves slope down: people only buy more of something if the price falls.
+
+## The utility-maximizing rule
+
+A consumer with a fixed budget gets the most total utility by spending so that the last dollar spent on each good adds the same utility:
+
+**MUx ÷ Px = MUy ÷ Py**, with the whole budget spent.
+
+If MUx ÷ Px is bigger than MUy ÷ Py, the last dollar spent on X is doing more good, so the consumer should buy more X and less Y. As they do, MU of X falls and MU of Y rises until the two ratios are equal.
+
+## Worked example
+
+<Worked title="Spend $12 on burritos and smoothies" prompt="Burritos cost $4 and smoothies cost $2. The marginal utility of the 1st, 2nd, and 3rd burrito is 40, 32, 16. For smoothies it is 24, 16, 12. How many of each should you buy with $12?">
+  <Step n={1} title="Utility per dollar">
+    Burritos: 40 ÷ 4 = 10, 32 ÷ 4 = 8, 16 ÷ 4 = 4. Smoothies: 24 ÷ 2 = 12, 16 ÷ 2 = 8, 12 ÷ 2 = 6.
+  </Step>
+  <Step n={2} title="Buy the best dollar first">
+    First smoothie (12), then the first burrito (10), then the second burrito and second smoothie (8 each).
+  </Step>
+  <Step n={3} title="Check the budget">
+    2 burritos ($8) and 2 smoothies ($4) cost exactly $12, and the last dollar on each gives 8 utils. That is the best mix.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Find the optimal quantity from a table of marginal benefit and marginal cost, or from total benefit (subtract to get the marginal numbers first).
+- Use MU ÷ P to decide what a consumer should buy more of.
+- Explain the income and substitution effects of a price change, which come from this topic too: a lower price makes a good cheaper than its substitutes, and it makes the buyer’s income go further.
+
+<Callout kind="mistake">
+Comparing marginal utility without dividing by price. An orange with MU of 8 at $2 gives 4 utils per dollar, which is worse than an apple with MU of 6 at $1.
+</Callout>

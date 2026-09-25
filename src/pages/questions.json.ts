@@ -13,6 +13,7 @@ export const GET: APIRoute = () =>
         l: x.level,
         p: x.prompt,
         tb: x.table,
+        fg: x.figure,
         o: x.options.map((o) => [o.text, o.why]),
         a: x.answer,
       })),

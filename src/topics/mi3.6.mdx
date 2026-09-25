@@ -1,0 +1,53 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+A firm losing money does not always close right away. The short-run shutdown rule and the long-run exit rule explain when it keeps going, and why the competitive supply curve looks the way it does.
+
+## Short run: produce or shut down
+
+In the short run, fixed costs must be paid whether the firm produces or not. So the choice is between:
+
+- **Producing:** earn revenue, pay fixed and variable costs.
+- **Shutting down:** earn nothing, pay only fixed costs.
+
+A firm should keep producing as long as its revenue covers its variable cost, because every dollar above variable cost helps pay the fixed cost. In terms of prices:
+
+- **P > minimum ATC:** economic profit. Produce.
+- **Minimum AVC < P < minimum ATC:** a loss, but a smaller one than shutting down. Produce in the short run.
+- **P < minimum AVC:** shut down. Producing would lose more than the fixed cost.
+
+The **shutdown point** is minimum AVC. The **break-even point** is minimum ATC.
+
+## The firm’s short-run supply curve
+
+For a perfectly competitive firm, the short-run supply curve is **its marginal cost curve above minimum AVC**. At every price above the shutdown point, the firm produces where P = MC.
+
+## Long run: enter or exit
+
+In the long run there are no fixed costs, so a firm stays only if price covers **average total cost**. If P < minimum ATC, firms **exit**. If P > minimum ATC, new firms **enter**. Entry and exit change market supply until the price equals minimum ATC and economic profit is zero.
+
+<Graph model="firm" caption="Lower the price toward the shutdown point and watch the loss grow." />
+
+## Worked example
+
+<Worked title="Stay open or shut down?" prompt="A perfectly competitive firm faces a price of $8. At its best output, AVC is $6 and ATC is $10. What should it do in the short run and in the long run?">
+  <Step n={1} title="Short run">
+    The price covers AVC ($8 > $6), so the firm keeps producing. It loses $2 per unit, which is less than losing all of its fixed cost.
+  </Step>
+  <Step n={2} title="Long run">
+    The price does not cover ATC ($8 < $10). If this continues, the firm exits the industry.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Apply the shutdown rule using P and minimum AVC.
+- Identify the shutdown point and break-even point on a graph.
+- Explain why a firm operates at a loss in the short run.
+- Predict entry or exit and the long-run result.
+
+<Callout kind="mistake">
+Using ATC for the short-run shutdown decision. Fixed costs are paid either way in the short run, so only AVC matters for shutting down. ATC matters for the long-run exit decision.
+</Callout>

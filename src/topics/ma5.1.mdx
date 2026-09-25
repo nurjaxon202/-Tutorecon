@@ -1,0 +1,61 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Unit 5 puts both policy tools side by side. This topic is about using fiscal and monetary policy together, and tracing each one through every market graph it touches.
+
+## Matching policy to the gap
+
+<div class="table-scroll">
+
+| Gap | Fiscal policy | Monetary policy |
+| --- | --- | --- |
+| Recessionary | Raise government purchases, cut taxes, raise transfers | Buy bonds, lower the discount rate, lower IORB, or lower the reserve requirement |
+| Inflationary | Cut government purchases, raise taxes, cut transfers | Sell bonds, raise the discount rate, raise IORB, or raise the reserve requirement |
+
+</div>
+
+## Tracing a policy through the graphs
+
+Free-response questions often ask for a chain of effects across several graphs. For **expansionary monetary policy**:
+
+1. **Money market:** the money supply rises, so the nominal interest rate falls.
+2. **Spending:** lower rates raise investment and interest-sensitive consumption.
+3. **AD-AS:** AD shifts right. Real GDP and the price level rise, and unemployment falls.
+4. **Foreign exchange (Unit 6):** lower interest rates make the country’s assets less attractive, so the currency depreciates and net exports rise, pushing AD further right.
+
+For **expansionary fiscal policy** financed by borrowing:
+
+1. **AD-AS:** AD shifts right.
+2. **Loanable funds:** government borrowing raises the real interest rate, which can **crowd out** some private investment (Topic 5.5).
+3. **Foreign exchange:** higher real interest rates draw in foreign capital, so the currency appreciates and net exports fall.
+
+## Combining the two
+
+- **Both expansionary:** AD rises strongly. Real GDP and the price level rise.
+- **Fiscal expansion with monetary tightening:** effects on AD partly cancel, so real GDP is uncertain, but **interest rates rise for sure**.
+- **Fiscal expansion with monetary easing (accommodation):** the central bank keeps rates from rising, which limits crowding out.
+
+## Worked example
+
+<Worked title="Policy mix" prompt="The government raises spending while the central bank sells bonds. What happens to interest rates and to real GDP?">
+  <Step n={1} title="Fiscal">
+    Higher spending shifts AD right and, through borrowing, pushes interest rates up.
+  </Step>
+  <Step n={2} title="Monetary">
+    Selling bonds lowers the money supply, which also pushes interest rates up, and lowers AD.
+  </Step>
+  <Step n={3} title="Combined">
+    Interest rates rise for certain. The effect on real GDP depends on which policy is stronger, so it is indeterminate.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Pick the right fiscal and monetary actions for a gap.
+- Trace a policy through the money market, loanable funds, AD-AS, and foreign exchange graphs.
+- Predict the combined effect of two policies and name what is certain.
+
+<Callout kind="mistake">
+Writing “the Fed lowers taxes” or “Congress buys bonds.” Keep the tools with the right actor: taxes and spending belong to fiscal policy, and bonds and interest rates belong to the central bank.
+</Callout>

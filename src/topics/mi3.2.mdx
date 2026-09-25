@@ -1,0 +1,57 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Short-run cost curves are the tools firms use to decide how much to make, and the AP exam expects you to calculate every one of them and draw them in the right shapes.
+
+## The cost family
+
+- **Fixed cost (FC):** costs that do not change with output in the short run: rent, insurance, a license fee. Paid even at zero output.
+- **Variable cost (VC):** costs that rise with output: hourly wages, materials, energy.
+- **Total cost (TC) = FC + VC.**
+- **Average fixed cost (AFC) = FC ÷ Q.** Falls steadily as output rises, because the same fixed cost is spread over more units.
+- **Average variable cost (AVC) = VC ÷ Q.**
+- **Average total cost (ATC) = TC ÷ Q = AFC + AVC.**
+- **Marginal cost (MC) = ΔTC ÷ ΔQ = ΔVC ÷ ΔQ.** The cost of one more unit.
+
+## Shapes and why
+
+**MC** usually falls at first and then rises. It rises because of diminishing marginal returns: each extra worker adds less output, so each extra unit takes more labor to make. When MP falls, MC rises.
+
+**AVC** and **ATC** are U-shaped. The gap between them is AFC, which shrinks as output grows, so the two curves get closer together.
+
+**MC crosses AVC and ATC at their lowest points.** When the next unit costs less than the average, it pulls the average down. When it costs more, it pulls the average up.
+
+## What shifts which curve
+
+- A change in **fixed cost** (rent, a license fee, a lump-sum tax) shifts **AFC and ATC** only. **MC and AVC do not change.**
+- A change in **variable cost** (wages, materials, a per-unit tax) shifts **MC, AVC, and ATC**. AFC does not change.
+
+This matters a lot in Unit 3 and Unit 6: a lump-sum tax does not change a firm’s output decision in the short run, but a per-unit tax does.
+
+## Worked example
+
+<Worked title="Reading a cost table" prompt="A firm has fixed cost of $60. Its total cost is $100 at 4 units and $130 at 5 units. Find AFC, AVC, ATC, and MC at 5 units.">
+  <Step n={1} title="AFC">
+    $60 ÷ 5 = $12.
+  </Step>
+  <Step n={2} title="AVC and ATC">
+    VC = $130 − $60 = $70, so AVC = $70 ÷ 5 = $14. ATC = $130 ÷ 5 = $26. Check: $12 + $14 = $26.
+  </Step>
+  <Step n={3} title="MC">
+    $130 − $100 = $30 for the fifth unit.
+  </Step>
+  <Step n={4} title="What the numbers say">
+    MC ($30) is above ATC ($26), so ATC is rising at this output.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Fill in or read a cost table.
+- Draw MC, ATC, and AVC with MC crossing both at their minimums.
+- Say which curves shift after a change in a fixed or variable cost.
+
+<Callout kind="mistake">
+Letting a change in fixed cost move marginal cost. MC comes only from costs that change with output. Higher rent raises ATC but leaves MC and the firm’s best output unchanged.
+</Callout>

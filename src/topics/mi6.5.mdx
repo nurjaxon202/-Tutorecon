@@ -1,0 +1,65 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Market economies can be efficient and still very unequal. This topic covers how economists measure inequality, where it comes from, and how taxes and transfers change it.
+
+## The Lorenz curve
+
+A **Lorenz curve** shows the cumulative share of income (or wealth) held by the poorest cumulative share of households. The 45-degree **line of equality** is where the bottom 20% of households earn 20% of income, the bottom 40% earn 40%, and so on.
+
+The **farther** the Lorenz curve bows **below** the line of equality, the **more unequal** the distribution.
+
+## The Gini coefficient
+
+**Gini coefficient = A ÷ (A + B)**, where A is the area between the line of equality and the Lorenz curve, and B is the area under the Lorenz curve.
+
+- **0** means perfect equality: everyone has the same income.
+- **1** means perfect inequality: one household has everything.
+- A higher Gini means more inequality.
+
+<Graph model="lorenz" caption="Bow the curve out and watch the Gini coefficient rise." />
+
+## Where inequality comes from
+
+- Differences in **human capital**: education, skills, and training
+- Differences in **inherited wealth** and access to capital
+- **Discrimination** in hiring or pay
+- **Market power** of some employers or workers
+- Differences in **effort, risk taking, and luck**
+- Changes in technology and trade that raise demand for some skills and lower it for others
+
+## Taxes and transfers
+
+- A **progressive tax** takes a larger percentage of income from higher earners (the US federal income tax). It **reduces** after-tax inequality.
+- A **proportional (flat) tax** takes the same percentage from everyone.
+- A **regressive tax** takes a larger percentage from lower earners. Sales taxes and many excise taxes are regressive in effect, because lower-income households spend more of their income.
+- **Transfer programs** (food assistance, the earned income tax credit, unemployment benefits) raise income at the bottom and reduce inequality.
+
+Keep the **average tax rate** (total tax ÷ income) apart from the **marginal tax rate** (the rate on the next dollar). A tax is progressive when the average rate rises with income.
+
+## Worked example
+
+<Worked title="Average rate" prompt="A tax charges 10% on the first $40,000 of income and 20% on income above that. What is the average tax rate on $100,000? Is the tax progressive?">
+  <Step n={1} title="Tax owed">
+    10% of $40,000 = $4,000. 20% of $60,000 = $12,000. Total $16,000.
+  </Step>
+  <Step n={2} title="Average rate">
+    $16,000 ÷ $100,000 = 16%.
+  </Step>
+  <Step n={3} title="Classify">
+    Someone earning $40,000 pays an average of 10%, and someone earning $100,000 pays 16%. The average rate rises with income, so the tax is progressive.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Read a Lorenz curve and compare the inequality of two countries.
+- Interpret a Gini coefficient.
+- Classify taxes as progressive, proportional, or regressive.
+- Name sources of income inequality and policies that reduce it.
+
+<Callout kind="mistake">
+Classifying a tax by who pays more dollars. A flat 10% tax takes more dollars from a rich family, but the same percentage, so it is proportional, not progressive.
+</Callout>

@@ -1,4 +1,5 @@
 import { make } from './make';
+import { forexFig } from './figs';
 
 const q = make('open-economy');
 
@@ -300,4 +301,116 @@ export default [
     ['nothing changes, because incomes do not affect exchange rates', 'Income affects spending on imports, which affects the currency market.'],
     ['the dollar appreciates, because Americans buy more US goods', 'Americans also buy more foreign goods, and that is what shows up in this market.'],
   ], 0),
+  q('oe43', 'ma6.3 ma6.4', 2, 'The graph shows the foreign exchange market for US dollars. Which event could shift the demand for dollars from D1 to D2?', [
+    ['Americans buy more goods made in Europe', 'To buy European goods, Americans supply dollars. That shifts supply, not demand.'],
+    ['US interest rates fall compared with European rates', 'Lower US rates make US assets less attractive, so demand for dollars falls.'],
+    ['More European tourists visit the United States', 'Correct. European tourists need dollars to spend in the US, so they demand more dollars at every exchange rate.'],
+    ['Inflation in the United States rises faster than in Europe', 'Higher US prices make US goods less attractive, which lowers demand for dollars.'],
+    ['US incomes rise, and Americans travel more to Europe', 'Americans traveling abroad supply dollars. That shifts supply.'],
+  ], 2, { figure: forexFig() }),
+  q('oe44', 'ma6.2 ma6.3', 1, 'On the graph, the exchange rate moves from E1 to E2. What happened to the US dollar?', [
+    ['It appreciated against the euro', 'Correct. At E2, one dollar buys more euros than at E1. A currency that buys more of another has appreciated.'],
+    ['It depreciated against the euro', 'Each dollar now buys more euros, which is appreciation.'],
+    ['It stayed the same, because only the quantity changed', 'Both the quantity and the price of dollars changed.'],
+    ['It was devalued by the government', 'The change comes from a shift in demand in the market, not from a government decision.'],
+    ['Its value in dollars rose', 'A currency is not priced in itself. Its value is shown in euros per dollar.'],
+  ], 0, { figure: forexFig() }),
+  q('oe45', 'ma6.5', 3, 'Because of the change shown on the graph, what happens to US net exports to Europe, other things equal?', [
+    ['They rise, because the dollar is stronger', 'A stronger dollar makes US goods cost more in euros, which hurts US exports.'],
+    ['They stay the same, because exchange rates do not affect trade', 'Exchange rates change what goods cost to foreign buyers, so they affect trade.'],
+    ['They rise, because Americans can buy more from Europe', 'Buying more from Europe raises US imports, which lowers net exports.'],
+    ['They rise, because Europeans demand more dollars', 'The rise in demand for dollars raises the dollar’s value, which makes US goods more expensive abroad.'],
+    ['They fall, because US goods cost more in euros and European goods cost less in dollars', 'Correct. The stronger dollar makes US exports more expensive for Europeans and European imports cheaper for Americans, so net exports fall.'],
+  ], 4, { figure: forexFig() }),
+  q('oe46', 'ma6.4 ma6.6', 3, 'Which US policy could cause the shift from D1 to D2 on the graph?', [
+    ['Expansionary monetary policy that lowers US interest rates', 'Lower US rates reduce foreign demand for US assets and for dollars.'],
+    ['A cut in US tariffs on European goods', 'Cheaper imports lead Americans to supply more dollars. That shifts supply, not demand.'],
+    ['An increase in the US money supply', 'More money lowers US interest rates, which reduces demand for dollars.'],
+    ['Contractionary monetary policy that raises US interest rates', 'Correct. Higher US rates draw foreign savers to US assets. To buy them, they need dollars, so demand for dollars shifts right.'],
+    ['A fall in US government borrowing', 'Less borrowing lowers US real interest rates, which reduces demand for dollars.'],
+  ], 3, { figure: forexFig() }),
+  q('oe47', 'ma6.2', 2, 'On the graph, the dollar has moved from E1 to E2 euros per dollar. What has happened to the value of the euro in dollars?', [
+    ['It has risen, so each euro buys more dollars', 'If a dollar buys more euros, then a euro buys fewer dollars.'],
+    ['It has fallen, so each euro buys fewer dollars', 'Correct. The two rates are flip sides. When the dollar appreciates against the euro, the euro depreciates against the dollar.'],
+    ['It has not changed, since only the dollar market moved', 'The price of a dollar in euros and the price of a euro in dollars move together.'],
+    ['It has risen by the same amount as the dollar', 'Both currencies cannot rise against each other at once.'],
+    ['It cannot be known without a graph of the euro market', 'This graph is enough. The euro’s value in dollars is 1 divided by the euros-per-dollar rate.'],
+  ], 1, { figure: forexFig() }),
+  q('oe48', 'ma6.1', 2, 'A US company pays a German firm for engineering advice. In the US balance of payments, this is recorded as', [
+    ['a credit in the current account', 'Money flows out of the US, so it is a debit.'],
+    ['a credit in the financial account', 'Paying for a service is a current account item, not a purchase of assets.'],
+    ['a debit in the current account, as an import of services', 'Correct. The US is buying a service from abroad. Imports of goods and services are debits in the current account.'],
+    ['a debit in the financial account', 'The financial account records trade in assets. This is trade in a service.'],
+    ['nothing, because services are not counted', 'Trade in services is part of the current account.'],
+  ], 2),
+  q('oe49', 'ma6.1', 2, 'A US company receives dividends from its factory in Brazil. In the US balance of payments, this is recorded as', [
+    ['a debit in the current account', 'Money flows into the US, so it is a credit.'],
+    ['a credit in the financial account', 'The factory was recorded in the financial account when it was bought. Income from it goes in the current account.'],
+    ['a debit in the financial account', 'Income from abroad is a current account credit.'],
+    ['an export of goods', 'No good was sold. This is income on an investment.'],
+    ['a credit in the current account, as investment income from abroad', 'Correct. Income earned on assets abroad, like dividends and interest, is part of the current account and brings money in.'],
+  ], 4),
+  q('oe50', 'ma6.1', 3, 'A country has a current account surplus of $50 billion, and its capital account is zero. What must be true of its financial account?', [
+    ['It shows a deficit of $50 billion, meaning a net outflow of financial capital', 'Correct. The accounts must balance. A country that sells more to the world than it buys uses the extra to buy foreign assets, which is a net outflow in the financial account.'],
+    ['It shows a surplus of $50 billion', 'The financial account must offset the current account, so it has the opposite sign.'],
+    ['It is zero', 'Then the balance of payments would not add up.'],
+    ['It shows a deficit of $100 billion', 'The deficit exactly matches the $50 billion surplus.'],
+    ['It cannot be known from the information given', 'With the capital account at zero, the financial account must equal the current account with the opposite sign.'],
+  ], 0),
+  q('oe51', 'ma6.2', 2, 'One euro costs $1.25. A hotel room in Rome costs €200 a night. How much is that in dollars?', [
+    ['$160', 'That divides by 1.25. Each euro costs more than a dollar, so the dollar price is higher.'],
+    ['$250', 'Correct. Each euro costs $1.25, so €200 costs 200 × $1.25.'],
+    ['$200', 'That treats a euro and a dollar as equal.'],
+    ['$225', 'That adds $25 instead of multiplying by 1.25.'],
+    ['$125', 'That is the price of €100.'],
+  ], 1),
+  q('oe52', 'ma6.4 ma6.3', 3, 'The United States limits how many foreign cars can be imported. In the foreign exchange market for US dollars, what happens?', [
+    ['Demand for dollars falls, and the dollar depreciates', 'The limit changes how many dollars Americans supply, not how many dollars foreigners demand.'],
+    ['Supply of dollars rises, and the dollar depreciates', 'Americans buy fewer imports, so they supply fewer dollars, not more.'],
+    ['Nothing changes, because the limit is on cars, not currency', 'Buying imports requires trading dollars for foreign currency, so the limit affects the currency market.'],
+    ['Supply of dollars falls, and the dollar appreciates', 'Correct. Americans buy fewer foreign cars, so they trade fewer dollars for foreign currency. Supply shifts left, and the dollar rises in value.'],
+    ['Demand for dollars rises, and the dollar depreciates', 'A rise in demand would make the dollar appreciate, not depreciate.'],
+  ], 3),
+  q('oe53', 'ma6.4', 2, 'The central bank of Japan buys large amounts of US dollars to hold as reserves. In the foreign exchange market for dollars,', [
+    ['supply of dollars rises, and the dollar depreciates', 'Japan is buying dollars, which is demand, not supply.'],
+    ['demand for dollars falls, and the dollar depreciates', 'Buying dollars raises demand.'],
+    ['demand for dollars rises, and the dollar appreciates', 'Correct. Japan’s central bank must buy dollars with yen. Demand for dollars shifts right, and the dollar gains value against the yen.'],
+    ['nothing happens, because central banks do not trade currency', 'Central banks do trade currency, sometimes in large amounts.'],
+    ['supply of dollars falls, and the dollar depreciates', 'A fall in supply would make the dollar appreciate, and the change here is to demand.'],
+  ], 2),
+  q('oe54', 'ma6.6 ma4.7', 2, 'Real interest rates in the United States rise above those in other countries. What happens in the US loanable funds market?', [
+    ['Demand for loanable funds falls, because foreigners stop borrowing', 'The main effect is on foreign savers, who lend more, not on borrowers.'],
+    ['Supply of loanable funds falls, because US savers send money abroad', 'Higher US rates make savers keep money at home, not send it abroad.'],
+    ['Nothing changes, because foreign savers cannot lend in the US', 'Foreign savers can and do buy US assets.'],
+    ['The real interest rate rises even further', 'The inflow of foreign funds pushes the rate down, not up.'],
+    ['Foreign savers send funds to the US, so the supply of loanable funds rises', 'Correct. Higher returns attract financial capital from abroad. That capital inflow adds to the supply of loanable funds in the US.'],
+  ], 4),
+  q('oe55', 'ma6.5 ma3.1', 2, 'A country is in a recession, and its currency depreciates. How can the depreciation help the economy recover?', [
+    ['Its exports become cheaper abroad and its imports cost more at home, so net exports and AD rise', 'Correct. Foreign buyers buy more of its goods, and its own buyers switch from imports to home-made goods. AD shifts right.'],
+    ['Its imports become cheaper, so AD rises', 'A weaker currency makes imports cost more, not less.'],
+    ['Its interest rates rise, so investment rises', 'Higher interest rates reduce investment.'],
+    ['It raises long-run aggregate supply', 'The main effect of a currency change is on demand in the short run.'],
+    ['It reduces the price level at home', 'Imported goods cost more, which pushes prices up, not down.'],
+  ], 0),
+  q('oe56', 'ma6.2', 1, 'When a currency depreciates, it', [
+    ['is worth more in terms of other currencies', 'That is appreciation.'],
+    ['buys less of other currencies than before', 'Correct. A depreciated currency trades for fewer units of other currencies.'],
+    ['stops being used for trade', 'It is still used. It is just worth less against other currencies.'],
+    ['always causes a recession', 'Depreciation can even help an economy by raising net exports.'],
+    ['has lost value only inside its own country', 'Depreciation is about the exchange rate, which compares currencies.'],
+  ], 1),
+  q('oe57', 'ma6.4', 3, 'Investors come to expect that the US dollar will be worth much more next year. What most likely happens to the dollar today?', [
+    ['It depreciates, because investors wait to buy dollars later', 'Waiting would mean paying more later. Investors buy now to profit from the expected rise.'],
+    ['Nothing, because only current events affect exchange rates', 'Expectations about the future change what investors do today.'],
+    ['Its supply rises, because Americans want to sell dollars', 'People expecting the dollar to rise want to hold dollars, not sell them.'],
+    ['Demand for dollars rises now, so the dollar appreciates today', 'Correct. Investors buy dollars today to profit when they rise. That demand pushes the dollar up right away.'],
+    ['It depreciates, because US exports will fall next year', 'The expected rise in the dollar leads investors to buy dollars now, pushing its value up.'],
+  ], 3),
+  q('oe58', 'ma6.1', 2, 'A country runs a current account deficit year after year. Which statement is true?', [
+    ['It is paying off debt to the rest of the world', 'A current account deficit is paid for by borrowing or selling assets, which adds to what it owes.'],
+    ['It exports more than it imports', 'That would give a surplus, not a deficit.'],
+    ['Its currency must be fixed by law', 'Countries with both fixed and floating currencies can run deficits.'],
+    ['Its financial account must also be in deficit', 'The financial account must have a surplus to pay for the current account deficit.'],
+    ['It buys more goods, services, and income from abroad than it sells, and pays for the gap by borrowing or selling assets to foreigners', 'Correct. The deficit is matched by a financial account surplus. Foreigners gain claims on the country, such as bonds, shares, or property.'],
+  ], 4),
 ];

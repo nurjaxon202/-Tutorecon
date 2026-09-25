@@ -1,0 +1,70 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+The monopoly graph is one of the most important graphs in AP Micro. You need to draw it from memory, find the price, quantity, and profit, and compare it with perfect competition.
+
+## Why MR is below demand
+
+A monopolist is the whole market, so it faces the downward-sloping **market demand curve**. To sell one more unit it must lower the price, and (without price discrimination) the lower price applies to every unit, not just the extra one. So the revenue from one more unit is less than its price: **MR < P**.
+
+For a straight-line demand curve P = a − bQ, the MR curve is **MR = a − 2bQ**: it starts at the same point on the price axis and falls twice as steeply.
+
+## Finding the monopoly outcome
+
+1. Find the quantity where **MR = MC**.
+2. Go **up to the demand curve** at that quantity to find the price.
+3. Profit = (P − ATC) × Q, the rectangle between price and ATC.
+
+## Monopoly versus competition
+
+With the same costs, compared with a perfectly competitive market, a monopoly:
+
+- produces a **smaller quantity** and charges a **higher price**,
+- sets **P > MC**, so it is **not allocatively efficient**,
+- usually does not produce at minimum ATC, so it is **not productively efficient**,
+- takes some consumer surplus as profit and creates **deadweight loss**, the triangle between demand and MC from the monopoly quantity to the competitive quantity,
+- can keep **economic profit in the long run**, because barriers stop entry.
+
+## Elasticity and revenue
+
+Total revenue is highest where **MR = 0**, which is the unit-elastic point on demand. Because MC is positive, MR = MC happens where MR is positive, which is the **elastic** part of demand. A profit-maximizing monopolist never produces on the inelastic part.
+
+<Graph model="monopoly" caption="Raise marginal cost and watch the monopoly price, profit, and deadweight loss change." />
+
+## Natural monopoly and regulation
+
+A **natural monopoly** exists when one firm can supply the whole market at a lower average cost than two or more firms could, usually because of huge fixed costs like power lines or water pipes. Its ATC falls across the whole relevant range.
+
+Regulators have two main options:
+
+- **Socially optimal (efficient) pricing: P = MC.** Output is efficient, but since ATC is above MC when ATC is falling, the firm takes a loss and needs a subsidy to stay open.
+- **Fair-return pricing: P = ATC.** The firm earns zero economic profit, output is higher and price lower than unregulated monopoly, but it is still below the efficient quantity.
+
+## Worked example
+
+<Worked title="Monopoly from a demand schedule" prompt="A monopolist faces this demand: $20 for 1 unit, $18 for 2, $16 for 3, $14 for 4, $12 for 5. Marginal cost is constant at $6. What price and quantity maximize profit?">
+  <Step n={1} title="Total revenue">
+    $20, $36, $48, $56, $60.
+  </Step>
+  <Step n={2} title="Marginal revenue">
+    $20, $16, $12, $8, $4.
+  </Step>
+  <Step n={3} title="MR versus MC">
+    MR is above $6 for units 1 to 4 and below it for unit 5. Produce 4 units.
+  </Step>
+  <Step n={4} title="Price">
+    Buyers will pay $14 for 4 units, so the price is $14. Profit, with no fixed cost, is ($14 − $6) × 4 = $32.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Draw and label D, MR, MC, and ATC, then show Qm, Pm, profit, and deadweight loss.
+- Compare monopoly with perfect competition on price, quantity, efficiency, and surplus.
+- Explain natural monopoly and the two regulated prices.
+
+<Callout kind="mistake">
+Reading the monopoly price where MR meets MC. That height is the marginal cost. The price comes from the demand curve directly above that quantity.
+</Callout>

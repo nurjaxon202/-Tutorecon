@@ -9,8 +9,8 @@
 // library is large, so it is fetched only for people who are signed in, are
 // signing in, or arrive from an email link.
 
-import type { AuthChangeEvent, Session, SupabaseClient } from '@supabase/supabase-js';
-import { accountsOn } from '../lib/accounts';
+import type { AuthChangeEvent, Session, SupabaseClient, User } from '@supabase/supabase-js';
+import { accountsOn, supabaseAnonKey, supabaseUrl } from '../lib/accounts';
 import { url } from '../lib/url';
 import { emptySaved, store, type Saved } from './store';
 import { cleanSaved, mergeSaved } from './merge';
@@ -19,6 +19,8 @@ export { accountsOn };
 
 /** Session tokens, written by the Supabase library while someone is signed in. */
 export const SESSION_KEY = 'tutorecon.auth';
+/** Set in sessionStorage when someone signs in without "Keep me signed in". */
+const TAB_ONLY_KEY = 'tutorecon.tabOnly';
 /** Which account this browser last synced with, when, and whether it has unsaved changes. */
 export const SYNC_KEY = 'tutorecon.sync';
 
@@ -43,6 +45,53 @@ const del = (k: string) => {
     /* nothing stored */
   }
 };
+const tabGet = (k: string) => {
+  try {
+    return sessionStorage.getItem(k);
+  } catch {
+    return null;
+  }
+};
+const tabSet = (k: string, v: string) => {
+  try {
+    sessionStorage.setItem(k, v);
+  } catch {
+    /* storage blocked */
+  }
+};
+const tabDel = (k: string) => {
+  try {
+    sessionStorage.removeItem(k);
+  } catch {
+    /* nothing stored */
+  }
+};
+
+// Where the Supabase library keeps sign-in tokens. Normally that is local
+// storage, so people stay signed in. Without "Keep me signed in", tokens live
+// in sessionStorage instead and disappear when the tab is closed.
+const authStorage = {
+  getItem: (k: string) => get(k) ?? tabGet(k),
+  setItem: (k: string, v: string) => {
+    if (tabGet(TAB_ONLY_KEY) === '1') {
+      tabSet(k, v);
+      del(k);
+    } else {
+      set(k, v);
+      tabDel(k);
+    }
+  },
+  removeItem: (k: string) => {
+    del(k);
+    tabDel(k);
+  },
+};
+
+/** Call before signing in. False keeps the session only until this tab is closed. */
+export function keepSignedIn(on: boolean): void {
+  if (on) tabDel(TAB_ONLY_KEY);
+  else tabSet(TAB_ONLY_KEY, '1');
+}
 
 // Read before the Supabase library clears it from the address bar.
 const firstHash = typeof location === 'undefined' ? '' : location.hash;
@@ -64,9 +113,10 @@ let clientPromise: Promise<SupabaseClient> | null = null;
 export function getClient(): Promise<SupabaseClient> {
   if (!accountsOn) return Promise.reject(new Error('Accounts are not switched on.'));
   clientPromise ??= import('@supabase/supabase-js').then(({ createClient }) =>
-    createClient(import.meta.env.PUBLIC_SUPABASE_URL!, import.meta.env.PUBLIC_SUPABASE_ANON_KEY!, {
+    createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         storageKey: SESSION_KEY,
+        storage: authStorage,
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
@@ -77,7 +127,7 @@ export function getClient(): Promise<SupabaseClient> {
   return clientPromise;
 }
 
-export const hasStoredSession = () => Boolean(get(SESSION_KEY));
+export const hasStoredSession = () => Boolean(get(SESSION_KEY) ?? tabGet(SESSION_KEY));
 const fromEmailLink = () => /(^|[#&])(access_token|error|error_code)=/.test(firstHash);
 
 /* Signed-in state */
@@ -114,7 +164,7 @@ function handleAuth(event: AuthChangeEvent, s: Session | null) {
   ready = true;
   const now = s?.user.id ?? null;
   if (now && now !== before) void reconcile(now);
-  syncLinks();
+  syncHeader();
   window.dispatchEvent(new CustomEvent('tutorecon:auth', { detail: { event } }));
 }
 
@@ -133,14 +183,47 @@ export function waitForSession(ms = 6000): Promise<Session | null> {
   });
 }
 
-/** The header link reads "Sign in" or "Account". */
-function syncLinks() {
+/* Names */
+
+/** The name someone gave when signing up, or the one Google shared. */
+export function displayName(user: User | null | undefined): string {
+  const m = (user?.user_metadata ?? {}) as Record<string, unknown>;
+  const name = [m.name, m.full_name].find((v) => typeof v === 'string' && v.trim());
+  return typeof name === 'string' ? name.trim() : '';
+}
+
+/** One or two letters for the round badge in the header. */
+export function initials(user: User | null | undefined): string {
+  const name = displayName(user);
+  if (name) {
+    const parts = name.split(/\s+/).filter(Boolean);
+    return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  }
+  return (user?.email?.[0] ?? '?').toUpperCase();
+}
+
+/** How someone signs in: 'email' or 'google'. */
+export const provider = (user: User | null | undefined) => (user?.app_metadata?.provider as string | undefined) ?? 'email';
+
+/** The header shows "Sign in" and "Sign up", or a badge with the reader's initials. */
+function syncHeader() {
   const signedIn = session ? true : !ready && hasStoredSession();
-  document.querySelectorAll<HTMLAnchorElement>('[data-account-link]').forEach((a) => {
-    a.href = (signedIn ? a.dataset.in : a.dataset.out) ?? a.href;
-    const label = a.querySelector('[data-account-label]');
-    if (label) label.textContent = signedIn ? 'Account' : 'Sign in';
+  document.documentElement.dataset.auth = signedIn ? 'in' : 'out';
+  const user = session?.user;
+  document.querySelectorAll<HTMLElement>('[data-avatar]').forEach((el) => (el.textContent = user ? initials(user) : ''));
+  document.querySelectorAll<HTMLElement>('[data-who-name]').forEach((el) => {
+    el.textContent = displayName(user) || 'Signed in';
   });
+  document.querySelectorAll<HTMLElement>('[data-who-email]').forEach((el) => (el.textContent = user?.email ?? ''));
+}
+
+/** Update the name on the account and in the header. */
+export async function saveName(name: string): Promise<void> {
+  const client = await getClient();
+  const { data, error } = await client.auth.updateUser({ data: { name } });
+  if (error) throw error;
+  if (session && data.user) session = { ...session, user: data.user };
+  syncHeader();
 }
 
 /* Progress sync */
@@ -280,6 +363,7 @@ export async function signOut(clearHere: boolean): Promise<void> {
   const { error } = await client.auth.signOut({ scope: 'local' });
   if (error) del(SESSION_KEY);
   session = null;
+  tabDel(SESSION_KEY);
   if (clearHere) {
     applying = true;
     try {
@@ -289,7 +373,7 @@ export async function signOut(clearHere: boolean): Promise<void> {
     }
     del(SYNC_KEY);
   }
-  syncLinks();
+  syncHeader();
   window.dispatchEvent(new CustomEvent('tutorecon:auth', { detail: { event: 'SIGNED_OUT' } }));
 }
 
@@ -304,8 +388,9 @@ export async function deleteAccount(): Promise<void> {
   session = null;
   await client.auth.signOut({ scope: 'local' }).catch(() => undefined);
   del(SESSION_KEY);
+  tabDel(SESSION_KEY);
   del(SYNC_KEY);
-  syncLinks();
+  syncHeader();
   window.dispatchEvent(new CustomEvent('tutorecon:auth', { detail: { event: 'SIGNED_OUT' } }));
 }
 
@@ -319,15 +404,41 @@ export function authMessage(err: unknown): string {
   if (code === 'user_already_exists' || msg.includes('already registered')) return 'An account already uses this email. Sign in instead, or reset the password.';
   if (code === 'same_password' || msg.includes('different from the old')) return 'The new password has to be different from the old one.';
   if (code === 'weak_password' || msg.includes('password should')) return 'Choose a longer password that is harder to guess.';
+  if (code === 'otp_disabled' || msg.includes('signups not allowed for otp') || code === 'user_not_found') return 'No account uses this email yet. Check the spelling, or create an account.';
+  if (code === 'provider_disabled' || msg.includes('provider is not enabled')) return 'Google sign-in is not set up yet. Use your email instead.';
+  if (code === 'email_address_invalid' || msg.includes('invalid format')) return 'Enter an email address like name@example.com.';
   if (code.startsWith('over_') || e.status === 429 || msg.includes('rate limit') || msg.includes('security purposes')) return 'Too many tries in a short time. Wait a minute, then try again.';
   if (code === 'signup_disabled' || msg.includes('signups not allowed')) return 'New accounts are closed right now.';
   if (msg.includes('fetch') || msg.includes('network')) return 'Could not reach the account service. Check your connection and try again.';
   return 'Something went wrong. Try again in a moment.';
 }
 
+/* Other ways to sign in */
+
+/** Send a one-time sign-in link. Only works for existing accounts. */
+export async function sendSignInLink(email: string, next: string): Promise<void> {
+  const client = await connect();
+  const { error } = await client.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: siteLink(next) } });
+  if (error) throw error;
+}
+
+/** Send the sign-up confirmation email again. */
+export async function resendConfirmation(email: string, next: string): Promise<void> {
+  const client = await connect();
+  const { error } = await client.auth.resend({ type: 'signup', email, options: { emailRedirectTo: siteLink(next) } });
+  if (error) throw error;
+}
+
+/** Leave for Google's sign-in page. It sends the reader back to `next`, signed in. */
+export async function signInWithGoogle(next: string): Promise<void> {
+  const client = await connect();
+  const { error } = await client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: siteLink(next) } });
+  if (error) throw error;
+}
+
 /** Runs on every page from the header. */
 export function initAccount(): void {
-  syncLinks();
+  syncHeader();
   window.addEventListener('tutorecon:change', onLocalChange);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden' && timer !== undefined) void saveNow();
@@ -335,7 +446,7 @@ export function initAccount(): void {
   if (accountsOn && (hasStoredSession() || fromEmailLink())) {
     connect().catch(() => {
       ready = true;
-      syncLinks();
+      syncHeader();
       window.dispatchEvent(new CustomEvent('tutorecon:auth', { detail: { event: 'INITIAL_SESSION' } }));
     });
   }

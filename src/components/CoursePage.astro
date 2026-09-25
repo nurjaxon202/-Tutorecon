@@ -7,6 +7,7 @@ import { questions } from '../data/questions';
 import { frqs, frqPoints } from '../data/frqs';
 import { units as lessons } from '../data/units';
 import { lesson } from '../lib/lessons';
+import { topicPath } from '../lib/topics';
 import { url } from '../lib/url';
 
 interface Props {
@@ -81,7 +82,7 @@ const topicIds = course.units.flatMap((u) => u.topics.map((t) => t.id));
           <table class="topics">
             <thead>
               <tr>
-                <th scope="col">Topic</th>
+                <th scope="col">Topic guide</th>
                 <th scope="col" class="num">Questions</th>
                 <th scope="col" class="num">Your accuracy</th>
               </tr>
@@ -91,7 +92,7 @@ const topicIds = course.units.flatMap((u) => u.topics.map((t) => t.id));
                 <tr>
                   <td>
                     <span class="code">{t.code}</span>
-                    <a href={url(`/learn/${t.lesson}/#${t.anchor}`)}>{t.title}</a>
+                    <a href={url(topicPath(t.id))}>{t.title}</a>
                   </td>
                   <td class="num">
                     <a href={url(`/practice/?course=${course.id}&unit=${u.n}&topic=${t.id}`)} aria-label={`Practice ${countTopic(t.id)} questions on ${t.title}`}>{countTopic(t.id)}</a>

@@ -1,0 +1,54 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+In an oligopoly, a few large firms each have to think about how the others will react. Game theory is the tool for that, and the AP exam tests it with payoff matrices almost every year.
+
+## What makes an oligopoly
+
+- **A few large firms** control most of the market.
+- **High barriers to entry.**
+- **Mutual interdependence:** each firm’s best choice depends on what its rivals do. This is the feature that sets oligopoly apart.
+
+Firms may **collude**, agreeing to limit output and raise prices like a single monopoly. A formal agreement is a **cartel**. Collusion is illegal in the United States, and it is unstable because each member is tempted to cheat by producing more.
+
+## Reading a payoff matrix
+
+A payoff matrix shows the profits for every combination of two players’ choices. By convention, **the row player’s payoff is listed first**, then the column player’s.
+
+- A **dominant strategy** is the best choice for a player **no matter what** the other player does. Not every player has one.
+- A **Nash equilibrium** is an outcome where **neither player can do better by changing their own choice alone**, given the other’s choice. A game can have one, several, or none (in pure strategies).
+
+To find them, check each player one at a time. For Player A, look at each of B’s choices and circle A’s better response. Then do the same for B. A cell circled for both players is a Nash equilibrium.
+
+## The prisoner’s dilemma
+
+In a **prisoner’s dilemma**, each player has a dominant strategy that leads to an outcome worse for both than if they had cooperated. Two firms that each choose a low price because it is dominant end up with lower profits than if both had kept prices high. It explains why cartels break down.
+
+## Worked example
+
+<Worked title="Solve the game" prompt="Firm X (rows) and Firm Y (columns) choose a high or low price. Payoffs (X, Y): both high ($50, $50); X high and Y low ($10, $70); X low and Y high ($70, $10); both low ($30, $30). Find each dominant strategy and the Nash equilibrium.">
+  <Step n={1} title="Firm X">
+    If Y is high, X earns $70 with low versus $50 with high. If Y is low, X earns $30 with low versus $10 with high. Low is always better, so low is X’s dominant strategy.
+  </Step>
+  <Step n={2} title="Firm Y">
+    The payoffs are symmetric, so low is Y’s dominant strategy too.
+  </Step>
+  <Step n={3} title="Nash equilibrium">
+    Both low, with $30 each. Neither firm gains by switching alone.
+  </Step>
+  <Step n={4} title="The dilemma">
+    Both would earn $50 by both choosing high, but each is tempted to cut its price to earn $70, so the cooperative outcome does not last.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Find dominant strategies and Nash equilibria from a payoff matrix.
+- Say whether a player has an incentive to change strategy, and by how much.
+- Explain why collusion is hard to keep.
+- FRQs sometimes change one payoff (a tax or subsidy) and ask how the equilibrium changes.
+
+<Callout kind="mistake">
+Treating the best combined outcome as the Nash equilibrium. A Nash equilibrium is about each player’s own incentive to switch. The outcome that is best for both is often not stable.
+</Callout>

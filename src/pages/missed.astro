@@ -42,12 +42,14 @@ const topicInfo = Object.fromEntries(courses.flatMap((c) => c.units.flatMap((u) 
 
 <script>
   import { store } from '../scripts/store';
+  import { figureHtml, type QFig } from '../scripts/qfigure';
 
   interface Q {
     id: string;
     t: string[];
     p: string;
     tb?: { head: string[]; rows: (string | number)[][] };
+    fg?: QFig;
     o: [string, string][];
     a: number;
   }
@@ -92,6 +94,7 @@ const topicInfo = Object.fromEntries(courses.flatMap((c) => c.units.flatMap((u) 
         return `<li class="item"><details>
           <summary><span class="meta">${esc(t.short)} ${esc(t.code)} · ${esc(t.title)}${st ? ` · ${st.c} of ${st.a} right so far` : ''}</span><span class="prompt">${esc(q.p)}</span></summary>
           <div class="body">
+            ${figureHtml(q.fg)}
             ${table}
             <ol class="opts">${q.o.map(([text], j) => `<li class="${j === q.a ? 'is-answer' : ''}"><span class="mono letter">${LETTERS[j]}</span><span>${esc(text)}${j === q.a ? ' <strong class="tag-answer">Answer</strong>' : ''}</span></li>`).join('')}</ol>
             <p class="why"><strong>Why ${LETTERS[q.a]} is right.</strong> ${esc(q.o[q.a][1].replace(/^Correct\.\s*/, ''))}</p>

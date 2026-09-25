@@ -1,0 +1,57 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Nominal GDP can rise just because prices went up. Real GDP strips out price changes so you can see whether the economy actually produced more.
+
+## Nominal and real GDP
+
+- **Nominal GDP** values this year’s output at **this year’s prices**.
+- **Real GDP** values this year’s output at **base-year prices**, holding prices constant.
+
+In the base year, nominal and real GDP are equal. After the base year, when prices usually rise, nominal GDP is usually larger than real GDP.
+
+## The GDP deflator
+
+**GDP deflator = nominal GDP ÷ real GDP × 100**
+
+Rearranged: **real GDP = nominal GDP ÷ deflator × 100**
+
+If nominal GDP is $12 trillion and the deflator is 120, real GDP is $12 trillion ÷ 1.20 = $10 trillion.
+
+The deflator covers every good in GDP, including investment and government purchases, while the CPI covers only a consumer basket, which can include imports.
+
+## Growth rates
+
+**Economic growth** is measured with **real GDP**. A quick approximation:
+
+**% change in real GDP ≈ % change in nominal GDP − inflation rate**
+
+If nominal GDP grows 6% and prices rise 4%, real GDP grows about 2%.
+
+## Worked example
+
+<Worked title="Real growth from two years" prompt="An economy makes only apples and pears. In Year 1, the base year, it makes 100 apples at $1 and 50 pears at $2. In Year 2, it makes 120 apples at $2 and 60 pears at $3. Find nominal GDP in each year, real GDP in Year 2, the deflator in Year 2, and real growth.">
+  <Step n={1} title="Nominal GDP">
+    Year 1: 100 × $1 + 50 × $2 = $200. Year 2: 120 × $2 + 60 × $3 = $420.
+  </Step>
+  <Step n={2} title="Real GDP in Year 2">
+    Year 2 quantities at Year 1 prices: 120 × $1 + 60 × $2 = $240.
+  </Step>
+  <Step n={3} title="Deflator">
+    $420 ÷ $240 × 100 = 175.
+  </Step>
+  <Step n={4} title="Real growth">
+    From $200 to $240 is 20%. Nominal GDP more than doubled, but most of that was higher prices.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Convert nominal GDP to real GDP with the deflator, or find the deflator.
+- Calculate real GDP from a table using base-year prices.
+- Explain why real GDP is used to measure growth.
+
+<Callout kind="mistake">
+Using this year’s prices for real GDP. Real GDP always uses base-year prices. Only the quantities come from this year.
+</Callout>

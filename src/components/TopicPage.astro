@@ -1,0 +1,306 @@
+---
+// One official topic: a detailed guide, then every practice question tagged
+// with the topic, then links to the topics before and after it.
+import Base from '../layouts/Base.astro';
+import Quiz from './Quiz.astro';
+import { guide, placeOf, topicPath } from '../lib/topics';
+import { questionsForTopic } from '../data/questions';
+import { units as lessons } from '../data/units';
+import { url } from '../lib/url';
+
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+const { course, unit, topic } = placeOf(id);
+const g = guide(id);
+const Content = g.Content as any;
+const qs = questionsForTopic(id);
+
+// Neighbors, crossing unit boundaries within the course.
+const flat = course.units.flatMap((u) => u.topics);
+const at = flat.findIndex((t) => t.id === id);
+const prev = flat[at - 1];
+const next = flat[at + 1];
+const lessonTitle = lessons.find((l) => l.slug === topic.lesson)?.title ?? 'the lesson';
+const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed explanation with examples, how the AP exam tests it, common mistakes, and ${qs.length} practice questions with answers explained.`;
+---
+<Base title={`${topic.code} ${topic.title} (${course.short})`} description={desc}>
+  <header class="t-head">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol>
+          <li><a href={url(course.path)}>{course.name}</a></li>
+          <li><a href={url(`${course.path}#unit-${unit.n}`)}>Unit {unit.n}: {unit.title}</a></li>
+          <li aria-current="page">Topic {topic.code}</li>
+        </ol>
+      </nav>
+      <h1 class="t-title"><span class="t-code">{topic.code}</span> {topic.title}</h1>
+      <p class="t-meta">
+        Unit {unit.n} is {unit.weight} of the multiple-choice section · {g.minutes} min read · {qs.length} practice question{qs.length === 1 ? '' : 's'}
+      </p>
+      <div class="btn-row">
+        <a class="btn" href="#practice">Practice {qs.length} question{qs.length === 1 ? '' : 's'}</a>
+        <a class="btn btn-secondary" href={url(`/learn/${topic.lesson}/#${topic.anchor}`)}>Read it in the lesson</a>
+      </div>
+      <p class="t-progress" data-topic-progress data-topic={id} hidden></p>
+    </div>
+  </header>
+
+  <div class="wrap t-body">
+    <aside class="t-side" aria-label="On this page">
+      <div class="side-box">
+        <p class="side-title">On this page</p>
+        <ol class="side-list">
+          {g.headings.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
+          <li><a href="#practice">Practice questions</a></li>
+        </ol>
+      </div>
+      <div class="side-box">
+        <p class="side-title">Unit {unit.n} topics</p>
+        <ol class="side-list side-topics">
+          {unit.topics.map((t) => (
+            <li>
+              {t.id === id ? (
+                <span aria-current="page"><span class="n">{t.code}</span>{t.title}</span>
+              ) : (
+                <a href={url(topicPath(t.id))}><span class="n">{t.code}</span>{t.title}</a>
+              )}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </aside>
+
+    <div class="t-main">
+      {g.sharedWith && (
+        <p class="shared">
+          This topic is taught the same way as <a href={url(topicPath(g.sharedWith.topic.id))}>{g.sharedWith.course.short} topic {g.sharedWith.topic.code}</a>, so both pages share this guide.
+        </p>
+      )}
+      <article class="prose t-prose">
+        <Content />
+      </article>
+
+      <p class="lesson-link">
+        This topic is also part of the lesson <a href={url(`/learn/${topic.lesson}/#${topic.anchor}`)}>{lessonTitle}</a>, which walks through the whole unit with live graphs.
+      </p>
+
+      <div id="practice" class="t-practice">
+        {qs.length > 0 && (
+          <Quiz
+            questions={qs}
+            saveAs={`topic-${id}`}
+            title={`Practice: ${topic.title}`}
+            intro="Every question here is tagged with this topic. Pick an answer, then check it. Each choice has its own explanation."
+            eyebrow={`Topic ${topic.code}`}
+          />
+        )}
+      </div>
+
+      <nav class="pager" aria-label="Other topics">
+        {prev ? (
+          <a class="pg prev" href={url(topicPath(prev.id))}>
+            <span class="pg-label">Previous topic</span>
+            <span class="pg-title">{prev.code} {prev.title}</span>
+          </a>
+        ) : <span />}
+        {next ? (
+          <a class="pg next" href={url(topicPath(next.id))}>
+            <span class="pg-label">Next topic</span>
+            <span class="pg-title">{next.code} {next.title}</span>
+          </a>
+        ) : (
+          <a class="pg next" href={url(course.path)}>
+            <span class="pg-label">You reached the end</span>
+            <span class="pg-title">Back to {course.name}</span>
+          </a>
+        )}
+      </nav>
+    </div>
+  </div>
+</Base>
+
+<script>
+  import { store } from '../scripts/store';
+  const el = document.querySelector<HTMLElement>('[data-topic-progress]');
+  if (el) {
+    const q = store.get().quiz[`topic-${el.dataset.topic}`];
+    if (q) {
+      el.textContent = `Your best on this topic: ${q.best} of ${q.total}.`;
+      el.hidden = false;
+    }
+  }
+</script>
+
+<style>
+  .t-head {
+    padding-block: clamp(1.75rem, 1.2rem + 2vw, 3rem) 2rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    list-style: none;
+    margin: 0 0 0.9rem;
+    padding: 0;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 0.5rem;
+    color: var(--ink-3);
+  }
+  .crumbs a {
+    color: var(--ink-2);
+  }
+  .t-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.5rem + 2vw, 3rem);
+    line-height: 1.1;
+    max-width: 24ch;
+  }
+  .t-code {
+    color: var(--brand);
+    margin-right: 0.15em;
+  }
+  .t-meta {
+    margin: 0.75rem 0 1.25rem;
+    color: var(--ink-2);
+  }
+  .t-progress {
+    margin-top: 0.75rem;
+    font-weight: 600;
+    color: var(--good);
+  }
+  .t-body {
+    display: grid;
+    gap: 2.5rem;
+    padding-top: 2.25rem;
+    padding-bottom: 5rem;
+  }
+  @media (min-width: 1000px) {
+    .t-body {
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 3.5rem;
+    }
+    .t-side {
+      position: sticky;
+      top: 88px;
+      align-self: start;
+      max-height: calc(100vh - 110px);
+      overflow-y: auto;
+    }
+  }
+  .t-side {
+    display: grid;
+    gap: 1.5rem;
+    align-content: start;
+  }
+  @media (max-width: 999px) {
+    .t-side .side-box:last-child {
+      display: none;
+    }
+  }
+  .side-title {
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin-bottom: 0.4rem;
+  }
+  .side-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.15rem;
+    border-left: 1px solid var(--line-strong);
+  }
+  .side-list a,
+  .side-list span[aria-current] {
+    display: block;
+    padding: 0.3rem 0 0.3rem 0.8rem;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    font-size: 0.93rem;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .side-list a:hover {
+    color: var(--ink);
+    border-left-color: var(--line-strong);
+  }
+  .side-list span[aria-current] {
+    color: var(--ink);
+    font-weight: 700;
+    border-left-color: var(--brand);
+  }
+  .side-topics .n {
+    display: inline-block;
+    min-width: 2.2rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .t-main {
+    display: grid;
+    gap: 2rem;
+    min-width: 0;
+    max-width: 760px;
+  }
+  .shared {
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+  }
+  .t-prose :global(h2) {
+    scroll-margin-top: 88px;
+    margin-top: 1.7em;
+  }
+  .t-prose > :global(:first-child) {
+    margin-top: 0;
+  }
+  .lesson-link {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-2);
+  }
+  .t-practice {
+    scroll-margin-top: 80px;
+  }
+  .pager {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line-strong);
+  }
+  @media (min-width: 640px) {
+    .pager {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .pg {
+    display: grid;
+    gap: 0.2rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .pg:hover {
+    border-color: var(--control);
+    background: var(--bg-2);
+  }
+  .pg.next {
+    text-align: right;
+  }
+  .pg-label {
+    font-size: 0.88rem;
+    color: var(--ink-2);
+  }
+  .pg-title {
+    font-weight: 700;
+  }
+</style>

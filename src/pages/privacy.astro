@@ -2,7 +2,7 @@
 import Doc from '../layouts/Doc.astro';
 import { site } from '../site';
 import { url } from '../lib/url';
-import { accountsOn } from '../lib/accounts';
+import { accountsOn, googleOn } from '../lib/accounts';
 
 const description = accountsOn
   ? 'What TutorEcon keeps in your browser, what an optional account stores, who stores it, and how to delete it.'
@@ -28,10 +28,12 @@ const description = accountsOn
       <ul>
         <li>Your email address, so you can sign in and reset your password.</li>
         <li>Your password, which our account service keeps only as a one-way hash. We never see it.</li>
+        <li>A first name, only if you choose to give one. It is used to greet you on your dashboard and nowhere else, and you can change or remove it on <a href={url('/account/')}>Your account and data</a>.</li>
         <li>A copy of your study progress: the <code>tutorecon.v1</code> record described below, and the time it was last saved.</li>
       </ul>
+      {googleOn && <p>If you choose <strong>Continue with Google</strong>, Google tells our account service your name, your email address, and a link to your profile picture. We use the name and email address as described above. We do not show or store anything else from your Google account.</p>}
       <p>To keep sign-in secure, our account service also records technical details such as when you signed in and the IP address a request came from.</p>
-      <p>We do not ask for your name, school, birthday, or anything else. We do not use analytics tools, tracking pixels, advertising networks, or embedded content from other companies. Fonts are served from this site.</p>
+      <p>We do not ask for your school, birthday, or anything else. We do not use analytics tools, tracking pixels, advertising networks, or embedded content from other companies. Fonts are served from this site.</p>
     </>
   ) : (
     <p>Nothing. The site is a set of static pages. It has no server-side code, no database, no sign-up, and no contact forms. We do not use analytics tools, tracking pixels, advertising networks, or embedded content from other companies. Fonts are served from this site, not from a font service.</p>
@@ -56,9 +58,10 @@ const description = accountsOn
     <li><code>tutorecon.v1</code>: units you marked done, how far you read in each lesson, your best practice scores, which questions you already answered correctly (so XP is only given once), how many times you tried each question-bank question and whether your last try was right (for “missed last time” and your weakest topics), questions you flagged to review, your free-response self-scores, which flashcards you marked as known, your study plan, your XP, your streak and the last day it counted, your last 20 mock exam scores, and whether the Pro demo is on.</li>
     <li><code>tutorecon.theme</code>: your light or dark theme choice, if you made one.</li>
     <li><code>tutorecon.lessonMode</code>: whether you read lessons one step at a time or all at once, if you changed it.</li>
-    {accountsOn && <li><code>tutorecon.auth</code>: only while you are signed in, the sign-in tokens that keep you signed in. Removed when you sign out.</li>}
+    {accountsOn && <li><code>tutorecon.auth</code>: only while you are signed in, the sign-in tokens that keep you signed in. Removed when you sign out. If you turn off “Keep me signed in”, the tokens go into session storage instead and are removed when you close the tab.</li>}
     {accountsOn && <li><code>tutorecon.sync</code>: only if you have signed in here, which account this browser last synced with, when, and whether it has changes not yet saved.</li>}
   </ul>
+  <p>For a moment after some actions, such as signing in, the site also keeps a one-line notice (like “Signed in”) in session storage under <code>tutorecon.toast</code>, so it can show it on the next page. It is removed as soon as it is shown.</p>
   {accountsOn ? (
     <p>Without an account, this data never leaves your device. With an account, only <code>tutorecon.v1</code> is copied to it. You can view, download, move, or delete all of it on <a href={url('/account/')}>Your account and data</a>, or by clearing this site’s data in your browser settings.</p>
   ) : (
