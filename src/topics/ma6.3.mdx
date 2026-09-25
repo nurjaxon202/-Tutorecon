@@ -1,0 +1,57 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Exchange rates in a floating system are set by supply and demand in the foreign exchange market. The graph is ordinary supply and demand, but the labels take care.
+
+## Setting up the graph
+
+In the market for a currency, say US dollars:
+
+- The **horizontal axis** is the **quantity of dollars**.
+- The **vertical axis** is the **price of a dollar in another currency**, for example euros per dollar.
+
+## Who demands and who supplies
+
+**Demand for dollars** comes from people who need dollars to buy US things:
+
+- foreigners buying **US exports**,
+- foreign tourists visiting the US,
+- foreigners buying **US assets** such as stocks, bonds, and property.
+
+**Supply of dollars** comes from people who have dollars and want another currency:
+
+- Americans buying **imports**,
+- American tourists going abroad,
+- Americans buying **foreign assets**.
+
+The two markets mirror each other. In the market for euros (priced in dollars), Americans who want European goods **demand euros** and **supply dollars**.
+
+## Shifts and results
+
+- **Demand for a currency rises:** it **appreciates**.
+- **Supply of a currency rises:** it **depreciates**.
+
+<Graph model="forex" caption="Shift demand or supply for the currency and watch the exchange rate move." />
+
+## Worked example
+
+<Worked title="American tourists in Mexico" prompt="American tourists travel to Mexico in record numbers. What happens in the market for Mexican pesos, and in the market for US dollars?">
+  <Step n={1} title="Pesos">
+    Tourists need pesos, so demand for pesos rises. The peso appreciates.
+  </Step>
+  <Step n={2} title="Dollars">
+    To get pesos, tourists sell dollars, so the supply of dollars rises. The dollar depreciates against the peso.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Draw a correctly labeled foreign exchange graph, with the quantity of the currency on the horizontal axis and its price in the other currency on the vertical axis.
+- Decide whether an event shifts demand or supply for a currency.
+- Show the matching change in the market for the other currency.
+
+<Callout kind="mistake">
+Labeling the vertical axis “price.” It must say what the currency is priced in, such as “euros per dollar.” A bare “price” does not tell the grader which currency you mean.
+</Callout>

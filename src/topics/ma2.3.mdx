@@ -1,0 +1,53 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+The unemployment rate is the headline measure of how well an economy uses its workers. The AP exam tests the definitions carefully, including who counts as unemployed and which types of unemployment are “natural.”
+
+## Who is in the labor force
+
+The **labor force** is everyone who is **employed** plus everyone who is **unemployed**.
+
+- **Employed:** did any paid work in the survey week, including part time.
+- **Unemployed:** had no job but was **actively looking** for work in the past four weeks, or is waiting to be recalled from a layoff.
+- **Not in the labor force:** retirees, full-time students not looking for work, people caring for family, and **discouraged workers** who want a job but have stopped looking.
+
+## The key rates
+
+- **Unemployment rate = unemployed ÷ labor force × 100**
+- **Labor force participation rate = labor force ÷ adult population × 100**
+
+When a discouraged worker stops looking, they leave the labor force. The number unemployed falls, so the unemployment rate **falls**, even though nothing got better. That is one reason the rate can understate joblessness. **Underemployment**, like a part-time worker who wants full-time work, is also not captured.
+
+## Types of unemployment
+
+- **Frictional:** people between jobs or new to the labor market while they search. Normal and often healthy.
+- **Structural:** a mismatch between workers’ skills or locations and the jobs available, often caused by new technology or a declining industry.
+- **Cyclical:** caused by a recession, when falling spending means firms need fewer workers.
+- **Seasonal:** tied to the time of year. Sometimes grouped with frictional.
+
+The **natural rate of unemployment = frictional + structural**. It is the unemployment rate when there is no cyclical unemployment, which is when the economy is at **full employment** and producing its **potential output**. Full employment does not mean zero unemployment.
+
+## Worked example
+
+<Worked title="Compute the rates" prompt="A town has 800 employed people, 200 unemployed people, and 500 adults not in the labor force. Find the unemployment rate and the labor force participation rate.">
+  <Step n={1} title="Labor force">
+    800 + 200 = 1,000.
+  </Step>
+  <Step n={2} title="Unemployment rate">
+    200 ÷ 1,000 = 20%.
+  </Step>
+  <Step n={3} title="Participation rate">
+    Adult population = 1,000 + 500 = 1,500. 1,000 ÷ 1,500 ≈ 66.7%.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Calculate the unemployment and participation rates. Watch what goes in the denominator.
+- Classify an example as frictional, structural, or cyclical.
+- Explain why the natural rate is above zero and what happens to the rate when discouraged workers stop looking.
+
+<Callout kind="mistake">
+Dividing by the whole population. The unemployment rate uses the labor force, not every adult. Discouraged workers and retirees are not in it at all.
+</Callout>

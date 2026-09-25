@@ -1,0 +1,67 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+AP Macro uses supply and demand for single markets in Unit 1, then reuses the same reasoning for the whole economy (aggregate demand and supply), the money market, loanable funds, and currencies. Getting it right here pays off in every later unit.
+
+## Equilibrium and disequilibrium
+
+The **equilibrium price** is where quantity demanded equals quantity supplied.
+
+- Above equilibrium, there is a **surplus**. Sellers cut prices to sell what they have.
+- Below equilibrium, there is a **shortage**. Buyers bid the price up.
+
+Markets move toward equilibrium unless a price control holds them away from it.
+
+## Predicting changes
+
+Use four steps: what changed, which curve moves, which way, and what happens to price and quantity.
+
+<div class="table-scroll">
+
+| Change | Price | Quantity |
+| --- | --- | --- |
+| Demand increases | Rises | Rises |
+| Demand decreases | Falls | Falls |
+| Supply increases | Falls | Rises |
+| Supply decreases | Rises | Falls |
+| Both increase | Indeterminate | Rises |
+| Both decrease | Indeterminate | Falls |
+| Demand up, supply down | Rises | Indeterminate |
+| Demand down, supply up | Falls | Indeterminate |
+
+</div>
+
+<Graph model="market-oj" caption="Follow the four moves for each news event." />
+
+## Why it matters for macro
+
+- **Aggregate demand and supply** (Unit 3) work the same way, with the price level and real GDP on the axes.
+- In the **money market** (Unit 4), the price of money is the nominal interest rate.
+- In the **loanable funds market** (Unit 4), the price is the real interest rate.
+- In the **foreign exchange market** (Unit 6), the price is the exchange rate.
+
+## Worked example
+
+<Worked title="A double shift" prompt="Demand for strawberries rises while a storm cuts the harvest. What happens to the price and quantity of strawberries?">
+  <Step n={1} title="Demand up">
+    Price up, quantity up.
+  </Step>
+  <Step n={2} title="Supply down">
+    Price up, quantity down.
+  </Step>
+  <Step n={3} title="Combine">
+    The price rises for certain. The change in quantity depends on which shift is larger, so it is indeterminate.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Predict price and quantity after one or two shifts.
+- Identify a surplus or shortage from a price and a table.
+- Draw clearly labeled graphs with the new curve and equilibrium.
+
+<Callout kind="mistake">
+Writing that a higher price shifts demand left. A change in a good’s own price moves along the curve. Only other factors shift it.
+</Callout>

@@ -1,0 +1,53 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Inflation is not just a nuisance. It moves wealth between groups when it is unexpected, and it imposes real costs even when everyone sees it coming.
+
+## Unexpected inflation redistributes
+
+When inflation turns out **higher than expected**:
+
+- **Borrowers with fixed-rate loans gain.** They repay with dollars worth less than planned.
+- **Lenders lose.** The real value of what they are repaid falls.
+- **Savers with fixed returns lose.**
+- **People on fixed incomes lose**, such as workers with multiyear contracts or retirees with pensions that are not adjusted for inflation.
+
+When inflation turns out **lower than expected** (or there is unexpected deflation), the effects reverse: lenders gain and borrowers lose.
+
+If inflation is **fully expected**, lenders build it into the nominal interest rate and workers build it into wages, so there is little redistribution. Topic 4.2 shows the math.
+
+## Costs of any inflation
+
+- **Menu costs:** the time and money spent changing prices, reprinting menus, and updating systems.
+- **Shoe-leather costs:** the effort of holding less cash and making more trips to the bank to avoid losing value.
+- **Unit-of-account costs:** money becomes a less reliable measure, which makes planning and contracts harder and can distort taxes.
+- **Uncertainty:** high and variable inflation makes long-term decisions riskier and can discourage investment.
+
+## Hyperinflation
+
+**Hyperinflation** is extremely high inflation, often above 50% a month. It is almost always caused by a government printing money to pay its bills. People stop trusting the currency and switch to barter or foreign money.
+
+## Worked example
+
+<Worked title="Who wins?" prompt="A bank lends at 6%, expecting 2% inflation. Inflation turns out to be 5%. Who gains and who loses?">
+  <Step n={1} title="Expected real rate">
+    6% − 2% = 4%.
+  </Step>
+  <Step n={2} title="Actual real rate">
+    6% − 5% = 1%.
+  </Step>
+  <Step n={3} title="Winner and loser">
+    The borrower gains, paying a real rate of 1% instead of 4%. The bank loses.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Identify who gains and who loses from unexpected inflation or deflation.
+- Name menu costs and shoe-leather costs from an example.
+- Explain why expected inflation causes less redistribution than unexpected inflation.
+
+<Callout kind="mistake">
+Saying inflation always hurts borrowers. Unexpected inflation helps borrowers with fixed-rate loans, because they repay in dollars that buy less.
+</Callout>

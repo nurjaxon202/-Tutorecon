@@ -2,7 +2,7 @@
 // Shared layout for the sign-up, sign-in, and password pages. When the site
 // is built without an account service, the form is replaced by a plain note.
 import Base from '../layouts/Base.astro';
-import { accountsOn } from '../lib/accounts';
+import { accountsOn, googleOn } from '../lib/accounts';
 import { url } from '../lib/url';
 
 interface Props {
@@ -23,7 +23,7 @@ const { title, description, lede, noindex = false } = Astro.props;
       ) : (
         <div class="off" data-accounts-off>
           <h2 class="h3">Accounts are not switched on yet</h2>
-          <p>This copy of TutorEcon runs without an account service, so there is nowhere to keep accounts. You can still use every lesson, question, and tool without one, and your progress is saved in this browser as you go.</p>
+          <p>This copy of TutorEcon runs without an account service, so there is nowhere to keep accounts. You can still use every lesson, question, and tool without one, and your progress is saved in this browser as you go. Your <a href={url('/dashboard/')}>dashboard</a> shows all of it.</p>
           <p>To move your progress to another device now, download it from <a href={url('/account/')}>Your data</a> and load the file on the other device.</p>
         </div>
       )}
@@ -34,9 +34,11 @@ const { title, description, lede, noindex = false } = Astro.props;
       <ul>
         <li><strong>Your email address,</strong> so you can sign in and reset your password.</li>
         <li><strong>Your password,</strong> stored by our account service only as a one-way hash. No one at TutorEcon can see it.</li>
+        <li><strong>A first name, if you give one,</strong> used only to greet you.</li>
         <li><strong>Your study progress,</strong> the same record listed on <a href={url('/account/')}>Your data</a>.</li>
       </ul>
-      <p>Nothing else: no name, school, birthday, or payment details. You can delete the account at any time, and the <a href={url('/privacy/')}>privacy policy</a> explains the rest.</p>
+      {googleOn && <p>If you continue with Google, Google shares your name and email address with our account service, and nothing from your Google account beyond that.</p>}
+      <p>Nothing else: no school, birthday, or payment details. You can delete the account at any time, and the <a href={url('/privacy/')}>privacy policy</a> explains the rest.</p>
     </aside>
   </div>
 </Base>

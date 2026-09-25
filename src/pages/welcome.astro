@@ -1,0 +1,239 @@
+---
+// A short setup after creating an account (or any time): pick a course, the
+// exam date, and study days, and the dashboard shows a plan from then on.
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
+---
+<Base title="Set up your studying" description="Pick your AP Economics course, exam date, and study days to get a day-by-day plan on your dashboard." noindex>
+  <div class="wrap welcome">
+    <header class="w-head">
+      <p class="eyebrow">Getting started</p>
+      <h1 class="w-title" data-w-title>Welcome to TutorEcon</h1>
+      <p class="lede">Answer three quick questions and your dashboard will show what to study each day until your exam. You can change any of it later.</p>
+    </header>
+
+    <form class="w-form" novalidate data-welcome>
+      <fieldset class="w-q">
+        <legend><span class="n">1</span> Which course are you taking?</legend>
+        <div class="choices">
+          <label class="choice">
+            <input type="radio" name="course" value="micro" checked />
+            <span class="c-title">AP Microeconomics</span>
+            <span class="c-sub">Markets, firms, costs, and how governments step in.</span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="course" value="macro" />
+            <span class="c-title">AP Macroeconomics</span>
+            <span class="c-sub">GDP, inflation, money, banks, and policy for the whole economy.</span>
+          </label>
+        </div>
+        <p class="hint">Taking both? Start with the exam that comes first. You can make a new plan for the other one later.</p>
+      </fieldset>
+
+      <fieldset class="w-q">
+        <legend><span class="n">2</span> When is your exam?</legend>
+        <div class="field">
+          <label for="w-exam" class="visually-hidden">Exam date</label>
+          <input id="w-exam" type="date" class="input w-date" required aria-describedby="w-exam-hint w-exam-error" aria-invalid="false" />
+          <p id="w-exam-hint" class="hint">Find it on the <a href="https://apstudents.collegeboard.org/exam-calendar">College Board AP exam calendar</a> or ask your teacher.</p>
+          <p id="w-exam-error" class="error-text" data-error="exam"></p>
+        </div>
+      </fieldset>
+
+      <fieldset class="w-q" aria-describedby="w-days-error">
+        <legend><span class="n">3</span> Which days can you study?</legend>
+        <div class="days">
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => (
+            <label class="day"><input type="checkbox" name="day" value={(i + 1) % 7} checked={i < 5} /><span>{d}</span></label>
+          ))}
+        </div>
+        <p id="w-days-error" class="error-text" data-error="days"></p>
+      </fieldset>
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-big" data-make>Make my plan</button>
+        <a class="btn btn-secondary btn-big" href={url('/dashboard/')} data-skip>Skip for now</a>
+      </div>
+    </form>
+  </div>
+</Base>
+
+<script>
+  import { dayKey, store } from '../scripts/store';
+  import { currentSession, displayName, onAuth } from '../scripts/account';
+  import { toastNext } from '../scripts/toast';
+  import { url } from '../lib/url';
+
+  const form = document.querySelector<HTMLFormElement>('[data-welcome]')!;
+  const exam = form.querySelector<HTMLInputElement>('#w-exam')!;
+  const make = form.querySelector<HTMLButtonElement>('[data-make]')!;
+  const d = new Date();
+  const tomorrow = dayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1));
+  exam.min = tomorrow;
+
+  onAuth(() => {
+    const name = displayName(currentSession()?.user);
+    if (name) document.querySelector('[data-w-title]')!.textContent = `Welcome, ${name}`;
+  });
+
+  // Returning with a plan already made: start from it.
+  const plan = store.get().plan;
+  if (plan) {
+    exam.value = plan.exam;
+    form.querySelectorAll<HTMLInputElement>('input[name=course]').forEach((r) => (r.checked = r.value === plan.course));
+    form.querySelectorAll<HTMLInputElement>('input[name=day]').forEach((b) => (b.checked = plan.days.includes(Number(b.value))));
+    make.textContent = 'Update my plan';
+  }
+
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const date = exam.value;
+    const days = [...form.querySelectorAll<HTMLInputElement>('input[name=day]:checked')].map((b) => Number(b.value));
+    const course = (form.querySelector<HTMLInputElement>('input[name=course]:checked')?.value ?? 'micro') as 'micro' | 'macro';
+    const examMsg = !date ? 'Choose your exam date, or skip this for now.' : date < tomorrow ? 'Choose a date after today.' : '';
+    const daysMsg = days.length ? '' : 'Pick at least one day of the week.';
+    form.querySelector('[data-error="exam"]')!.textContent = examMsg;
+    exam.setAttribute('aria-invalid', String(Boolean(examMsg)));
+    form.querySelector('[data-error="days"]')!.textContent = daysMsg;
+    if (examMsg) return exam.focus();
+    if (daysMsg) return form.querySelector<HTMLInputElement>('input[name=day]')!.focus();
+    store.setPlan({ exam: date, course, days, start: dayKey(), done: plan?.exam === date && plan.course === course ? plan.done : {} });
+    toastNext('Your study plan is ready. Today’s task is at the top of your dashboard.');
+    location.assign(url('/dashboard/'));
+  });
+</script>
+
+<style>
+  .welcome {
+    display: grid;
+    gap: 2rem;
+    max-width: 720px;
+    padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+    padding-bottom: 5rem;
+  }
+  .w-head {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .w-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.6rem + 1.6vw, 2.8rem);
+    line-height: 1.1;
+  }
+  .w-form {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .w-q {
+    display: grid;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+  }
+  .w-q legend {
+    float: left;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    margin-bottom: 0.2rem;
+    padding: 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .w-q legend + * {
+    clear: both;
+  }
+  .n {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--brand-tint);
+    color: var(--brand);
+    font-size: 0.9rem;
+  }
+  .choices {
+    display: grid;
+    gap: 0.75rem;
+  }
+  @media (min-width: 600px) {
+    .choices {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .choice {
+    position: relative;
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.9rem 1rem 0.9rem 2.6rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .choice input {
+    position: absolute;
+    left: 1rem;
+    top: 1.05rem;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--brand);
+  }
+  .choice:has(input:checked) {
+    border-color: var(--brand);
+    background: var(--brand-tint);
+  }
+  .choice:has(input:focus-visible) {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .c-title {
+    font-weight: 700;
+  }
+  .c-sub {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+  .w-date {
+    max-width: 16rem;
+  }
+  .days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .day {
+    position: relative;
+  }
+  .day input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .day span {
+    display: inline-grid;
+    place-items: center;
+    min-width: 3.4rem;
+    min-height: 44px;
+    padding: 0 0.6rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    font-weight: 600;
+  }
+  .day input:checked + span {
+    border-color: var(--brand);
+    background: var(--brand-fill);
+    color: #ffffff;
+  }
+  .day input:focus-visible + span {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+</style>

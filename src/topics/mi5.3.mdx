@@ -1,0 +1,51 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+This topic turns the hiring rule into numbers. Expect a table of workers and output, a product price, and a wage, and be ready to find the profit-maximizing number of workers.
+
+## The hiring rule
+
+A profit-maximizing firm hires workers until **MRP = MFC**. In a perfectly competitive labor market, MFC is the wage, so the rule is **MRP = wage**.
+
+- If MRP > wage, the next worker adds more revenue than cost, so hire.
+- If MRP < wage, the last worker cost more than they brought in, so hire fewer.
+
+With whole workers, hire every worker whose MRP is at least the wage, and stop before the first one whose MRP is below it.
+
+## The firm and the market
+
+In a competitive labor market, the market wage is set by market labor supply and demand. Each firm is a **wage taker**: it faces a horizontal labor supply curve at that wage, where MFC = wage. The firm then picks how many to hire by comparing MRP with that wage. Like the competitive firm in Unit 3, this is best shown with side-by-side graphs.
+
+## Using more than one input
+
+When a firm uses labor (L) and capital (K):
+
+- **Least-cost rule:** MPL ÷ PL = MPK ÷ PK. The last dollar spent on each input adds the same output. If one side is larger, the firm should shift spending toward that input.
+- **Profit-maximizing rule:** MRPL = PL and MRPK = PK, so MRPL ÷ PL = MRPK ÷ PK = 1.
+
+A firm can be using the least-cost combination and still be hiring the wrong total amount. Profit maximization requires both ratios to equal 1.
+
+## Worked example
+
+<Worked title="How many workers?" prompt="A firm sells its product for $3 in a competitive market and pays a $28 daily wage. Total output with 1 to 6 workers is 20, 38, 52, 62, 70, 75. How many should it hire?">
+  <Step n={1} title="Marginal product">
+    20, 18, 14, 10, 8, 5.
+  </Step>
+  <Step n={2} title="MRP = MP × $3">
+    $60, $54, $42, $30, $24, $15.
+  </Step>
+  <Step n={3} title="Compare with the wage">
+    Workers 1 to 4 each bring in more than $28. Worker 5 brings in $24. Hire 4 workers.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Compute MP, MRP, and the profit-maximizing number of workers.
+- Apply the least-cost rule to decide whether to use more labor or more capital.
+- Show a change in the wage or product price and the new hiring decision.
+
+<Callout kind="mistake">
+Comparing marginal product (in units) with the wage (in dollars). Convert to dollars first: MRP = MP × price, then compare with the wage.
+</Callout>

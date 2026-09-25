@@ -1,6 +1,7 @@
 // The question bank: build a set from filters, answer one question at a time
 // with instant explanations, then see results by topic.
 import { store } from './store';
+import { figureHtml, type QFig } from './qfigure';
 
 interface Q {
   id: string;
@@ -9,6 +10,7 @@ interface Q {
   l: 1 | 2 | 3;
   p: string;
   tb?: { head: string[]; rows: (string | number)[][] };
+  fg?: QFig;
   o: [string, string][];
   a: number;
 }
@@ -195,6 +197,7 @@ export function initPractice() {
     const t = topics[mainTopic(q)];
     $('[data-q-meta]').innerHTML = `<span class="q-topic">${t.short} ${t.code}</span><span>${esc(t.title)}</span><span class="q-topic">${LEVEL[q.l]}</span>`;
     $('[data-q-prompt]').textContent = q.p;
+    $('[data-q-fig]').innerHTML = figureHtml(q.fg);
     const tb = $('[data-q-table]');
     tb.hidden = !q.tb;
     tb.innerHTML = q.tb

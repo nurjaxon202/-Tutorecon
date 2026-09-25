@@ -46,6 +46,8 @@ for (const x of questions) {
     if ((i === x.answer) !== o.why.startsWith('Correct.')) problem(`choice ${i} explanation does not match the marked answer`);
   });
   if (!x.topics.length || x.topics.some((t) => !topicIds.has(t))) problem(`has an unknown topic: ${x.topics.join(', ')}`);
+  if (x.figure && x.figure.alt.trim().length < 40) problem('figure needs a full text description');
+  if (/[\u2013\u2014]/.test(JSON.stringify({ p: x.prompt, o: x.options })) ) problem('uses an en or em dash');
 }
 
 export const questionsFor = (unit: string) => questions.filter((x) => x.unit === unit);

@@ -1,92 +1,193 @@
 ---
 import AuthShell from '../components/AuthShell.astro';
+import GoogleButton from '../components/GoogleButton.astro';
+import { googleOn } from '../lib/accounts';
 import { url } from '../lib/url';
 ---
-<AuthShell title="Sign in" description="Sign in to TutorEcon to pick up your AP Economics progress on any device." lede="Pick up where you left off on any device.">
+<AuthShell title="Sign in" description="Sign in to TutorEcon to pick up your AP Economics progress on any device." lede="Welcome back. Pick up where you left off on any device.">
   <div class="already" data-already hidden>
     <p>You are signed in as <strong data-already-email></strong>.</p>
-    <a class="btn" href={url('/account/')}>Go to your account</a>
+    <div class="btn-row">
+      <a class="btn" href={url('/dashboard/')}>Go to your dashboard</a>
+      <a class="btn btn-secondary" href={url('/account/')}>Account settings</a>
+    </div>
   </div>
 
-  <form class="auth-form" novalidate data-signin>
-    <div class="field">
-      <label for="si-email">Email</label>
-      <input id="si-email" type="email" class="input" autocomplete="email" spellcheck="false" required aria-describedby="si-email-error" aria-invalid="false" />
-      <p id="si-email-error" class="error-text" data-error="email"></p>
+  <div class="auth-stack" data-signin-area>
+    {googleOn && (
+      <>
+        <GoogleButton next="/dashboard/" />
+        <p class="or">or sign in with email</p>
+      </>
+    )}
+
+    <form class="auth-form" novalidate data-signin>
+      <div class="field">
+        <label for="si-email">Email</label>
+        <input id="si-email" type="email" class="input" autocomplete="username" spellcheck="false" required aria-describedby="si-email-error" aria-invalid="false" />
+        <p id="si-email-error" class="error-text" data-error="email"></p>
+      </div>
+
+      <div class="field" data-pw-field>
+        <div class="label-row">
+          <label for="si-password">Password</label>
+          <a href={url('/forgot-password/')}>Forgot password?</a>
+        </div>
+        <div class="pw">
+          <input id="si-password" type="password" class="input" autocomplete="current-password" required aria-describedby="si-password-error" aria-invalid="false" />
+          <button type="button" class="reveal" data-reveal aria-controls="si-password" aria-pressed="false" aria-label="Show password">Show</button>
+        </div>
+        <p id="si-password-error" class="error-text" data-error="password"></p>
+      </div>
+
+      <div class="field" data-remember-field>
+        <label class="check">
+          <input type="checkbox" id="si-remember" checked aria-describedby="si-remember-hint" />
+          <span>Keep me signed in</span>
+        </label>
+        <p id="si-remember-hint" class="hint">On a shared computer, uncheck this. You will be signed out when you close the tab.</p>
+      </div>
+
+      <p class="error-text form-error" role="alert" data-error="form"></p>
+      <p class="form-note" role="status" data-note></p>
+      <button type="submit" class="btn btn-big" data-submit>Sign in</button>
+      <p class="alt">
+        <button type="button" class="linklike" data-mode-toggle>Email me a sign-in link instead</button>
+      </p>
+    </form>
+
+    <div class="sent" data-link-sent hidden>
+      <h2 class="h3" tabindex="-1" data-link-title>Check your email</h2>
+      <p>If an account uses <strong data-link-to></strong>, a sign-in link is on its way. Open it on this device to sign in. The link works only once.</p>
+      <p class="hint">Nothing after a few minutes? Check your spam folder, or <button type="button" class="linklike" data-link-again>send it again</button>.</p>
+      <p><button type="button" class="linklike" data-link-back>Sign in with a password instead</button></p>
     </div>
 
-    <div class="field">
-      <div class="label-row">
-        <label for="si-password">Password</label>
-        <a href={url('/forgot-password/')}>Forgot your password?</a>
-      </div>
-      <div class="pw">
-        <input id="si-password" type="password" class="input" autocomplete="current-password" required aria-describedby="si-password-error" aria-invalid="false" />
-        <button type="button" class="reveal" data-reveal aria-controls="si-password" aria-pressed="false" aria-label="Show password">Show</button>
-      </div>
-      <p id="si-password-error" class="error-text" data-error="password"></p>
-    </div>
-
-    <p class="error-text form-error" role="alert" data-error="form"></p>
-    <p class="form-note" role="status" data-note></p>
-    <button type="submit" class="btn btn-big" data-submit>Sign in</button>
-    <p>New here? <a href={url('/sign-up/')}>Create an account</a></p>
-  </form>
+    <p class="switch">New to TutorEcon? <a href={url('/sign-up/')}>Create a free account</a></p>
+  </div>
 </AuthShell>
 
 <script>
-  import { accountsOn, authMessage, connect, onAuth, settled, waitForSession } from '../scripts/account';
-  import { busy, emailOk, fieldError, safeNext, wireReveal } from '../scripts/forms';
+  import { accountsOn, authMessage, connect, displayName, keepSignedIn, onAuth, sendSignInLink, settled, waitForSession } from '../scripts/account';
+  import { busy, cooldown, emailOk, fieldError, safeNext, wireReveal } from '../scripts/forms';
+  import { toastNext } from '../scripts/toast';
   import { url } from '../lib/url';
 
   const form = document.querySelector<HTMLFormElement>('[data-signin]');
   if (accountsOn && form) {
+    const area = document.querySelector<HTMLElement>('[data-signin-area]')!;
     const email = form.querySelector<HTMLInputElement>('#si-email')!;
     const password = form.querySelector<HTMLInputElement>('#si-password')!;
+    const remember = form.querySelector<HTMLInputElement>('#si-remember')!;
+    const pwField = form.querySelector<HTMLElement>('[data-pw-field]')!;
     const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const toggle = form.querySelector<HTMLButtonElement>('[data-mode-toggle]')!;
     const note = form.querySelector<HTMLElement>('[data-note]')!;
     const already = document.querySelector<HTMLElement>('[data-already]')!;
+    const sent = document.querySelector<HTMLElement>('[data-link-sent]')!;
+    const again = sent.querySelector<HTMLButtonElement>('[data-link-again]')!;
+    let mode: 'password' | 'link' = 'password';
     let signingIn = false;
     wireReveal(form);
+
+    // Links in emails return to the dashboard, or to the page that sent the reader here.
+    const nextPath = () => safeNext(url('/dashboard/')).replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/dashboard/';
+
+    const setMode = (m: typeof mode) => {
+      mode = m;
+      pwField.hidden = m === 'link';
+      form.querySelector<HTMLElement>('[data-remember-field]')!.hidden = m === 'link';
+      submit.textContent = m === 'link' ? 'Email me a link' : 'Sign in';
+      toggle.textContent = m === 'link' ? 'Sign in with a password instead' : 'Email me a sign-in link instead';
+      fieldError(form, 'form', '');
+      fieldError(form, 'password', '', password);
+    };
+    toggle.addEventListener('click', () => {
+      setMode(mode === 'link' ? 'password' : 'link');
+      email.focus();
+    });
 
     onAuth((s) => {
       if (signingIn) return;
       already.hidden = !s;
-      form.hidden = Boolean(s);
+      area.hidden = Boolean(s);
       if (s) already.querySelector('[data-already-email]')!.textContent = s.user.email ?? 'your account';
     });
+
+    const sendLink = async (addr: string) => {
+      await sendSignInLink(addr, nextPath());
+      sent.querySelector('[data-link-to]')!.textContent = addr;
+      form.hidden = true;
+      sent.hidden = false;
+      sent.querySelector<HTMLElement>('[data-link-title]')!.focus();
+      cooldown(again, 'send it again');
+    };
 
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       fieldError(form, 'form', '');
       const e = email.value.trim();
       const eMsg = !e ? 'Enter your email address.' : emailOk(e) ? '' : 'Enter an email address like name@example.com.';
-      const pMsg = password.value ? '' : 'Enter your password.';
       fieldError(form, 'email', eMsg, email);
-      fieldError(form, 'password', pMsg, password);
       if (eMsg) return email.focus();
+      keepSignedIn(remember.checked);
+
+      if (mode === 'link') {
+        busy(submit, true, 'Sending');
+        try {
+          await sendLink(e);
+        } catch (err) {
+          fieldError(form, 'form', authMessage(err));
+        } finally {
+          busy(submit, false, 'Email me a link');
+        }
+        return;
+      }
+
+      const pMsg = password.value ? '' : 'Enter your password.';
+      fieldError(form, 'password', pMsg, password);
       if (pMsg) return password.focus();
 
       busy(submit, true, 'Signing in');
       signingIn = true;
       try {
         const client = await connect();
-        const { error } = await client.auth.signInWithPassword({ email: e, password: password.value });
+        const { data, error } = await client.auth.signInWithPassword({ email: e, password: password.value });
         if (error) throw error;
         note.textContent = 'Signed in. Bringing your progress together.';
         await waitForSession();
         await settled();
-        location.assign(safeNext(url('/account/')));
+        const name = displayName(data.user);
+        toastNext(name ? `Welcome back, ${name}.` : 'Signed in. Welcome back.');
+        location.assign(safeNext(url('/dashboard/')));
       } catch (err) {
         signingIn = false;
         fieldError(form, 'form', authMessage(err));
         busy(submit, false, 'Sign in');
       }
     });
+
+    again.addEventListener('click', async () => {
+      try {
+        await sendLink(email.value.trim());
+      } catch (err) {
+        sent.querySelector('.hint')!.textContent = authMessage(err);
+      }
+    });
+    sent.querySelector('[data-link-back]')!.addEventListener('click', () => {
+      sent.hidden = true;
+      form.hidden = false;
+      setMode('password');
+      password.focus();
+    });
   }
 </script>
 
 <style>
+  .auth-stack {
+    display: grid;
+    gap: 1.1rem;
+  }
   .label-row {
     display: flex;
     flex-wrap: wrap;
@@ -97,13 +198,27 @@ import { url } from '../lib/url';
   .label-row a {
     font-size: 0.92rem;
   }
-  .already {
+  .alt {
+    text-align: center;
+  }
+  .switch {
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+  .already,
+  .sent {
     display: grid;
-    gap: 1rem;
+    gap: 0.9rem;
     justify-items: start;
     padding: 1.25rem;
     border: 1px solid var(--line-strong);
     border-radius: var(--radius-lg);
     background: var(--bg-2);
+  }
+  .sent {
+    background: var(--good-tint);
+  }
+  .sent h2:focus {
+    outline: none;
   }
 </style>

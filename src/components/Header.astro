@@ -2,6 +2,7 @@
 import Logo from './Logo.astro';
 import SearchDialog from './SearchDialog.astro';
 import { url } from '../lib/url';
+import { accountsOn } from '../lib/accounts';
 import { site } from '../site';
 
 const links = [
@@ -38,7 +39,7 @@ const isActive = (href: string) => here.startsWith(url(href));
         <span class="search-label">Search</span>
         <kbd aria-hidden="true">/</kbd>
       </button>
-      <a class="stats" href={url('/account/')} data-stats hidden aria-label="Your streak and XP">
+      <a class="stats" href={url('/dashboard/')} data-stats hidden aria-label="Your streak and XP">
         <span class="stat stat-streak" title="Day streak">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 2c.6 3.2-1.2 5-2.6 6.6C8 10.2 7 11.7 7 14a5 5 0 0 0 10 0c0-1.7-.6-3-1.4-4.1-.3 1.4-1 2.3-2 2.8.4-2.8-.2-7.2-1.6-10.7Z" fill="#ff7a1a" /><path d="M12 22a3 3 0 0 1-3-3c0-1.6 1-2.6 2-3.6.2 1 .8 1.6 1.6 1.9.1-.9.3-1.9.9-2.7.9 1 1.5 2.3 1.5 4.4a3 3 0 0 1-3 3Z" fill="#ffc53d" /></svg>
           <span data-streak>0</span>
@@ -48,10 +49,36 @@ const isActive = (href: string) => here.startsWith(url(href));
           <span data-xp>0</span>
         </span>
       </a>
-      <a class="account-link" href={url('/sign-in/')} data-account-link data-in={url('/account/')} data-out={url('/sign-in/')}>
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="2" /><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
-        <span class="account-label" data-account-label>Sign in</span>
-      </a>
+      {accountsOn ? (
+        <div class="acct">
+          <div class="acct-out" data-when="out">
+            <a class="acct-signin" href={url('/sign-in/')} data-signin-link>Sign in</a>
+            <a class="btn btn-small acct-signup" href={url('/sign-up/')}>Sign up</a>
+          </div>
+          <div class="acct-in" data-when="in">
+            <button class="avatar-btn" type="button" aria-expanded="false" aria-controls="acct-menu" data-acct-btn>
+              <span class="avatar" data-avatar aria-hidden="true"></span>
+              <span class="visually-hidden">Your account</span>
+              <svg class="caret" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+            <div id="acct-menu" class="acct-menu" data-acct-menu hidden>
+              <p class="who"><strong data-who-name>Signed in</strong><span data-who-email></span></p>
+              <ul>
+                <li><a href={url('/dashboard/')}>Dashboard</a></li>
+                <li><a href={url('/study-plan/')}>Study plan</a></li>
+                <li><a href={url('/missed/')}>Missed and flagged</a></li>
+                <li><a href={url('/account/')}>Account settings</a></li>
+              </ul>
+              <button type="button" class="signout" data-signout>Sign out</button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <a class="account-link" href={url('/dashboard/')}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2" /></svg>
+          <span class="account-label">Dashboard</span>
+        </a>
+      )}
       <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">
         <svg class="icon-moon" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg>
         <svg class="icon-sun" viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
@@ -66,9 +93,50 @@ const isActive = (href: string) => here.startsWith(url(href));
 
 <script>
   import { currentTheme, store } from '../scripts/store';
-  import { initAccount } from '../scripts/account';
+  import { initAccount, signOut } from '../scripts/account';
+  import { showQueuedToast, toast } from '../scripts/toast';
 
   initAccount();
+  showQueuedToast();
+
+  // The account menu: a button that shows and hides a short list of links.
+  const acctBtn = document.querySelector<HTMLButtonElement>('[data-acct-btn]');
+  const acctMenu = document.querySelector<HTMLElement>('[data-acct-menu]');
+  if (acctBtn && acctMenu) {
+    const setOpen = (open: boolean, focusBtn = false) => {
+      acctMenu.hidden = !open;
+      acctBtn.setAttribute('aria-expanded', String(open));
+      if (!open && focusBtn) acctBtn.focus();
+    };
+    acctBtn.addEventListener('click', () => {
+      const open = Boolean(acctMenu.hidden);
+      setOpen(open);
+      if (open) acctMenu.querySelector<HTMLElement>('a')?.focus();
+    });
+    document.addEventListener('click', (e) => {
+      if (!acctMenu.hidden && !(e.target as HTMLElement).closest('.acct-in')) setOpen(false);
+    });
+    acctMenu.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false, true);
+    });
+    acctBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    });
+    acctMenu.addEventListener('focusout', (e) => {
+      const next = e.relatedTarget as HTMLElement | null;
+      if (next && !acctMenu.contains(next) && next !== acctBtn) setOpen(false);
+    });
+    acctMenu.querySelector<HTMLButtonElement>('[data-signout]')?.addEventListener('click', async () => {
+      setOpen(false);
+      try {
+        await signOut(false);
+        toast('Signed out. Your progress is saved in your account.');
+        document.querySelector<HTMLElement>('[data-signin-link]')?.focus();
+      } catch {
+        toast('Could not sign out. Check your connection and try again.');
+      }
+    });
+  }
 
   const menuBtn = document.querySelector<HTMLButtonElement>('.menu-btn');
   const nav = document.getElementById('site-nav');
@@ -239,6 +307,117 @@ const isActive = (href: string) => here.startsWith(url(href));
     color: var(--ink-3);
     filter: grayscale(1);
   }
+  .acct-out,
+  .acct-in {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  :global(:root:not([data-auth='in'])) .acct-out,
+  :global(:root[data-auth='in']) .acct-in {
+    display: flex;
+  }
+  .acct-in {
+    position: relative;
+  }
+  .acct-signin {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 0.6rem;
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .acct-signin:hover {
+    text-decoration: underline;
+  }
+  .acct-signup {
+    min-height: 40px;
+    white-space: nowrap;
+  }
+  .avatar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 40px;
+    padding: 0 0.45rem 0 0.25rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .avatar-btn:hover,
+  .avatar-btn[aria-expanded='true'] {
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+  .avatar:empty::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+  }
+  .acct-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 40;
+    width: 250px;
+    padding: 0.4rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    box-shadow: var(--shadow-lg);
+  }
+  .acct-menu[hidden] {
+    display: none;
+  }
+  .who {
+    display: grid;
+    gap: 0.1rem;
+    margin: 0;
+    padding: 0.55rem 0.65rem 0.65rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.92rem;
+  }
+  .who span {
+    color: var(--ink-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .acct-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .acct-menu a,
+  .signout {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.65rem;
+    border: 0;
+    border-radius: var(--radius);
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .signout {
+    margin-top: 0.3rem;
+  }
+  .acct-menu a:hover,
+  .signout:hover {
+    background: var(--bg-2);
+  }
   .account-link {
     display: inline-flex;
     align-items: center;
@@ -347,6 +526,15 @@ const isActive = (href: string) => here.startsWith(url(href));
       padding: 0;
       justify-content: center;
     }
+    .acct-signup {
+      display: none;
+    }
+    .acct-signin {
+      padding: 0 0.7rem;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--card);
+    }
     .account-label {
       position: absolute;
       width: 1px;
@@ -357,6 +545,18 @@ const isActive = (href: string) => here.startsWith(url(href));
     }
     .wordmark {
       font-size: 1.2rem;
+    }
+  }
+  @media (max-width: 420px) {
+    /* Room for "Sign in" on small phones. The theme stays one tap away in Account settings. */
+    .end:has(.acct) .theme-btn {
+      display: none;
+    }
+    .end {
+      gap: 0.4rem;
+    }
+    .acct-signin {
+      padding: 0 0.55rem;
     }
     .bar {
       gap: 0.75rem;

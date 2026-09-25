@@ -1,0 +1,69 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+This topic is where supply and demand start doing real work: predicting what happens to price and quantity when something in the world changes. The four-step method below handles every case, including the hard ones where both curves move.
+
+## Surpluses and shortages
+
+When the price is **above** equilibrium, sellers offer more than buyers want. The gap is a **surplus**. Unsold goods pile up, and sellers cut prices until the market clears.
+
+When the price is **below** equilibrium, buyers want more than sellers offer. The gap is a **shortage**. Buyers compete for the goods, and the price is bid up.
+
+Either way, the market moves back toward equilibrium unless something, like a price control, stops it.
+
+## The four moves
+
+1. **What changed?** Name the event in economic terms: an input cost, a tastes change, a new technology.
+2. **Which curve?** Buyers’ reasons shift demand. Sellers’ costs and numbers shift supply.
+3. **Which way?** Right for an increase, left for a decrease.
+4. **What happens?** Read the new equilibrium price and quantity.
+
+<Graph model="market-oj" caption="Pick a news event and follow the four moves." />
+
+## One curve shifts
+
+| Change | Price | Quantity |
+| --- | --- | --- |
+| Demand increases | Rises | Rises |
+| Demand decreases | Falls | Falls |
+| Supply increases | Falls | Rises |
+| Supply decreases | Rises | Falls |
+
+## Both curves shift
+
+When both curves shift, one of price or quantity always moves in a clear direction, and the other is **indeterminate**: it depends on which shift is bigger.
+
+| Change | Price | Quantity |
+| --- | --- | --- |
+| Demand up, supply up | Indeterminate | Rises |
+| Demand down, supply down | Indeterminate | Falls |
+| Demand up, supply down | Rises | Indeterminate |
+| Demand down, supply up | Falls | Indeterminate |
+
+A quick way to check: work out each shift alone. If both push a variable the same way, that direction is certain. If they push it opposite ways, it is indeterminate.
+
+## Worked example
+
+<Worked title="A double shift" prompt="A new process lowers the cost of making laptops. At the same time, consumer incomes fall, and laptops are a normal good. What happens to the price and quantity of laptops?">
+  <Step n={1} title="Supply">
+    Lower costs shift supply right: price down, quantity up.
+  </Step>
+  <Step n={2} title="Demand">
+    Lower incomes shift demand for a normal good left: price down, quantity down.
+  </Step>
+  <Step n={3} title="Combine">
+    Both push the price down, so the price falls for certain. Quantity is pushed up by one and down by the other, so it is indeterminate.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Predict the change in price and quantity from one or two shifts.
+- Name what is indeterminate in a double shift and explain why.
+- In FRQs, draw the shift, label the new curve and equilibrium, and show the new price and quantity with dashed lines to the axes.
+
+<Callout kind="mistake">
+Guessing an answer for the indeterminate variable. If the question does not say which shift is larger, the right answer is that the change cannot be determined.
+</Callout>

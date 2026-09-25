@@ -83,6 +83,11 @@ const id = `quiz-${saveAs}`;
               {sample && unit && <span class="q-unit mono">{unit.title}</span>}
               <span class="q-prompt">{q.prompt}</span>
             </legend>
+            {q.figure && (
+              <figure class="q-fig">
+                <svg viewBox={`0 0 ${q.figure.w} ${q.figure.h}`} width={q.figure.w} height={q.figure.h} role="img" aria-label={q.figure.alt} focusable="false" set:html={q.figure.svg} />
+              </figure>
+            )}
             {q.table && (
               <div class="q-table">
                 <table>

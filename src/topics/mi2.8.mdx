@@ -1,0 +1,64 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Governments step into markets with price controls, taxes, subsidies, and quotas. Each one moves the market away from equilibrium, shifts surplus between groups, and usually creates deadweight loss. This topic is a favorite for graph questions.
+
+## Price ceilings
+
+A **price ceiling** is a legal maximum price. It only matters, or **binds**, when it is set **below** equilibrium. Then quantity demanded exceeds quantity supplied, creating a **shortage**. Rent control is the classic example.
+
+- Quantity traded falls to the quantity supplied at the ceiling.
+- Some consumer surplus is gained by buyers who still get the good at the lower price; producer surplus falls.
+- **Deadweight loss** appears: trades that would have helped both sides no longer happen.
+
+A ceiling set above equilibrium has no effect.
+
+<Graph model="ceiling-rent" caption="Lower the ceiling and watch the shortage and deadweight loss grow." />
+
+## Price floors
+
+A **price floor** is a legal minimum price. It binds when set **above** equilibrium, creating a **surplus**: quantity supplied exceeds quantity demanded. A minimum wage above the equilibrium wage in a competitive labor market creates a surplus of labor, which is unemployment.
+
+A floor set below equilibrium has no effect.
+
+## Taxes
+
+A **per-unit (excise) tax** on sellers shifts supply up (left) by the amount of the tax.
+
+- Buyers pay a higher price, sellers keep a lower price, and the gap between them is the tax.
+- Quantity falls.
+- **Tax revenue** = tax per unit × quantity sold after the tax.
+- **Deadweight loss** is the triangle between the old and new quantities.
+- **Incidence**: the side that is **less elastic** pays more of the tax. If demand is perfectly inelastic, buyers pay all of it.
+
+## Subsidies and quotas
+
+A **per-unit subsidy** shifts supply right. Quantity rises above the efficient level, and the cost to the government is larger than the gain to buyers and sellers combined, so there is deadweight loss too.
+
+A **quota** limits the quantity that can be sold. It works like a vertical supply line at the limit: price rises and deadweight loss appears.
+
+## Worked example
+
+<Worked title="Tax revenue and deadweight loss" prompt="Before a $2 per-unit tax on sellers, 1,000 units sold at $10. After the tax, 800 units sell, buyers pay $11, and sellers keep $9. Find the tax revenue, the deadweight loss, and who bears more of the tax.">
+  <Step n={1} title="Revenue">
+    $2 × 800 = $1,600.
+  </Step>
+  <Step n={2} title="Deadweight loss">
+    A triangle with height $2 (the tax) and base 1,000 − 800 = 200. ½ × $2 × 200 = $200.
+  </Step>
+  <Step n={3} title="Incidence">
+    Buyers pay $1 more and sellers keep $1 less, so the burden is split evenly. Demand and supply are equally elastic here.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Say whether a ceiling or floor binds, and whether it causes a shortage or a surplus.
+- Shade consumer surplus, producer surplus, tax revenue, and deadweight loss after a tax.
+- Explain tax incidence with elasticity.
+
+<Callout kind="mistake">
+Thinking a price ceiling must be above the equilibrium price to “cap” it. A ceiling only binds when it is below equilibrium. One set above equilibrium changes nothing.
+</Callout>

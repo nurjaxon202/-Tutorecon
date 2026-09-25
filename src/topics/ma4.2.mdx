@@ -1,0 +1,51 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+An interest rate is only as good as what the money can buy. This topic separates the rate written on a loan from the rate that matters for buying power, and it explains who wins when inflation surprises everyone.
+
+## Nominal and real
+
+- The **nominal interest rate** is the rate stated on a loan or account.
+- The **real interest rate** is the nominal rate adjusted for inflation. It measures the change in buying power.
+
+**Real interest rate = nominal interest rate − inflation rate**
+
+## The Fisher equation
+
+When a loan is made, lenders and borrowers only know **expected** inflation. So they set:
+
+**Nominal rate = real rate + expected inflation**
+
+If lenders want a 3% real return and expect 2% inflation, they charge 5%. If expected inflation rises to 5%, the nominal rate rises to 8%. This is why high expected inflation brings high nominal interest rates.
+
+## Expected versus actual
+
+- **Expected real rate** = nominal rate − expected inflation, known when the loan is made.
+- **Actual real rate** = nominal rate − actual inflation, known afterward.
+
+When **actual inflation is higher than expected**, the actual real rate is lower than planned: **borrowers gain** and **lenders lose**. When actual inflation is lower than expected, lenders gain.
+
+## Worked example
+
+<Worked title="The surprise" prompt="A bank lends at 6%, expecting 2% inflation. Inflation turns out to be 7%. What real interest rate did the bank expect, and what did it actually earn?">
+  <Step n={1} title="Expected">
+    6% − 2% = 4%.
+  </Step>
+  <Step n={2} title="Actual">
+    6% − 7% = −1%. The bank was repaid in dollars that buy less than the dollars it lent.
+  </Step>
+  <Step n={3} title="Who gained">
+    The borrower, who paid a real rate of −1% instead of the expected 4%.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Calculate the real rate from the nominal rate and inflation, or the nominal rate from the real rate and expected inflation.
+- Explain who gains and who loses when inflation is higher or lower than expected.
+- Remember which graph uses which rate: the money market uses the **nominal** rate, the loanable funds market uses the **real** rate.
+
+<Callout kind="mistake">
+Adding inflation to get the real rate. The real rate subtracts inflation from the nominal rate. Adding them gives you nothing meaningful.
+</Callout>

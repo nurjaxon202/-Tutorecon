@@ -9,6 +9,7 @@ import { termsFor, termSlug } from '../../data/glossary';
 import { unitThumb } from '../../data/thumbs';
 import { shortTitle } from '../../data/short';
 import { lesson } from '../../lib/lessons';
+import { topicPath } from '../../lib/topics';
 import { url } from '../../lib/url';
 
 export function getStaticPaths() {
@@ -22,12 +23,12 @@ const qs = checkFor(slug!);
 const bank = questionsFor(slug!).length;
 // Where this lesson sits in each course, and which official topics each section teaches.
 const homes = courses.flatMap((c) => c.units.filter((u) => u.lessons.includes(slug!)).map((u) => ({ course: c, n: u.n })));
-const topicTags: Record<string, string[]> = {};
+const topicTags: Record<string, [string, string, string][]> = {};
 for (const c of courses) {
   for (const u of c.units) {
     for (const t of u.topics) {
       if (t.lesson !== slug) continue;
-      (topicTags[t.anchor] ??= []).push(`${c.short} ${t.code}`);
+      (topicTags[t.anchor] ??= []).push([`${c.short} ${t.code}`, url(topicPath(t.id)), t.title]);
     }
   }
 }
@@ -168,14 +169,14 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   // Label each section with the official topics it teaches.
-  const tags: Record<string, string[]> = JSON.parse(document.querySelector('[data-topic-tags]')?.textContent ?? '{}');
+  const tags: Record<string, [string, string, string][]> = JSON.parse(document.querySelector('[data-topic-tags]')?.textContent ?? '{}');
   for (const [anchor, labels] of Object.entries(tags)) {
     const h = document.getElementById(anchor);
     if (!h) continue;
     const p = document.createElement('p');
     p.className = 'topic-tags';
-    p.setAttribute('aria-label', 'Course topics');
-    p.innerHTML = labels.map((l) => `<span>${l}</span>`).join('');
+    p.setAttribute('aria-label', 'Topic guides for this section');
+    p.innerHTML = labels.map(([label, href, title]) => `<a href="${href}" title="Topic guide: ${title}">${label}</a>`).join('');
     h.insertAdjacentElement('afterend', p);
   }
 
@@ -338,7 +339,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     gap: 0.4rem;
     margin-top: 0.5rem;
   }
-  .lesson-prose :global(.topic-tags span) {
+  .lesson-prose :global(.topic-tags a) {
     padding: 0.1rem 0.5rem;
     border: 1px solid var(--line);
     border-radius: 5px;
@@ -346,6 +347,11 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--ink-2);
+    text-decoration: none;
+  }
+  .lesson-prose :global(.topic-tags a:hover) {
+    border-color: var(--control);
+    color: var(--ink);
   }
   .more-practice {
     margin-top: 1.25rem;

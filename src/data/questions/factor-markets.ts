@@ -1,4 +1,5 @@
 import { make } from './make';
+import { monopsonyFig } from './figs';
 
 const q = make('factor-markets');
 
@@ -261,4 +262,116 @@ export default [
     ['rises, but the firm hires the same number of workers', 'With MRP above the wage for more workers, the firm hires more.'],
     ['rises by exactly $1 for each worker', 'MRP rises by $1 times each worker’s marginal product, not by $1 flat.'],
   ], 1),
+  q('fm37', 'mi5.4', 2, 'The graph shows a labor market with one employer. How many workers does it hire, and what wage does it pay?', [
+    ['Q2 workers at wage W2', 'That is where MRP meets supply, the outcome of a competitive labor market.'],
+    ['Q1 workers at wage W1', 'W1 is the marginal factor cost of the last worker, not the wage. The wage comes from the supply curve.'],
+    ['Q2 workers at wage W3', 'The monopsonist hires where MRP equals MFC, which is Q1, not Q2.'],
+    ['Q1 workers at wage W2', 'At Q1, the supply curve shows that W3 is enough to attract that many workers.'],
+    ['Q1 workers at wage W3', 'Correct. The firm hires where MRP equals MFC, at Q1. It then pays the lowest wage that attracts Q1 workers, read off the supply curve at W3.'],
+  ], 4, { figure: monopsonyFig() }),
+  q('fm38', 'mi5.4', 2, 'If the labor market on the graph were perfectly competitive instead, what would the wage and employment be?', [
+    ['W3 and Q1', 'That is the monopsony outcome.'],
+    ['W1 and Q1', 'W1 is the height of MFC at Q1. A competitive market does not use MFC.'],
+    ['W2 and Q2', 'Correct. In a competitive market, the wage and employment are set where labor demand (MRP) meets labor supply, at W2 and Q2.'],
+    ['W1 and Q2', 'At Q2, the supply curve and MRP both give W2, not W1.'],
+    ['W3 and Q2', 'Q2 workers will not work for W3. The supply curve shows they need W2.'],
+  ], 2, { figure: monopsonyFig() }),
+  q('fm39', 'mi5.4 mi2.8 mi6.4', 3, 'The government sets a minimum wage equal to W2 in the labor market on the graph. What happens to employment?', [
+    ['It rises from Q1 to Q2', 'Correct. The minimum wage makes the firm’s cost of each worker a flat W2 up to Q2, so MFC equals W2 there. The firm hires until MRP equals W2, at Q2.'],
+    ['It falls below Q1, because labor costs more', 'In a monopsony, a minimum wage set between W3 and W2 raises employment. Each extra worker no longer raises the wage of everyone else.'],
+    ['It stays at Q1, and only the wage changes', 'With a flat wage of W2, hiring beyond Q1 now adds more to revenue than to cost, so the firm hires more.'],
+    ['It rises past Q2', 'Beyond Q2, MRP is below W2, so hiring more would cut profit.'],
+    ['A surplus of workers equal to Q2 minus Q1 appears', 'At W2, the number of workers who want jobs equals the number the firm hires, Q2.'],
+  ], 0, { figure: monopsonyFig() }),
+  q('fm40', 'mi5.4', 3, 'At Q1 on the graph, the last worker hired adds W1 to the firm’s revenue. Why does the firm not hire more workers, even though that worker is paid only W3?', [
+    ['Workers beyond Q1 are not willing to work at any wage', 'The supply curve shows more workers will work if the wage rises.'],
+    ['Hiring one more worker would cost more than W1, because the firm must raise the wage for all of its workers', 'Correct. The cost of the next worker is MFC, which includes the raise paid to everyone already hired. Past Q1, MFC is above MRP.'],
+    ['The MRP of the next worker is zero', 'MRP is still positive past Q1. It is just below MFC.'],
+    ['The law does not allow it to pay more than W3', 'Nothing limits the wage. The firm chooses W3 because it is enough to attract Q1 workers.'],
+    ['The firm is already producing where price equals marginal cost', 'The hiring decision compares MRP with MFC, not price with marginal cost.'],
+  ], 1, { figure: monopsonyFig() }),
+  q('fm41', 'mi5.3', 2, 'A firm sells its product in a perfectly competitive market for $2 each and hires workers in a competitive labor market for $30 a day. Using the table, how many workers should it hire?', [
+    ['2', 'The third worker adds 16 units, worth $32, which is more than the $30 wage.'],
+    ['4', 'The fourth worker adds 13 units, worth only $26, less than the $30 wage.'],
+    ['5', 'The fifth worker adds 10 units, worth $20, far below the wage.'],
+    ['6', 'The sixth worker adds only $14 of revenue.'],
+    ['3', 'Correct. MRP is marginal product times $2: $40, $36, $32, $26, and so on. The first three workers each add more than $30. The fourth adds only $26.'],
+  ], 4, { table: { head: ['Workers', 'Total output'], rows: [[0, 0], [1, 20], [2, 38], [3, 54], [4, 67], [5, 77], [6, 84]] } }),
+  q('fm42', 'mi5.3', 2, 'Use the same table. The product still sells for $2, but the daily wage falls from $30 to $18. How many workers should the firm hire now?', [
+    ['5', 'Correct. The fifth worker adds 10 units, worth $20, which is more than $18. The sixth adds 7 units, worth $14, which is less.'],
+    ['3', 'At the lower wage, the fourth and fifth workers now add more than they cost.'],
+    ['4', 'The fifth worker adds $20, still above the $18 wage.'],
+    ['6', 'The sixth worker adds only $14, below the $18 wage.'],
+    ['2', 'A lower wage makes the firm hire more workers, not fewer.'],
+  ], 0, { table: { head: ['Workers', 'Total output'], rows: [[0, 0], [1, 20], [2, 38], [3, 54], [4, 67], [5, 77], [6, 84]] } }),
+  q('fm43', 'mi5.3', 1, 'Use the same table. The product sells for $2 in a perfectly competitive market. What is the marginal revenue product of the fourth worker?', [
+    ['$67', 'That is total output with four workers, not the extra output of the fourth.'],
+    ['$134', 'That is the total revenue from four workers, not the extra revenue from the fourth.'],
+    ['$26', 'Correct. The fourth worker raises output from 54 to 67, a marginal product of 13 units. At $2 each, that adds $26.'],
+    ['$13', 'That is marginal product in units. Multiply by the $2 price to get revenue.'],
+    ['$32', 'That is the MRP of the third worker.'],
+  ], 2, { table: { head: ['Workers', 'Total output'], rows: [[0, 0], [1, 20], [2, 38], [3, 54], [4, 67], [5, 77], [6, 84]] } }),
+  q('fm44', 'mi5.2', 2, 'Buyers’ demand for wooden furniture falls sharply. In the market for furniture makers, what happens?', [
+    ['Demand for workers falls, so the wage and the number of workers hired both fall', 'Correct. Labor demand is derived from product demand. A lower furniture price lowers each worker’s MRP, so the labor demand curve shifts left.'],
+    ['Supply of workers falls, so the wage rises', 'Nothing here changes how many people want to do the work. The change is on the demand side.'],
+    ['Demand for workers rises, because firms must work harder to sell', 'Lower product demand makes workers less valuable to firms, not more.'],
+    ['Nothing changes, because wages are set separately from product prices', 'Workers are hired for what they help sell, so product prices matter.'],
+    ['The wage falls, but the number of workers hired rises', 'A leftward shift of labor demand lowers both the wage and employment.'],
+  ], 0),
+  q('fm45', 'mi5.2', 2, 'A state starts requiring hair stylists to complete two years of training before they can work. In the market for hair stylists, what is the most likely result?', [
+    ['Labor demand rises, so the wage and employment both rise', 'The rule affects who can work, which is the supply side.'],
+    ['Labor supply falls, so the wage rises and employment falls', 'Correct. Fewer people can enter the job, so labor supply shifts left. The wage rises along the demand curve and fewer stylists are hired.'],
+    ['Labor supply rises, so the wage falls', 'A new training requirement makes it harder to enter the job, which reduces supply.'],
+    ['Labor demand falls, so the wage and employment both fall', 'Salons still value stylists the same. The change is to supply.'],
+    ['The wage and employment both stay the same', 'A shift in supply changes both the wage and the number hired.'],
+  ], 1),
+  q('fm46', 'mi5.3', 3, 'A firm’s last worker adds 30 units of output and costs $15. Its last machine adds 40 units and costs $10 to rent. To make its output at the lowest cost, the firm should', [
+    ['keep its current mix, because both inputs add output', 'Compare output per dollar. Labor gives 2 units per dollar and capital gives 4.'],
+    ['use more labor and less capital', 'Labor gives fewer units per dollar than capital, so shift the other way.'],
+    ['use less of both inputs', 'The question is about the mix of inputs, not the total amount.'],
+    ['use more of both inputs', 'Using more of both does not fix the mix. The last dollar on capital still does more.'],
+    ['use more capital and less labor', 'Correct. The last dollar on labor adds 30 ÷ 15 = 2 units. The last dollar on capital adds 40 ÷ 10 = 4 units. Moving spending to capital makes the same output for less.'],
+  ], 4),
+  q('fm47', 'mi5.1 mi5.3', 1, 'For a firm that hires workers in a perfectly competitive labor market, the demand curve for labor is the same as its', [
+    ['total product curve', 'Total product shows output, not how many workers the firm wants at each wage.'],
+    ['average revenue curve', 'Average revenue relates to the product market, not the labor market.'],
+    ['marginal revenue product curve', 'Correct. The firm hires until MRP equals the wage. So at each wage, the MRP curve shows how many workers it wants.'],
+    ['marginal cost curve', 'Marginal cost is about output. Labor demand depends on MRP.'],
+    ['labor supply curve', 'Supply shows what workers want. Demand shows what firms want.'],
+  ], 2),
+  q('fm48', 'mi5.4', 3, 'A monopsonist must pay $10 to hire 1 worker, $11 each to hire 2, $12 each to hire 3, $13 each to hire 4, and $14 each to hire 5. It pays every worker the same wage. What is the marginal factor cost of the fifth worker?', [
+    ['$14', 'That is the wage, not the full change in labor cost. The firm also pays the first four workers $1 more each.'],
+    ['$1', 'That is only the raise for each of the first four workers.'],
+    ['$70', 'That is the total cost of five workers, not the added cost of the fifth.'],
+    ['$18', 'Correct. Four workers cost 4 × $13 = $52. Five cost 5 × $14 = $70. The fifth worker adds $70 minus $52, or $18.'],
+    ['$4', 'That is the extra pay for the first four workers. Add the $14 wage of the new worker.'],
+  ], 3),
+  q('fm49', 'mi5.2', 3, 'A warehouse can use either workers or robots to move boxes. The price of robots rises sharply. What most likely happens to the demand for warehouse workers?', [
+    ['It increases, because workers are now the cheaper way to do the job', 'Correct. Robots and workers are substitutes in production. When robots cost more, firms switch toward workers, so labor demand shifts right.'],
+    ['It decreases, because the firm has less money to spend', 'The main effect is the switch from robots to workers, which raises labor demand.'],
+    ['It stays the same, because robots are capital and workers are labor', 'Different inputs can still substitute for each other.'],
+    ['It increases only if the price of the product also rises', 'The switch happens even if the product price stays the same.'],
+    ['The supply of workers falls', 'The price of robots affects firms’ demand for workers, not how many people want the job.'],
+  ], 0),
+  q('fm50', 'mi5.3', 2, 'In a perfectly competitive labor market, how is the wage that each firm pays determined?', [
+    ['Each firm sets its own wage based on its profit', 'In a perfectly competitive market, no single firm can set the wage.'],
+    ['Market supply and demand for labor set the wage, and each firm takes it as given', 'Correct. Each firm is too small to affect the wage. It faces a flat labor supply at the market wage and hires until MRP equals that wage.'],
+    ['The government sets it', 'A minimum wage is possible, but in a competitive market the wage comes from supply and demand.'],
+    ['Each worker’s marginal product sets it', 'Marginal product is one part of MRP, which decides how many workers to hire, not the market wage.'],
+    ['The largest firm sets it and the others follow', 'That describes a market with a dominant employer, not a perfectly competitive one.'],
+  ], 1),
+  q('fm51', 'mi5.3', 3, 'A firm hires labor and capital in competitive markets. For its last worker, MRP is $40 and the wage is $20. For its last machine, MRP is $90 and the rental price is $90. To maximize profit, the firm should', [
+    ['hire fewer workers and rent more machines', 'Each worker adds $40 and costs $20, so the firm should hire more workers, not fewer.'],
+    ['keep both inputs where they are', 'The last worker adds $20 more than they cost, so hiring more raises profit.'],
+    ['hire more workers and keep the same amount of capital', 'Correct. Profit is maximized when MRP equals price for each input. Capital already meets that rule ($90 = $90). Labor does not, since $40 is above $20.'],
+    ['rent more machines and keep the same number of workers', 'Capital already meets the rule, since its MRP equals its rental price.'],
+    ['cut both inputs to lower cost', 'Lower cost is not the goal. More workers add more revenue than cost here.'],
+  ], 2),
+  q('fm52', 'mi5.4 mi6.1', 2, 'Why does a monopsony labor market create a deadweight loss?', [
+    ['It pays workers more than their marginal revenue product', 'A monopsony pays less than the MRP of the last worker, not more.'],
+    ['It hires more workers than a competitive market would', 'It hires fewer.'],
+    ['It raises the price of the product it sells', 'The deadweight loss here comes from the labor market.'],
+    ['It forces workers to take jobs they do not want', 'Workers still choose whether to take the job at the offered wage.'],
+    ['It hires fewer workers than a competitive market would, so some jobs worth more to the firm than they cost workers never happen', 'Correct. Between Q1 and Q2, each worker’s MRP is above the wage that worker would accept. Those gains from trade are lost.'],
+  ], 4),
 ];

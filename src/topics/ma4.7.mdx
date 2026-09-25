@@ -1,0 +1,66 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+The loanable funds market links saving and borrowing, and it sets the real interest rate. It explains why big government deficits can raise interest rates and crowd out private investment.
+
+## The two curves
+
+- **Supply of loanable funds** comes from **saving**: households, businesses, government surpluses, and foreign savers. It slopes up, because a higher real interest rate rewards saving.
+- **Demand for loanable funds** comes from **borrowing**: businesses that want to invest, and governments that run deficits. It slopes down, because a lower real rate makes more investment projects worth doing.
+
+The vertical axis is the **real interest rate**, and the horizontal axis is the **quantity of loanable funds**.
+
+## What shifts each curve
+
+**Supply shifts right** when:
+
+- households save more (for example, because of a tax break for saving),
+- the government runs a surplus or a smaller deficit (in the approach where public saving is on the supply side),
+- foreign savers put more money into the country.
+
+**Demand shifts right** when:
+
+- businesses expect higher profits from new capital, or get an investment tax credit,
+- the government borrows more to cover a deficit.
+
+## Crowding out
+
+When the government borrows more, demand for loanable funds rises (or supply falls, depending on how the graph is drawn). Either way, the **real interest rate rises**, and **private investment falls**. That is **crowding out** (Topic 5.5). Less investment today can mean less capital and slower growth later.
+
+<Graph model="loanable-funds" caption="Add a government deficit and watch the real interest rate rise." />
+
+## Money market versus loanable funds
+
+<div class="table-scroll">
+
+| | Money market | Loanable funds market |
+| --- | --- | --- |
+| Interest rate | Nominal | Real |
+| Supply | Vertical, set by the central bank | Saving, slopes up |
+| Demand | Money demand | Borrowing for investment and deficits |
+| Used for | Monetary policy | Fiscal policy, crowding out, capital flows |
+
+</div>
+
+## Worked example
+
+<Worked title="A budget surplus" prompt="The government moves from a balanced budget to a surplus. What happens in the loanable funds market?">
+  <Step n={1} title="Which curve?">
+    The government adds to national saving (or borrows less), so the supply of loanable funds shifts right.
+  </Step>
+  <Step n={2} title="Result">
+    The real interest rate falls, and the quantity of funds borrowed for private investment rises.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Draw a loanable funds graph with the real interest rate on the vertical axis.
+- Show the effect of government borrowing, a change in saving, or foreign capital.
+- Explain crowding out and its long-run effect on growth.
+
+<Callout kind="mistake">
+Mixing up the two interest rate graphs. A change in the money supply belongs in the money market (nominal rate). Government borrowing belongs in the loanable funds market (real rate).
+</Callout>

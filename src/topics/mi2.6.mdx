@@ -1,0 +1,52 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Equilibrium is where buyers and sellers agree. Consumer and producer surplus measure how much each side gains from trading there, and they are the yardstick for judging every policy in the rest of the unit.
+
+## Market equilibrium
+
+The **equilibrium price** is where the quantity demanded equals the quantity supplied. The amount traded at that price is the **equilibrium quantity**. At any other price, the market pushes back toward equilibrium (Topic 2.7 shows how).
+
+## Consumer surplus
+
+**Consumer surplus** is the difference between what buyers are willing to pay and what they actually pay, added up over all units bought. On a graph it is the area **below the demand curve and above the price**, out to the quantity traded.
+
+If you would pay up to $30 for a concert ticket and buy it for $22, your consumer surplus is $8.
+
+## Producer surplus
+
+**Producer surplus** is the difference between the price sellers receive and the lowest price they would accept (their marginal cost), added up over all units sold. On a graph it is the area **above the supply curve and below the price**.
+
+## Total surplus and efficiency
+
+**Total surplus** = consumer surplus + producer surplus. In a competitive market with no externalities, total surplus is **largest at the equilibrium quantity**. Every unit up to that point is worth more to a buyer than it costs a seller to make, and every unit beyond it is not.
+
+That is what economists mean when they say the competitive equilibrium is **allocatively efficient**: marginal benefit (shown by demand) equals marginal cost (shown by supply).
+
+<Graph model="market-basic" caption="Consumer surplus sits above the price, producer surplus below it. Move a curve and watch both change." />
+
+## Worked example
+
+<Worked title="Surplus from a straight-line graph" prompt="Demand hits the price axis at $20 and supply starts at $4. The market clears at a price of $10 with 300 units sold. Find consumer surplus, producer surplus, and total surplus.">
+  <Step n={1} title="Consumer surplus">
+    A triangle with base 300 and height $20 − $10 = $10. ½ × 300 × $10 = $1,500.
+  </Step>
+  <Step n={2} title="Producer surplus">
+    A triangle with base 300 and height $10 − $4 = $6. ½ × 300 × $6 = $900.
+  </Step>
+  <Step n={3} title="Total">
+    $1,500 + $900 = $2,400.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Shade or calculate consumer and producer surplus on a graph. Use ½ × base × height for triangles.
+- Explain why total surplus is highest at the competitive equilibrium.
+- Show how a price change moves surplus between buyers and sellers: a higher price shifts some consumer surplus to producers.
+
+<Callout kind="mistake">
+Measuring surplus out to the wrong quantity. Surplus only counts units that are actually traded, so the triangle ends at the quantity sold, not at the far end of the curve.
+</Callout>

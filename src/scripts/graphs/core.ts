@@ -241,6 +241,13 @@ export class Plot {
     if (xText) this.chip(px, this.bottom + 17, xText, 'middle', true);
   }
 
+  /** A value label on one axis, without guide lines. */
+  tag(axis: 'x' | 'y', v: number, text: string) {
+    if (this.compact) return;
+    if (axis === 'x') this.chip(r1(this.X(v)), this.bottom + 17, text, 'middle', true);
+    else this.chip(this.left - 6, r1(this.Y(v)), text, 'end');
+  }
+
   private chip(px: number, py: number, text: string, anchor: 'end' | 'middle', below = false) {
     const cw = text.length * 6.7 + 10;
     const rx = anchor === 'end' ? px - cw : px - cw / 2;

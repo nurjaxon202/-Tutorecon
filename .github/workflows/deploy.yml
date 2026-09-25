@@ -25,6 +25,7 @@ jobs:
           # variables (Settings > Secrets and variables > Actions > Variables).
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
           PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
+          PUBLIC_AUTH_GOOGLE: ${{ vars.PUBLIC_AUTH_GOOGLE }}
 
   deploy:
     needs: build

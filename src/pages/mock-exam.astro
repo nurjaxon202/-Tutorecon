@@ -71,6 +71,7 @@ const plan = Object.fromEntries(
                 <span class="q-unit mono" data-q-unit></span>
                 <span class="q-prompt" data-q-prompt tabindex="-1"></span>
               </legend>
+              <div data-q-fig></div>
               <div class="q-table" data-q-table hidden></div>
               <div class="q-options" data-q-options></div>
             </fieldset>
@@ -112,12 +113,14 @@ const plan = Object.fromEntries(
 
 <script>
   import { store } from '../scripts/store';
+  import { figureHtml, type QFig } from '../scripts/qfigure';
 
   interface Q {
     id: string;
     t: string[];
     p: string;
     tb?: { head: string[]; rows: (string | number)[][] };
+    fg?: QFig;
     o: [string, string][];
     a: number;
   }
@@ -210,6 +213,7 @@ const plan = Object.fromEntries(
       $('[data-count-label]').textContent = `Question ${current + 1} of ${exam.length}`;
       $('[data-q-unit]').textContent = `${plans[course].short} Unit ${unit}`;
       $('[data-q-prompt]').textContent = q.p;
+      $('[data-q-fig]').innerHTML = figureHtml(q.fg);
       const tb = $('[data-q-table]');
       tb.hidden = !q.tb;
       tb.innerHTML = q.tb

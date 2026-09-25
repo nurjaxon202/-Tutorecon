@@ -50,6 +50,7 @@ const ogImage = new URL(url('/og.png'), Astro.site);
         if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
         var d = JSON.parse(localStorage.getItem('tutorecon.v1') || '{}');
         if (d && d.pro) document.documentElement.dataset.pro = 'on';
+        if (localStorage.getItem('tutorecon.auth') || sessionStorage.getItem('tutorecon.auth')) document.documentElement.dataset.auth = 'in';
       } catch (e) {}
     </script>
   </head>

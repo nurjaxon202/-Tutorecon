@@ -1,0 +1,72 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+Price elasticity of demand measures how strongly buyers react to a price change. It decides whether a price increase raises or lowers a firm’s revenue, and who pays a tax. It is one of the most tested ideas in AP Micro.
+
+## What you need to know
+
+**Price elasticity of demand (Ed)** is the percentage change in quantity demanded divided by the percentage change in price. AP uses the absolute value, so the answer is positive.
+
+**Ed = %ΔQd ÷ %ΔP**
+
+<div class="table-scroll">
+
+| Value | Name | What it means | Example |
+| --- | --- | --- | --- |
+| Ed > 1 | Elastic | Quantity changes by a larger percentage than price | Restaurant meals, one brand of cereal |
+| Ed < 1 | Inelastic | Quantity changes by a smaller percentage than price | Gasoline this week, insulin, salt |
+| Ed = 1 | Unit elastic | Same percentage change | |
+| Ed = 0 | Perfectly inelastic | Vertical demand curve | A life-saving drug with no substitute (in theory) |
+| Ed = ∞ | Perfectly elastic | Horizontal demand curve | The demand one wheat farmer faces |
+
+</div>
+
+## What makes demand more elastic
+
+- **Many close substitutes.** One brand of soda is elastic. Soft drinks as a whole are less so.
+- **A luxury, not a necessity.** Vacations are elastic. Basic medicine is not.
+- **A large share of the budget.** A 10% rise in rent hurts more than a 10% rise in the price of salt.
+- **More time to adjust.** Demand for gas is more elastic over five years than over one week, because people can buy efficient cars or move closer to work.
+- **A narrowly defined market.** “Nike running shoes” is more elastic than “shoes.”
+
+## The total revenue test
+
+Total revenue (TR) is price × quantity. Elasticity tells you which way TR moves when price changes:
+
+- **Elastic:** price and TR move in **opposite** directions. Raising the price loses so many sales that revenue falls.
+- **Inelastic:** price and TR move in the **same** direction. Raising the price raises revenue.
+- **Unit elastic:** TR does not change.
+
+On a straight-line demand curve, elasticity changes along the line: demand is elastic at high prices (top half), unit elastic at the midpoint, and inelastic at low prices (bottom half). Total revenue is largest at the midpoint. Slope is constant, but elasticity is not.
+
+<Graph model="tax-incidence" caption="Elasticity also decides who pays a tax. Make demand steeper and watch buyers pay more of it." />
+
+## Worked example
+
+<Worked title="Midpoint method" prompt="A theater raises its ticket price from $4 to $6, and tickets sold fall from 120 to 80. Find the price elasticity of demand and say what happened to revenue.">
+  <Step n={1} title="Percent change in quantity">
+    (80 − 120) ÷ average of 80 and 120 = −40 ÷ 100 = −40%.
+  </Step>
+  <Step n={2} title="Percent change in price">
+    (6 − 4) ÷ average of 4 and 6 = 2 ÷ 5 = 40%.
+  </Step>
+  <Step n={3} title="Divide">
+    |−40% ÷ 40%| = 1. Demand is unit elastic over this range.
+  </Step>
+  <Step n={4} title="Check with revenue">
+    Before: $4 × 120 = $480. After: $6 × 80 = $480. Revenue is unchanged, as unit elasticity predicts.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Calculate Ed from percentages or from two points (the midpoint method gives the same answer in either direction).
+- Use the total revenue test in both directions: from elasticity to revenue, and from revenue to elasticity.
+- Explain why a determinant makes demand more or less elastic.
+- In FRQs about taxes, the side with less elastic demand or supply pays more of the tax.
+
+<Callout kind="mistake">
+Reading elasticity from slope. Two straight demand curves can have the same slope and different elasticities, and one straight line has every elasticity from elastic to inelastic along it.
+</Callout>

@@ -1,0 +1,62 @@
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+A dollar of new spending becomes someone else’s income, and they spend part of it, and so on. The multiplier measures how far that chain goes. It is one of the most calculated numbers on the AP Macro exam.
+
+## The marginal propensities
+
+- **Marginal propensity to consume (MPC):** the share of an extra dollar of income that is spent. If you spend 80 cents of an extra dollar, MPC = 0.8.
+- **Marginal propensity to save (MPS):** the share that is saved.
+- **MPC + MPS = 1.**
+
+## The spending multiplier
+
+**Spending multiplier = 1 ÷ MPS = 1 ÷ (1 − MPC)**
+
+The maximum change in real GDP from a change in spending (government purchases, investment, consumption, or net exports) is:
+
+**ΔGDP = spending multiplier × initial change in spending**
+
+With MPC = 0.8, the multiplier is 1 ÷ 0.2 = 5, so $10 billion of new government spending can raise real GDP by up to $50 billion.
+
+## The tax multiplier
+
+**Tax multiplier = −MPC ÷ MPS**
+
+It is negative because a tax increase lowers spending. It is also **one smaller in size** than the spending multiplier, because when taxes change, people first save part of the change before spending the rest. With MPC = 0.8, the tax multiplier is −4. A $10 billion tax cut can raise GDP by up to $40 billion.
+
+Transfer payments work like a tax cut: their multiplier is MPC ÷ MPS.
+
+## The balanced budget multiplier
+
+If government spending and taxes both rise by the same amount, GDP rises by that amount. The **balanced budget multiplier is 1**.
+
+## Why the real effect is smaller
+
+The simple multiplier is a maximum. In practice it is smaller because of taxes that rise with income, spending on imports, higher interest rates (crowding out), and a rising price level.
+
+## Worked example
+
+<Worked title="Close a gap" prompt="An economy has a recessionary gap of $200 billion and an MPC of 0.75. How much should the government raise spending to close it? How large a tax cut would do the same?">
+  <Step n={1} title="Multipliers">
+    MPS = 0.25. Spending multiplier = 1 ÷ 0.25 = 4. Tax multiplier = −0.75 ÷ 0.25 = −3.
+  </Step>
+  <Step n={2} title="Spending">
+    $200 billion ÷ 4 = $50 billion more in government purchases.
+  </Step>
+  <Step n={3} title="Taxes">
+    $200 billion ÷ 3 ≈ $66.7 billion tax cut. It has to be larger because part of a tax cut is saved.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Calculate either multiplier from the MPC or MPS.
+- Find the maximum change in GDP from a change in spending or taxes.
+- Find the policy change needed to close a gap.
+- Explain why the tax multiplier is smaller than the spending multiplier.
+
+<Callout kind="mistake">
+Using the spending multiplier for a tax change. A tax change goes through the tax multiplier, −MPC ÷ MPS, which is always smaller in size.
+</Callout>

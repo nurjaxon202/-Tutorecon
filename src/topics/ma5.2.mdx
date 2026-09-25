@@ -1,0 +1,56 @@
+import Graph from '../components/Graph.astro';
+import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+
+The Phillips curve shows the trade-off between inflation and unemployment in the short run, and the lack of one in the long run. It is the AD-AS model drawn with different axes.
+
+## The short-run Phillips curve
+
+The **short-run Phillips curve (SRPC)** slopes **down**: lower unemployment comes with higher inflation, and higher unemployment with lower inflation. The axes are the **inflation rate** (vertical) and the **unemployment rate** (horizontal).
+
+The link to AD-AS:
+
+- **AD shifts** cause movements **along** the SRPC. More AD means more output, lower unemployment, and higher inflation, so the economy moves **up and to the left**. Less AD moves it down and to the right.
+- **SRAS shifts** cause **shifts of** the SRPC. A negative supply shock (SRAS left) raises both inflation and unemployment, so the **SRPC shifts right**. A positive supply shock shifts it left.
+
+## The long-run Phillips curve
+
+The **long-run Phillips curve (LRPC)** is **vertical at the natural rate of unemployment**. It matches the vertical LRAS.
+
+In the long run, people adjust their **expectations of inflation**. If inflation stays high, workers demand higher wages and firms raise prices, so any attempt to keep unemployment below the natural rate just produces ever-higher inflation. There is **no long-run trade-off**.
+
+## Expectations shift the SRPC
+
+- **Higher expected inflation** shifts the SRPC **right (up)**.
+- **Lower expected inflation** shifts it **left (down)**.
+
+## What shifts the LRPC
+
+The LRPC moves only when the **natural rate of unemployment** changes. Better job-matching technology or training programs lower the natural rate and shift the LRPC **left**. Changes that raise frictional or structural unemployment shift it right.
+
+<Graph model="phillips" caption="Move along the short-run curve, then change expected inflation." />
+
+## Worked example
+
+<Worked title="A policy that runs too hot" prompt="An economy is at its natural rate of 5% unemployment with 2% inflation. The central bank expands the money supply to push unemployment down to 3%. What happens in the short run and in the long run?">
+  <Step n={1} title="Short run">
+    Higher AD moves the economy up along the SRPC: unemployment falls to 3% and inflation rises.
+  </Step>
+  <Step n={2} title="Expectations">
+    People come to expect the higher inflation, so the SRPC shifts right.
+  </Step>
+  <Step n={3} title="Long run">
+    Unemployment returns to the natural rate of 5%, but inflation stays higher than the original 2%.
+  </Step>
+</Worked>
+
+## On the exam
+
+- Draw and label SRPC and LRPC with the correct axes.
+- Show an AD change as a movement along the SRPC and a supply shock as a shift of it.
+- Explain why the LRPC is vertical and what shifts it.
+
+<Callout kind="mistake">
+Shifting the SRPC when AD changes. A change in AD moves the economy along the short-run Phillips curve. The curve itself shifts only with supply shocks or changes in expected inflation.
+</Callout>

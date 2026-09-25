@@ -8,6 +8,7 @@ import { graphList } from '../scripts/graphs/models';
 import { frqs } from '../data/frqs';
 import { formulaGroups } from '../data/formulas';
 import { accountsOn } from '../lib/accounts';
+import { topicPath } from '../lib/topics';
 import { url } from '../lib/url';
 
 interface Entry {
@@ -38,6 +39,7 @@ export const GET: APIRoute = () => {
     ['Pricing', 'Free and Pro plans', '/pricing/', 'pro subscription'],
     ['Missed and flagged questions', 'Every question you missed or flagged, with the answer', '/missed/', 'mistakes wrong review flagged'],
     ['Study planner', 'A day-by-day plan up to your exam date', '/study-plan/', 'schedule calendar plan exam date'],
+    ['Dashboard', 'Your streak, weakest topics, unit mastery, and exam countdown', '/dashboard/', 'progress stats home overview weak topics mastery'],
     ['Formula sheet', 'Every formula from both courses on one page', '/formulas/', 'equations formulas cheat sheet multiplier elasticity'],
     [accountsOn ? 'Your account and data' : 'Your data and settings', 'Progress, theme, and deleting your data', '/account/', 'account settings privacy delete export import'],
     ...(accountsOn
@@ -54,7 +56,7 @@ export const GET: APIRoute = () => {
     for (const unit of c.units) {
       entries.push({ t: `Unit ${unit.n}: ${unit.title}`, s: `${c.short} · ${unit.weight} of the exam`, u: url(`${c.path}#unit-${unit.n}`), k: 'Unit' });
       for (const topic of unit.topics) {
-        entries.push({ t: `${topic.code} ${topic.title}`, s: `${c.short} · Unit ${unit.n}`, u: url(`/learn/${topic.lesson}/#${topic.anchor}`), k: 'Topic' });
+        entries.push({ t: `${topic.code} ${topic.title}`, s: `${c.short} · Unit ${unit.n} · Topic guide and practice`, u: url(topicPath(topic.id)), k: 'Topic' });
       }
     }
   }

@@ -1,0 +1,12 @@
+---
+import TopicPage from '../../components/TopicPage.astro';
+import { courses } from '../../data/ced';
+import { hasGuide, topicSlug } from '../../lib/topics';
+
+export function getStaticPaths() {
+  const course = courses.find((c) => c.id === 'micro')!;
+  return course.units.flatMap((u) => u.topics.filter((t) => hasGuide(t.id)).map((t) => ({ params: { topic: topicSlug(t) }, props: { id: t.id } })));
+}
+const { id } = Astro.props;
+---
+<TopicPage id={id} />

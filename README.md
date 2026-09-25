@@ -2,13 +2,15 @@
 
 Free AP Microeconomics and AP Macroeconomics review, organized by the official course topics, with graphs you can move.
 
-- **Both courses, unit by unit**: course pages for AP Micro and AP Macro list all 6 units per course with their published exam weights and every numbered topic (78 in total), each linked to the lesson section that teaches it
+- **Both courses, unit by unit**: course pages for AP Micro and AP Macro list all 6 units per course with their published exam weights and every numbered topic (78 in total)
+- **A guide for every official topic**: each of the 78 topics has its own page with a full explanation, worked examples, how the exam tests it, common mistakes, and every practice question tagged with that topic. Topics taught the same way in both courses share one guide
 - **11 lessons** with step-by-step reading, 18 live graphs, worked problems, margin definitions, and a six-question check at the end
-- **Question bank**: 516 original multiple-choice questions in the AP format (five choices), each tagged with its official topic and a difficulty level, with an explanation for every choice. Every official topic has at least five. Filter by course, unit, topic, difficulty, questions you missed last time, or questions you flagged. Results are broken down by topic, and your weakest topics are tracked
+- **Question bank**: 726 original multiple-choice questions in the AP format (five choices), each tagged with its official topic and a difficulty level, with an explanation for every choice. Every official topic has at least five. More than 60 questions come with a graph to read, the way the real exam asks them (PPCs, taxes, tariffs, cost curves, monopoly, monopsony, externalities, Lorenz curves, AD-AS, money and loanable funds markets, Phillips curves, and currency markets). Filter by course, unit, topic, difficulty, questions you missed last time, or questions you flagged. Results are broken down by topic, and your weakest topics are tracked
 - **Missed and flagged questions**: one page with every question you got wrong on your last try or flagged, with the answer and the reason
 - **Study planner**: enter your exam date and the days you can study, and get a dated plan that gives each unit time by its exam weight and ends with mock exams and review
 - **Formula sheet**: every formula and decision rule from both courses on one printable page, most with a worked example
-- **Optional accounts**: sign up, sign in, password reset, and progress that follows you to any device (see [Accounts](#accounts)). Anything done before signing in is added to the account, and progress can also be moved between devices with a file
+- **Dashboard**: streak, XP, accuracy, the next lesson, an exam countdown, your five weakest topics with a link to each guide, and mastery for every unit. It works with or without an account
+- **Optional accounts**: sign up with an optional first name and a password strength check, sign in with a password or a one-time email link, "Keep me signed in", optional Google sign-in, a short setup after sign-up, an account menu in the header, and progress that follows you to any device (see [Accounts](#accounts)). Anything done before signing in is added to the account, and progress can also be moved between devices with a file
 - **Free-response questions**: 24 original questions (8 long, 16 short) with point-by-point scoring guides, a timer set to the suggested time, and self-scoring
 - **Flashcards** for all 146 glossary terms, by unit
 - **Mock exam** (Pro demo): 60 questions in 70 minutes or a half-length version, drawn in proportion to each unit's exam weight and scored by unit
@@ -19,7 +21,7 @@ Free AP Microeconomics and AP Macroeconomics review, organized by the official c
 
 ## Content checks
 
-Every build checks the question bank and FRQs: each multiple-choice question must have five choices, exactly one marked answer, an explanation for every choice, and a real official topic; each FRQ must add up to 10 points (long) or 5 points (short). A problem stops the build.
+Every build checks the question bank, FRQs, and topic guides: each multiple-choice question must have five choices, exactly one marked answer, an explanation for every choice, and a real official topic, and a question with a graph must describe the graph in words for screen readers; every official topic must have a guide; each FRQ must add up to 10 points (long) or 5 points (short). A problem stops the build.
 
 ## Design
 
@@ -59,7 +61,7 @@ The site will be at `https://nurjaxon202.github.io/-Tutorecon/`.
 
 ## Accounts
 
-Sign up and sign in use [Supabase](https://supabase.com) for email and password accounts and to store each person's progress. It has a free plan. Until the two settings below are added, accounts stay off, the sign-in pages explain that, and the Supabase code is never downloaded.
+Sign up and sign in use [Supabase](https://supabase.com) for accounts and to store each person's progress. It has a free plan. Until a Supabase project is connected, accounts stay off: the header shows a **Dashboard** link instead of **Sign in** and **Sign up**, the sign-in pages explain that, and the Supabase code is never downloaded.
 
 1. Create a project at supabase.com.
 2. Open **SQL Editor**, paste in [`supabase/schema.sql`](supabase/schema.sql), and run it. It creates the `progress` table, locks each row so only its owner can read or change it, and adds the function behind **Delete account**.
@@ -68,10 +70,21 @@ Sign up and sign in use [Supabase](https://supabase.com) for email and password 
    - With **Confirm email** on, new people get a link before they can sign in. Supabase's built-in email sender is only meant for testing and has tight limits, so for real use add your own sender under **Authentication → Emails → SMTP settings**.
    - With it off, people are signed in as soon as they sign up. Password reset emails still need a working sender.
 5. Open **Project Settings → API Keys** and copy the **Project URL** and the **anon** (publishable) key. Never use the `service_role` or secret key on the site.
-6. On GitHub, open **Settings → Secrets and variables → Actions → Variables** and add two repository variables: `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY`.
-7. Run the deploy again (**Actions → Deploy to GitHub Pages → Run workflow**) or push to `main`.
+6. Connect them, in either of two ways:
+   - **Easiest:** paste both into `accounts` in `src/site.ts` and push to `main`.
+   - **Or** on GitHub, open **Settings → Secrets and variables → Actions → Variables**, add two repository variables, `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY`, then run the deploy again (**Actions → Deploy to GitHub Pages → Run workflow**). These win over `src/site.ts`.
 
 To try accounts locally, put the same two lines in a `.env` file in the project folder. It is ignored by git.
+
+Email sign-in links (**Email me a sign-in link instead**) use Supabase's **Magic Link** email, which is on by default. They only work for people who already have an account.
+
+### Google sign-in (optional)
+
+1. In Google Cloud, create an OAuth client of type **Web application**, and add `https://<your-project>.supabase.co/auth/v1/callback` as an authorized redirect URI.
+2. In Supabase, open **Authentication → Sign In / Providers → Google**, turn it on, and paste the client ID and secret.
+3. Set `google: true` under `accounts` in `src/site.ts` (or add a repository variable `PUBLIC_AUTH_GOOGLE` set to `1`) and deploy.
+
+The **Continue with Google** buttons and the matching lines in the privacy policy appear only after step 3.
 
 The anon key is meant to be public. What keeps data private is row level security in `schema.sql`: every request is checked against the signed-in user, so no one can read or change another person's progress. The privacy policy, terms, cookie policy, and account page change their wording at build time depending on whether accounts are on, so they always describe what the live site does.
 
@@ -106,11 +119,14 @@ src/
   data/             lessons list, glossary, review sheets
   scripts/graphs/   the SVG graph engine, every graph model, and the four-moves scripts
   scripts/          quiz, question bank, local storage (progress, XP, streak, question history),
-                    account.ts (sign-in and progress sync), merge.ts (combining two copies of progress)
+                    account.ts (sign-in and progress sync), merge.ts (combining two copies of progress),
+                    toast.ts (short notices), forms.ts (form checks and the password strength meter)
   data/formulas.ts  the formula sheet
 supabase/schema.sql the database table and security rules for accounts
   lib/rehype-sidenotes.mjs   adds margin definitions to lessons at build time
-  components/       CoursePage, AuthShell, Graph, HeroDemo, Quiz, SearchDialog, Callout, Worked, Step, ProGate, header, footer
+  topics/           a guide for each official topic (MDX), shown at /ap-micro/<topic>/ and /ap-macro/<topic>/
+  data/questions/figs.ts   the graphs used in questions, drawn with the same engine as the lessons
+  components/       CoursePage, TopicPage, AuthShell, GoogleButton, Graph, HeroDemo, Quiz, SearchDialog, Callout, Worked, Step, ProGate, header, footer
   pages/            every route, including policies, plus search.json and questions.json
   styles/           design tokens and component styles
 ```

@@ -1,4 +1,5 @@
 import { make } from './make';
+import { ppcPoints, ppcShift } from './figs';
 
 const q = make('foundations');
 
@@ -311,5 +312,117 @@ export default [
     ['time is limited, so choosing one activity means giving up others', 'Correct. No one can buy more hours in a day. Every choice still has an opportunity cost.'],
     ['wealthy people pay higher taxes', 'Taxes reduce income, but scarcity would exist even without them.'],
     ['scarcity applies only to goods with high prices', 'Scarcity applies to anything limited, including free time.'],
+  ], 2),
+  q('f45', 'mi1.3 ma1.2', 1, 'Which point on the graph shows an economy with unemployed or badly used resources?', [
+    ['Point B', 'B is on the curve, so the economy is using all of its resources efficiently.'],
+    ['Point C', 'C is on the curve, which means full and efficient use of resources.'],
+    ['Point A', 'Correct. A is inside the curve. The economy could make more of both goods by putting idle resources to work.'],
+    ['Point D', 'D is outside the curve. The economy cannot reach it at all with its current resources.'],
+    ['None of the points, because every point on the graph is efficient', 'Only points on the curve are efficient. Point A is inside it.'],
+  ], 2, { figure: ppcPoints() }),
+  q('f46', 'mi1.3 ma1.2', 1, 'Which point can the economy not reach with its current resources and technology?', [
+    ['Point A', 'A is inside the curve, so it is reachable. It is just inefficient.'],
+    ['Point D', 'Correct. D lies outside the curve. Reaching it would take more resources or better technology.'],
+    ['Point B', 'B is on the curve, so the economy can reach it.'],
+    ['Point C', 'C is on the curve, so the economy can reach it.'],
+    ['Both B and C', 'Points on the curve are the most the economy can make, but they are reachable.'],
+  ], 1, { figure: ppcPoints() }),
+  q('f47', 'mi1.3 ma1.2 ma5.6', 3, 'The economy on the graph moves from point B to point C. Compared with point B, which is most likely true at point C?', [
+    ['The economy is now inefficient', 'Both points are on the curve, so both are efficient.'],
+    ['The economy has grown, because it makes more consumer goods', 'Moving along the curve is a choice, not growth. Growth would shift the curve out.'],
+    ['The opportunity cost of consumer goods has fallen', 'Along a bowed-out curve, each extra consumer good costs more capital goods, not fewer.'],
+    ['The economy can now reach point D', 'Moving along the curve does not change what the economy can make.'],
+    ['The economy enjoys more consumer goods now but will likely grow more slowly, because it makes fewer capital goods', 'Correct. Capital goods build future capacity. Trading them for consumer goods today tends to slow the outward shift of the curve.'],
+  ], 4, { figure: ppcPoints() }),
+  q('f48', 'mi1.3 ma1.2', 2, 'Which event could cause the change from PPC1 to PPC2 shown on the graph?', [
+    ['A fall in unemployment', 'Putting idle workers back to work moves the economy from inside the curve onto it. The curve itself does not move.'],
+    ['A decision to make more capital goods and fewer consumer goods', 'That is a movement along the existing curve.'],
+    ['A rise in the price of consumer goods', 'The PPC shows what can be made with the economy’s resources. Prices do not shift it.'],
+    ['A new technology that raises productivity in making both goods', 'Correct. Better technology lets the economy make more of both goods, so the whole curve shifts outward.'],
+    ['An earthquake that destroys many factories', 'Losing capital would shift the curve inward, not outward.'],
+  ], 3, { figure: ppcShift() }),
+  q('f49', 'mi1.1 ma1.1', 1, 'Which of the following is an example of human capital?', [
+    ['A nurse’s medical training', 'Correct. Human capital is the knowledge and skill workers carry with them, gained through education and experience.'],
+    ['A new hospital building', 'A building used to produce services is physical capital.'],
+    ['A stethoscope', 'Tools are physical capital.'],
+    ['The money in a hospital’s bank account', 'Money is not a factor of production in economics.'],
+    ['The land the hospital stands on', 'Land is its own factor of production.'],
+  ], 0),
+  q('f50', 'mi1.2', 2, 'In a command economy, which problem is most likely?', [
+    ['Prices change quickly to match supply and demand', 'In a command economy, planners set prices, so they often do not change with supply and demand.'],
+    ['Private firms decide what to produce', 'Private firms decide in a market economy. In a command economy, a central planner does.'],
+    ['Most resources are owned by individuals', 'In a command economy, the government owns most resources.'],
+    ['Shortages of some goods and surpluses of others, because planned output does not match what people want', 'Correct. Without prices to signal what buyers want, planners often make too much of some goods and too little of others.'],
+    ['There is no government involvement in the economy', 'A command economy has the most government involvement of any system.'],
+  ], 3),
+  q('f51', 'mi1.4 ma1.3', 3, 'Workers in Country X need 2 hours to make a bike and 4 hours to make a table. Workers in Country Y need 3 hours to make a bike and 9 hours to make a table. Which statement is true?', [
+    ['Country X has a comparative advantage in both goods', 'No country can have a comparative advantage in both goods. Their opportunity costs are mirror images.'],
+    ['Country Y has an absolute advantage in bikes', 'Country X needs fewer hours for both goods, so X has the absolute advantage in both.'],
+    ['Country Y has a comparative advantage in bikes, and Country X has a comparative advantage in tables', 'Correct. A bike costs X 2 ÷ 4 = 0.5 table and costs Y 3 ÷ 9 = about 0.33 table, so Y gives up less for bikes. A table costs X 2 bikes and Y 3 bikes, so X gives up less for tables.'],
+    ['Country X has a comparative advantage in bikes, and Country Y has a comparative advantage in tables', 'These are reversed. Compare hours for one good against hours for the other.'],
+    ['Neither country gains from trade, because X is faster at both goods', 'Different opportunity costs mean both can gain, whoever is faster.'],
+  ], 2),
+  q('f52', 'mi1.4 ma1.3', 3, 'Use the same countries: X needs 2 hours per bike and 4 per table, and Y needs 3 hours per bike and 9 per table. Which terms of trade would benefit both countries?', [
+    ['1 table for 1.5 bikes', 'A table costs Country X 2 bikes to make, so X would not sell one for only 1.5 bikes.'],
+    ['1 table for 2.5 bikes', 'Correct. The price of a table must fall between X’s cost of 2 bikes and Y’s cost of 3 bikes.'],
+    ['1 table for 3.5 bikes', 'Country Y can make a table for 3 bikes, so it would not pay 3.5.'],
+    ['1 table for 1 bike', 'That is below Country X’s cost of 2 bikes per table.'],
+    ['1 table for 4 bikes', 'That is above Country Y’s cost of 3 bikes per table.'],
+  ], 1),
+  q('f53', 'mi1.5', 2, 'Priya can work on Saturday for $100, tutor for $70, or go to a festival. The festival ticket costs $30, and she values the day at $150. She goes to the festival. What is her opportunity cost?', [
+    ['$100', 'That leaves out the $30 she pays for the ticket, which could have been spent on something else.'],
+    ['$170', 'Only the best alternative counts, which is the $100 job, not both the job and the tutoring.'],
+    ['$30', 'That is only the explicit cost. She also gives up $100 of earnings.'],
+    ['$130', 'Correct. She pays $30 for the ticket and gives up the $100 she could have earned, her next best option.'],
+    ['$150', 'That is how much she values the festival, which is a benefit, not a cost.'],
+  ], 3),
+  q('f54', 'mi1.6 mi1.5', 2, 'A factory can run an extra shift that brings in $5,000 of revenue and costs $4,200 in wages and materials. The factory pays $10,000 a month in rent no matter what. Should it run the extra shift?', [
+    ['No, because the rent makes total cost larger than the shift’s revenue', 'The rent is paid either way, so it does not change the decision.'],
+    ['Yes, because the shift adds more to revenue than it adds to cost', 'Correct. The shift brings in $5,000 and costs $4,200, so profit rises by $800. The rent is the same whether or not the shift runs.'],
+    ['No, because the shift’s revenue is less than the rent', 'The rent is not a cost of this shift. Compare only what changes.'],
+    ['Yes, but only if the shift’s revenue also covers the rent', 'The rent is paid either way, so the shift only has to cover its own cost.'],
+    ['It depends on how much profit the factory made last month', 'Past profit does not change the costs and benefits of this shift.'],
+  ], 1),
+  q('f55', 'mi1.6', 1, 'A person’s total utility from a good is at its highest when', [
+    ['marginal utility is at its highest', 'Marginal utility is usually highest for the first unit, when total utility is still low.'],
+    ['marginal utility equals the price', 'That is a buying rule, not the peak of total utility.'],
+    ['marginal utility is zero', 'Correct. As long as another unit adds some satisfaction, total utility is still rising. It stops rising when marginal utility reaches zero.'],
+    ['the first unit is consumed', 'Later units still add to total utility, as long as their marginal utility is positive.'],
+    ['marginal utility per dollar is equal across goods', 'That rule tells a consumer how to split a budget. It does not describe the peak of total utility for one good.'],
+  ], 2),
+  q('f56', 'mi1.6', 3, 'Jamal has $10 to spend on good X at $2 and good Y at $1. The table shows his marginal utility from each unit. Which combination maximizes his total utility?', [
+    ['5 units of X and 0 units of Y', 'The fourth and fifth units of X give only 4 utils or less per dollar, while the first units of Y give 10 or more.'],
+    ['4 units of X and 2 units of Y', 'The fourth unit of X gives 8 ÷ 2 = 4 utils per dollar, while a third unit of Y would give 8.'],
+    ['1 unit of X and 8 units of Y', 'The table stops at 5 units of Y, and more X gives more utility per dollar than the later units of Y.'],
+    ['2 units of X and 6 units of Y', 'The table does not go past 5 units of Y, and a third X (6 per dollar) beats the later units of Y.'],
+    ['3 units of X and 4 units of Y', 'Correct. This spends exactly $10, and the last dollar on each gives the same utility: 12 ÷ 2 = 6 for X and 6 ÷ 1 = 6 for Y.'],
+  ], 4, { table: { head: ['Unit', 'MU of X', 'MU of Y'], rows: [[1, 20, 10], [2, 16, 9], [3, 12, 8], [4, 8, 6], [5, 4, 4]] } }),
+  q('f57', 'ma2.1', 2, 'In the circular flow model, which of the following flows from firms to households?', [
+    ['Spending on goods and services', 'Households pay firms for goods and services, so that money flows the other way.'],
+    ['Taxes', 'Taxes flow to the government.'],
+    ['Household saving', 'Saving flows to the financial sector.'],
+    ['Labor services', 'Labor flows from households to firms through the factor market.'],
+    ['Wages, rent, interest, and profit paid for factors of production', 'Correct. Firms pay households income for the labor, land, capital, and entrepreneurship they supply.'],
+  ], 4),
+  q('f58', 'mi1.1 ma1.1', 1, 'Which statement is normative rather than positive?', [
+    ['Raising the gas tax reduces the quantity of gas people buy', 'This is a claim about cause and effect that data can test, so it is positive.'],
+    ['The unemployment rate was 4% last year', 'This is a fact that can be checked, so it is positive.'],
+    ['A higher tariff on steel raises the price of steel', 'This can be tested, so it is positive.'],
+    ['The government should spend more on public transit', 'Correct. “Should” signals a value judgment, which makes the statement normative.'],
+    ['When interest rates rise, business investment tends to fall', 'This is a testable claim, so it is positive.'],
+  ], 3),
+  q('f59', 'mi1.2 ma1.1', 2, 'Economists usually credit market economies with which strength?', [
+    ['Prices give producers a reason to make what buyers want', 'Correct. When buyers want more of something, its price rises, and the chance to earn more draws resources toward it.'],
+    ['Everyone ends up with the same income', 'Markets reward different skills and resources differently, so incomes are usually unequal.'],
+    ['The government sets every price', 'That describes a command economy.'],
+    ['Scarcity disappears', 'Scarcity exists in every economic system.'],
+    ['There are never any shortages', 'Markets can have temporary shortages, and price controls can make them last.'],
+  ], 0),
+  q('f60', 'mi1.3 ma1.2', 2, 'A country’s production possibilities curve for food and clothing moves outward along the food axis only, while the clothing intercept stays the same. What is the most likely cause?', [
+    ['Better machines for making clothing', 'That would move the curve out along the clothing axis.'],
+    ['A large increase in the number of workers', 'More workers can make more of both goods, so the curve would move out along both axes.'],
+    ['A new farming technology', 'Correct. A change that helps only one good makes the curve pivot out along that good’s axis.'],
+    ['A fall in unemployment', 'Lower unemployment moves the economy from inside the curve toward it. It does not move the curve.'],
+    ['A decision to make more food and less clothing', 'That is a movement along the curve, not a change in the curve.'],
   ], 2),
 ];
