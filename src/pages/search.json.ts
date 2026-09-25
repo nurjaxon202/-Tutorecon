@@ -6,6 +6,8 @@ import { units } from '../data/units';
 import { glossary, termSlug } from '../data/glossary';
 import { graphList } from '../scripts/graphs/models';
 import { frqs } from '../data/frqs';
+import { formulaGroups } from '../data/formulas';
+import { accountsOn } from '../lib/accounts';
 import { url } from '../lib/url';
 
 interface Entry {
@@ -34,7 +36,16 @@ export const GET: APIRoute = () => {
     ['Glossary', 'Every key term defined', '/glossary/', 'definitions vocabulary'],
     ['All lessons', 'Every unit in order', '/learn/', 'units lessons path'],
     ['Pricing', 'Free and Pro plans', '/pricing/', 'pro subscription'],
-    ['Your data and settings', 'Progress, theme, and deleting your data', '/account/', 'account settings privacy delete'],
+    ['Missed and flagged questions', 'Every question you missed or flagged, with the answer', '/missed/', 'mistakes wrong review flagged'],
+    ['Study planner', 'A day-by-day plan up to your exam date', '/study-plan/', 'schedule calendar plan exam date'],
+    ['Formula sheet', 'Every formula from both courses on one page', '/formulas/', 'equations formulas cheat sheet multiplier elasticity'],
+    [accountsOn ? 'Your account and data' : 'Your data and settings', 'Progress, theme, and deleting your data', '/account/', 'account settings privacy delete export import'],
+    ...(accountsOn
+      ? ([
+          ['Sign in', 'Pick up your progress on any device', '/sign-in/', 'log in login account'],
+          ['Create an account', 'Free account to save progress', '/sign-up/', 'sign up register signup'],
+        ] as [string, string, string, string][])
+      : []),
   ];
   for (const [t, s, u, x] of pages) entries.push({ t, s, u: url(u), k: 'Page', x });
 
@@ -50,6 +61,9 @@ export const GET: APIRoute = () => {
   for (const u of units) entries.push({ t: u.title, s: `Lesson · ${u.summary}`, u: url(`/learn/${u.slug}/`), k: 'Lesson' });
   for (const g of glossary) entries.push({ t: g.term, s: g.def, u: url(`/glossary/#${termSlug(g.term)}`), k: 'Term' });
   for (const g of graphList) entries.push({ t: g.label, s: 'Interactive graph', u: url(`/graph-lab/#${g.key}`), k: 'Graph' });
+  for (const g of formulaGroups) {
+    for (const f of g.items) entries.push({ t: f.name, s: `Formula · ${f.f}`, u: url(`/formulas/#${g.id}`), k: 'Formula' });
+  }
   for (const f of frqs) {
     entries.push({
       t: f.title,

@@ -1,0 +1,433 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { courses } from '../data/ced';
+import { units as lessonUnits } from '../data/units';
+import { url } from '../lib/url';
+
+// Each course unit with its exam weight (the middle of the published range)
+// and the lessons that teach it.
+const mid = (w: string) => {
+  const [a, b] = w.replace('%', '').split(' to ').map(Number);
+  return (a + (b ?? a)) / 2;
+};
+const plan = courses.map((c) => ({
+  id: c.id,
+  short: c.short,
+  units: c.units.map((u) => ({
+    n: u.n,
+    title: u.title,
+    weight: mid(u.weight),
+    lessons: u.lessons.map((slug) => ({ slug, title: lessonUnits.find((l) => l.slug === slug)?.title ?? slug })),
+  })),
+}));
+const links = {
+  learn: url('/learn/'),
+  practice: url('/practice/'),
+  missed: url('/missed/'),
+  frq: url('/frq/'),
+  mock: url('/mock-exam/'),
+  formulas: url('/formulas/'),
+  flashcards: url('/flashcards/'),
+};
+---
+<Base title="Study planner" description="Enter your AP Economics exam date and the days you can study, and get a day-by-day plan weighted by how much each unit counts on the exam.">
+  <PageBand
+    eyebrow="Plan"
+    title="Study planner"
+    lede="Enter your exam date and the days you can study. You get a day-by-day plan that gives each unit time in proportion to its share of the exam and saves the last days for mock exams and review."
+  />
+
+  <div class="wrap planner" data-planner>
+    <form class="setup" novalidate data-setup>
+      <h2 class="h3" data-setup-title>Make your plan</h2>
+      <div class="field">
+        <label for="p-exam">Exam date</label>
+        <input id="p-exam" type="date" class="input" required aria-describedby="p-exam-hint p-exam-error" aria-invalid="false" />
+        <p id="p-exam-hint" class="hint">Check your date on the <a href="https://apstudents.collegeboard.org/exam-calendar">College Board AP exam calendar</a> or ask your teacher.</p>
+        <p id="p-exam-error" class="error-text" data-error="exam"></p>
+      </div>
+      <fieldset class="field-group">
+        <legend>Course</legend>
+        <div class="seg">
+          <label><input type="radio" name="course" value="micro" checked /><span>AP Micro</span></label>
+          <label><input type="radio" name="course" value="macro" /><span>AP Macro</span></label>
+        </div>
+      </fieldset>
+      <fieldset class="field-group" aria-describedby="p-days-error">
+        <legend>Days you can study</legend>
+        <div class="days">
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => (
+            <label><input type="checkbox" name="day" value={(i + 1) % 7} checked={i < 5} /> {d}</label>
+          ))}
+        </div>
+        <p id="p-days-error" class="error-text" data-error="days"></p>
+      </fieldset>
+      <div class="btn-row">
+        <button type="submit" class="btn" data-make>Make my plan</button>
+        <button type="button" class="btn btn-secondary" data-cancel hidden>Keep my current plan</button>
+      </div>
+    </form>
+
+    <section class="view" data-view hidden aria-labelledby="view-title">
+      <div class="view-head">
+        <div>
+          <h2 id="view-title" class="h3" data-view-title></h2>
+          <p class="muted" data-view-sub></p>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary btn-small" data-edit>Change plan</button>
+          <button type="button" class="btn btn-secondary btn-small" data-delete>Delete plan</button>
+        </div>
+      </div>
+      <div class="today" data-today></div>
+      <div class="weeks" data-weeks></div>
+    </section>
+  </div>
+
+  <script type="application/json" data-plan-info set:html={JSON.stringify({ courses: plan, links })} />
+</Base>
+
+<script>
+  import { dayKey, store, type StudyPlan } from '../scripts/store';
+
+  interface Info {
+    courses: { id: 'micro' | 'macro'; short: string; units: { n: number; title: string; weight: number; lessons: { slug: string; title: string }[] }[] }[];
+    links: Record<string, string>;
+  }
+  interface Task {
+    text: string;
+    href: string;
+  }
+  const info: Info = JSON.parse(document.querySelector('[data-plan-info]')!.textContent!);
+  const root = document.querySelector<HTMLElement>('[data-planner]')!;
+  const $ = <T extends HTMLElement = HTMLElement>(s: string) => root.querySelector<T>(s)!;
+  const setup = $<HTMLFormElement>('[data-setup]');
+  const view = $('[data-view]');
+  const examInput = $<HTMLInputElement>('#p-exam');
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+  const parse = (k: string) => {
+    const [y, m, d] = k.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  };
+  const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) => d.toLocaleDateString(undefined, opts);
+
+  const tomorrow = dayKey(addDays(new Date(), 1));
+  examInput.min = tomorrow;
+
+  /** Turn a saved plan into dated days with tasks. */
+  const build = (p: StudyPlan) => {
+    const course = info.courses.find((c) => c.id === p.course) ?? info.courses[0];
+    const exam = parse(p.exam);
+    const dates: Date[] = [];
+    for (let d = parse(p.start); d < exam; d = addDays(d, 1)) if (p.days.includes(d.getDay())) dates.push(d);
+    const n = dates.length;
+    const review = n >= 8 ? Math.min(14, Math.max(2, Math.round(n * 0.15))) : n >= 3 ? 1 : 0;
+    const learn = n - review;
+    const total = course.units.reduce((s, u) => s + u.weight, 0);
+    let acc = 0;
+    const spans = course.units.map((u) => {
+      const from = acc / total;
+      acc += u.weight;
+      return { u, from, to: acc / total };
+    });
+    const q = (u: { n: number }) => `${info.links.practice}?course=${course.id}&unit=${u.n}`;
+    const days = dates.map((date, i) => {
+      const tasks: Task[] = [];
+      if (i < learn) {
+        const a = i / learn;
+        const b = (i + 1) / learn;
+        const here = spans.filter((s) => s.from < b && s.to > a);
+        for (const s of here) {
+          const first = s.from >= a;
+          const last = s.to <= b;
+          if (first) for (const l of s.u.lessons) tasks.push({ text: `Learn: ${l.title}`, href: `${info.links.learn}${l.slug}/` });
+          tasks.push({ text: `Practice 10 questions from ${course.short} Unit ${s.u.n}`, href: q(s.u) });
+          if (last && !first) tasks.push({ text: `Redo the Unit ${s.u.n} questions you missed`, href: info.links.missed });
+        }
+        return { date, tasks, kind: 'learn' as const, label: here.map((s) => `Unit ${s.u.n}`).join(', ') };
+      }
+      const r = i - learn;
+      const lastDay = i === n - 1;
+      if (lastDay && review > 1) {
+        tasks.push({ text: 'Light review: read the formula sheet', href: info.links.formulas });
+        tasks.push({ text: 'Run through a flashcard deck, then rest', href: info.links.flashcards });
+      } else if (r % 2 === 0) {
+        tasks.push({ text: 'Take a full mock exam: 60 questions in 70 minutes', href: info.links.mock });
+        tasks.push({ text: 'Redo every question you missed', href: info.links.missed });
+      } else {
+        tasks.push({ text: 'Write two FRQs with the timer on, then score them', href: info.links.frq });
+        tasks.push({ text: 'Practice your weakest topics', href: info.links.practice });
+      }
+      return { date, tasks, kind: 'review' as const, label: 'Review' };
+    });
+    return { course, days, review };
+  };
+
+  const render = () => {
+    const p = store.get().plan;
+    if (!p) {
+      setup.hidden = false;
+      view.hidden = true;
+      $('[data-cancel]').hidden = true;
+      return;
+    }
+    setup.hidden = true;
+    view.hidden = false;
+    const { course, days, review } = build(p);
+    const today = dayKey();
+    const exam = parse(p.exam);
+    const left = days.filter((d) => dayKey(d.date) >= today).length;
+    const doneN = days.filter((d) => p.done[dayKey(d.date)]).length;
+    $('[data-view-title]').textContent = `${course.short} exam on ${fmt(exam, { weekday: 'long', month: 'long', day: 'numeric' })}`;
+    $('[data-view-sub]').textContent = exam <= parse(today)
+      ? 'This exam date has passed. Change the plan to set a new date.'
+      : `${days.length} study days in the plan: ${days.length - review} for learning and ${review} for review. ${left} still ahead, ${doneN} checked off.`;
+
+    const next = days.find((d) => dayKey(d.date) >= today);
+    const todayBox = $('[data-today]');
+    if (days.length < 3) {
+      todayBox.innerHTML = '<p class="warn">That leaves fewer than three study days. Pick more days of the week or a later date for a useful plan.</p>';
+    } else if (next) {
+      const isToday = dayKey(next.date) === today;
+      todayBox.innerHTML = `<h3 class="today-title">${isToday ? 'Today' : `Next: ${fmt(next.date, { weekday: 'long', month: 'short', day: 'numeric' })}`}</h3><ul>${next.tasks
+        .map((t) => `<li><a href="${t.href}">${esc(t.text)}</a></li>`)
+        .join('')}</ul>`;
+    } else todayBox.innerHTML = '';
+
+    // Group by week, starting on Monday.
+    const weeks = new Map<string, typeof days>();
+    for (const d of days) {
+      const monday = addDays(d.date, -((d.date.getDay() + 6) % 7));
+      const k = dayKey(monday);
+      if (!weeks.has(k)) weeks.set(k, []);
+      weeks.get(k)!.push(d);
+    }
+    $('[data-weeks]').innerHTML = [...weeks.entries()]
+      .map(
+        ([k, list]) => `<section class="week"><h3 class="week-title">Week of ${fmt(parse(k), { month: 'long', day: 'numeric' })}</h3><ol class="days-list">${list
+          .map((d) => {
+            const key = dayKey(d.date);
+            const cls = [key === today ? 'is-today' : '', key < today ? 'is-past' : '', p.done[key] ? 'is-done' : '', d.kind === 'review' ? 'is-review' : ''].join(' ');
+            return `<li class="day ${cls}"><label class="day-check"><input type="checkbox" data-day="${key}" ${p.done[key] ? 'checked' : ''} /><span class="visually-hidden">Done: ${fmt(d.date, { weekday: 'long', month: 'long', day: 'numeric' })}</span></label><div class="day-when"><span class="day-date">${fmt(d.date, { weekday: 'short', month: 'short', day: 'numeric' })}</span><span class="day-label">${esc(d.label)}</span></div><ul class="day-tasks">${d.tasks
+              .map((t) => `<li><a href="${t.href}">${esc(t.text)}</a></li>`)
+              .join('')}</ul></li>`;
+          })
+          .join('')}</ol></section>`,
+      )
+      .join('');
+  };
+
+  $('[data-weeks]').addEventListener('change', (e) => {
+    const box = e.target as HTMLInputElement;
+    if (box.dataset.day) store.setPlanDay(box.dataset.day, box.checked);
+    box.closest('.day')?.classList.toggle('is-done', box.checked);
+  });
+
+  setup.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const exam = examInput.value;
+    const days = [...setup.querySelectorAll<HTMLInputElement>('input[name=day]:checked')].map((b) => Number(b.value));
+    const examMsg = !exam ? 'Choose your exam date.' : exam < tomorrow ? 'Choose a date after today.' : '';
+    const daysMsg = days.length ? '' : 'Pick at least one day of the week.';
+    setup.querySelector('[data-error="exam"]')!.textContent = examMsg;
+    examInput.setAttribute('aria-invalid', String(Boolean(examMsg)));
+    setup.querySelector('[data-error="days"]')!.textContent = daysMsg;
+    if (examMsg) return examInput.focus();
+    if (daysMsg) return setup.querySelector<HTMLInputElement>('input[name=day]')!.focus();
+    const course = (setup.querySelector<HTMLInputElement>('input[name=course]:checked')?.value ?? 'micro') as StudyPlan['course'];
+    store.setPlan({ exam, course, days, start: dayKey(), done: {} });
+    render();
+    $('[data-view-title]').setAttribute('tabindex', '-1');
+    $('[data-view-title]').focus();
+  });
+
+  $('[data-edit]').addEventListener('click', () => {
+    const p = store.get().plan;
+    if (p) {
+      examInput.value = p.exam;
+      setup.querySelectorAll<HTMLInputElement>('input[name=course]').forEach((r) => (r.checked = r.value === p.course));
+      setup.querySelectorAll<HTMLInputElement>('input[name=day]').forEach((b) => (b.checked = p.days.includes(Number(b.value))));
+    }
+    setup.hidden = false;
+    view.hidden = true;
+    $('[data-setup-title]').textContent = 'Change your plan';
+    $('[data-make]').textContent = 'Save changes';
+    $('[data-cancel]').hidden = false;
+    examInput.focus();
+  });
+  $('[data-cancel]').addEventListener('click', () => {
+    render();
+    $<HTMLButtonElement>('[data-edit]').focus();
+  });
+  $('[data-delete]').addEventListener('click', () => {
+    store.setPlan(null);
+    render();
+    examInput.focus();
+  });
+
+  render();
+</script>
+
+<style>
+  .planner {
+    display: grid;
+    gap: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+    max-width: 900px;
+    margin-left: 0;
+  }
+  @media (min-width: 1100px) {
+    .planner {
+      max-width: 1200px;
+      margin-left: auto;
+    }
+  }
+  .planner > * {
+    max-width: 900px;
+  }
+  .setup {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 560px;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+  }
+  .field-group {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .field-group legend {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+  }
+  .days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+  .days label {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+    min-height: 40px;
+    cursor: pointer;
+  }
+  .view {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .view-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .view-head h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+  }
+  .view-head h2:focus {
+    outline: none;
+  }
+  .today :global(.today-title) {
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+  }
+  .today:not(:empty) {
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--brand);
+    border-radius: var(--radius-lg);
+    background: var(--brand-tint);
+  }
+  .today :global(ul) {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .today :global(.warn) {
+    font-weight: 600;
+  }
+  .weeks {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .weeks :global(.week-title) {
+    font-size: 1rem;
+    color: var(--ink-2);
+    margin-bottom: 0.5rem;
+  }
+  .weeks :global(.days-list) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line-strong);
+  }
+  .weeks :global(.day) {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.25rem 0.75rem;
+    padding: 0.8rem 0.25rem;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 720px) {
+    .weeks :global(.day) {
+      grid-template-columns: 2rem 11rem minmax(0, 1fr);
+    }
+  }
+  .weeks :global(.day-check) {
+    display: grid;
+    place-items: start center;
+    padding-top: 0.15rem;
+    cursor: pointer;
+  }
+  .weeks :global(.day-when) {
+    display: grid;
+  }
+  .weeks :global(.day-date) {
+    font-weight: 700;
+  }
+  .weeks :global(.day-label) {
+    font-size: 0.88rem;
+    color: var(--ink-2);
+  }
+  .weeks :global(.day-tasks) {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.2rem;
+    grid-column: 2 / -1;
+  }
+  @media (min-width: 720px) {
+    .weeks :global(.day-tasks) {
+      grid-column: 3;
+    }
+  }
+  .weeks :global(.is-today) {
+    background: var(--brand-tint);
+  }
+  .weeks :global(.is-review .day-label) {
+    color: var(--orange-text);
+    font-weight: 600;
+  }
+  .weeks :global(.is-done .day-date) {
+    text-decoration: line-through;
+    color: var(--ink-2);
+  }
+  .weeks :global(.is-done .day-tasks a) {
+    color: var(--ink-2);
+  }
+</style>

@@ -1,0 +1,247 @@
+---
+import Base from '../layouts/Base.astro';
+import PageBand from '../components/PageBand.astro';
+import { courses } from '../data/ced';
+import { url } from '../lib/url';
+
+const topicInfo = Object.fromEntries(courses.flatMap((c) => c.units.flatMap((u) => u.topics.map((t) => [t.id, { code: t.code, title: t.title, short: c.short }]))));
+---
+<Base title="Missed and flagged questions" description="Every AP Economics practice question you missed on your last try or flagged, with the right answer and the reason, ready to practice again.">
+  <PageBand
+    eyebrow="Practice"
+    title="Missed and flagged questions"
+    lede="Every question you got wrong on your last try, and every question you flagged, with the right answer and why. Read through them, then practice them again."
+  />
+
+  <div class="wrap missed" data-missed data-src={url('/questions.json')} data-practice={url('/practice/')}>
+    <form class="bar" data-filters onsubmit="return false">
+      <fieldset class="seg-field">
+        <legend class="visually-hidden">Show</legend>
+        <div class="seg">
+          <label><input type="radio" name="list" value="missed" checked /><span data-count="missed">Missed last time</span></label>
+          <label><input type="radio" name="list" value="flagged" /><span data-count="flagged">Flagged</span></label>
+        </div>
+      </fieldset>
+      <div class="field inline">
+        <label for="m-course">Course</label>
+        <select id="m-course" class="select" data-course>
+          <option value="all">Both courses</option>
+          <option value="mi">AP Micro</option>
+          <option value="ma">AP Macro</option>
+        </select>
+      </div>
+      <a class="btn" href={url('/practice/?which=missed&course=all')} data-go>Practice these</a>
+    </form>
+
+    <p class="status" aria-live="polite" data-status>Loading your questions.</p>
+    <ol class="list" data-list></ol>
+  </div>
+
+  <script type="application/json" data-topic-info set:html={JSON.stringify(topicInfo)} />
+</Base>
+
+<script>
+  import { store } from '../scripts/store';
+
+  interface Q {
+    id: string;
+    t: string[];
+    p: string;
+    tb?: { head: string[]; rows: (string | number)[][] };
+    o: [string, string][];
+    a: number;
+  }
+  const root = document.querySelector<HTMLElement>('[data-missed]')!;
+  const topics: Record<string, { code: string; title: string; short: string }> = JSON.parse(document.querySelector('[data-topic-info]')!.textContent!);
+  const list = root.querySelector<HTMLOListElement>('[data-list]')!;
+  const status = root.querySelector<HTMLElement>('[data-status]')!;
+  const courseSel = root.querySelector<HTMLSelectElement>('[data-course]')!;
+  const go = root.querySelector<HTMLAnchorElement>('[data-go]')!;
+  const LETTERS = ['A', 'B', 'C', 'D', 'E'];
+  const esc = (s: string | number) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  let bank: Q[] = [];
+
+  const which = () => (root.querySelector<HTMLInputElement>('input[name=list]:checked')?.value ?? 'missed') as 'missed' | 'flagged';
+
+  const render = () => {
+    if (!bank.length) return;
+    const { qstats, flags } = store.get();
+    const course = courseSel.value;
+    const inCourse = (q: Q) => course === 'all' || q.t.some((t) => t.startsWith(course));
+    const missed = bank.filter((q) => qstats[q.id]?.l === 0 && inCourse(q));
+    const flagged = bank.filter((q) => flags[q.id] && inCourse(q));
+    root.querySelector('[data-count="missed"]')!.textContent = `Missed last time (${missed.length})`;
+    root.querySelector('[data-count="flagged"]')!.textContent = `Flagged (${flagged.length})`;
+    const w = which();
+    const shown = w === 'missed' ? missed : flagged;
+    const courseParam = course === 'mi' ? 'micro' : course === 'ma' ? 'macro' : 'all';
+    go.href = `${root.dataset.practice}?which=${w}&course=${courseParam}`;
+    go.hidden = shown.length === 0;
+    status.textContent = shown.length
+      ? `${shown.length} question${shown.length === 1 ? '' : 's'}. Open one to see the answer.`
+      : w === 'missed'
+        ? 'Nothing here. Questions you get wrong in the question bank, lesson checks, or mock exams show up here until you get them right.'
+        : 'Nothing flagged. Use “Flag for review” in the question bank to save a question here.';
+    list.innerHTML = shown
+      .map((q) => {
+        const t = topics[q.t.find((id) => course === 'all' || id.startsWith(course)) ?? q.t[0]];
+        const st = qstats[q.id];
+        const table = q.tb
+          ? `<div class="q-table"><table><thead><tr>${q.tb.head.map((h) => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${q.tb.rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
+          : '';
+        return `<li class="item"><details>
+          <summary><span class="meta">${esc(t.short)} ${esc(t.code)} · ${esc(t.title)}${st ? ` · ${st.c} of ${st.a} right so far` : ''}</span><span class="prompt">${esc(q.p)}</span></summary>
+          <div class="body">
+            ${table}
+            <ol class="opts">${q.o.map(([text], j) => `<li class="${j === q.a ? 'is-answer' : ''}"><span class="mono letter">${LETTERS[j]}</span><span>${esc(text)}${j === q.a ? ' <strong class="tag-answer">Answer</strong>' : ''}</span></li>`).join('')}</ol>
+            <p class="why"><strong>Why ${LETTERS[q.a]} is right.</strong> ${esc(q.o[q.a][1].replace(/^Correct\.\s*/, ''))}</p>
+            <p><button type="button" class="btn btn-secondary btn-small" data-flag="${esc(q.id)}" aria-pressed="${flags[q.id] ? 'true' : 'false'}">Flag for review</button></p>
+          </div>
+        </details></li>`;
+      })
+      .join('');
+  };
+
+  list.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-flag]');
+    if (!btn) return;
+    const on = store.toggleFlag(btn.dataset.flag!);
+    btn.setAttribute('aria-pressed', String(on));
+  });
+  root.querySelector('[data-filters]')!.addEventListener('change', render);
+
+  fetch(root.dataset.src!)
+    .then((r) => r.json())
+    .then((data: Q[]) => {
+      bank = data;
+      render();
+    })
+    .catch(() => {
+      status.textContent = 'The questions could not load. Check your connection and reload the page.';
+    });
+</script>
+
+<style>
+  .missed {
+    display: grid;
+    gap: 1.25rem;
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+    max-width: 900px;
+    margin-left: 0;
+  }
+  @media (min-width: 1100px) {
+    .missed {
+      max-width: 1200px;
+      margin-left: auto;
+    }
+  }
+  .missed > * {
+    max-width: 900px;
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    align-items: end;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .seg-field {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .inline {
+    min-width: 12rem;
+  }
+  .bar .btn {
+    margin-left: auto;
+  }
+  .status {
+    color: var(--ink-2);
+  }
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .item :global(details) {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+  }
+  .item :global(summary) {
+    display: grid;
+    gap: 0.3rem;
+    padding: 1rem 1.1rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  .item :global(summary::-webkit-details-marker) {
+    display: none;
+  }
+  .item :global(summary:hover) {
+    background: var(--bg-2);
+  }
+  .item :global(details[open] summary) {
+    border-bottom: 1px solid var(--line);
+  }
+  .item :global(.meta) {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .item :global(.prompt) {
+    font-weight: 600;
+  }
+  .item :global(.body) {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1rem 1.1rem 1.1rem;
+  }
+  .item :global(.opts) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .item :global(.opts li) {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: var(--radius);
+  }
+  .item :global(.opts .is-answer) {
+    background: var(--good-tint);
+  }
+  .item :global(.letter) {
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  .item :global(.tag-answer) {
+    margin-left: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--good);
+  }
+  .item :global(.q-table) {
+    overflow-x: auto;
+  }
+  .item :global(.q-table table) {
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .item :global(.q-table th),
+  .item :global(.q-table td) {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--line);
+    text-align: left;
+  }
+  .item :global(.btn[aria-pressed='true']) {
+    background: var(--sun-tint);
+  }
+</style>

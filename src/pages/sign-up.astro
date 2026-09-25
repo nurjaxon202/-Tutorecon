@@ -1,0 +1,142 @@
+---
+import AuthShell from '../components/AuthShell.astro';
+import { MIN_PASSWORD } from '../lib/accounts';
+import { url } from '../lib/url';
+---
+<AuthShell
+  title="Create an account"
+  description="Create a free TutorEcon account to keep your AP Economics progress and use it on any device."
+  lede="Free. Your progress follows you to any device, and anything you have already done in this browser comes with you."
+>
+  <form class="auth-form" novalidate data-signup>
+    <div class="field">
+      <label for="su-email">Email</label>
+      <input id="su-email" type="email" class="input" autocomplete="email" spellcheck="false" required aria-describedby="su-email-error" aria-invalid="false" />
+      <p id="su-email-error" class="error-text" data-error="email"></p>
+    </div>
+
+    <div class="field">
+      <label for="su-password">Password</label>
+      <div class="pw">
+        <input id="su-password" type="password" class="input" autocomplete="new-password" required minlength={MIN_PASSWORD} aria-describedby="su-password-hint su-password-error" aria-invalid="false" />
+        <button type="button" class="reveal" data-reveal aria-controls="su-password" aria-pressed="false" aria-label="Show password">Show</button>
+      </div>
+      <p id="su-password-hint" class="hint">At least {MIN_PASSWORD} characters.</p>
+      <p id="su-password-error" class="error-text" data-error="password"></p>
+    </div>
+
+    <div class="field">
+      <label class="check">
+        <input type="checkbox" id="su-consent" aria-describedby="su-consent-error" aria-invalid="false" />
+        <span>I am 13 or older, and I agree to the <a href={url('/terms/')}>Terms of use</a> and the <a href={url('/privacy/')}>Privacy policy</a>.</span>
+      </label>
+      <p id="su-consent-error" class="error-text" data-error="consent"></p>
+    </div>
+
+    <p class="error-text form-error" role="alert" data-error="form"></p>
+    <button type="submit" class="btn btn-big" data-submit>Create account</button>
+    <p>Already have an account? <a href={url('/sign-in/')}>Sign in</a></p>
+  </form>
+
+  <div class="sent" data-sent hidden>
+    <h2 class="h3" tabindex="-1" data-sent-title>Check your email</h2>
+    <p>We sent a link to <strong data-sent-to></strong>. Open it to finish creating your account. You will come back here signed in.</p>
+    <p class="hint">Nothing after a few minutes? Check your spam folder, or <button type="button" class="linklike" data-restart>use a different email</button>.</p>
+  </div>
+</AuthShell>
+
+<script>
+  import { accountsOn, authMessage, connect, onAuth, settled, siteLink, waitForSession } from '../scripts/account';
+  import { MIN_PASSWORD } from '../lib/accounts';
+  import { busy, emailOk, fieldError, wireReveal } from '../scripts/forms';
+  import { url } from '../lib/url';
+
+  const form = document.querySelector<HTMLFormElement>('[data-signup]');
+  if (accountsOn && form) {
+    const email = form.querySelector<HTMLInputElement>('#su-email')!;
+    const password = form.querySelector<HTMLInputElement>('#su-password')!;
+    const consent = form.querySelector<HTMLInputElement>('#su-consent')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const sent = document.querySelector<HTMLElement>('[data-sent]')!;
+    let signingUp = false;
+    wireReveal(form);
+
+    // Someone who is already signed in does not need this page.
+    onAuth((s) => {
+      if (s && !signingUp) location.replace(url('/account/'));
+    });
+
+    const check = () => {
+      let ok = true;
+      const e = email.value.trim();
+      const eMsg = !e ? 'Enter your email address.' : emailOk(e) ? '' : 'Enter an email address like name@example.com.';
+      fieldError(form, 'email', eMsg, email);
+      const pMsg = password.value.length >= MIN_PASSWORD ? '' : `Use at least ${MIN_PASSWORD} characters.`;
+      fieldError(form, 'password', pMsg, password);
+      const cMsg = consent.checked ? '' : 'Please confirm your age and that you agree to the terms.';
+      fieldError(form, 'consent', cMsg, consent);
+      for (const [msg, el] of [[eMsg, email], [pMsg, password], [cMsg, consent]] as const) {
+        if (msg && ok) {
+          el.focus();
+          ok = false;
+        }
+      }
+      return ok;
+    };
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      fieldError(form, 'form', '');
+      if (!check()) return;
+      busy(submit, true, 'Creating account');
+      signingUp = true;
+      try {
+        const client = await connect();
+        const { data, error } = await client.auth.signUp({
+          email: email.value.trim(),
+          password: password.value,
+          options: { emailRedirectTo: siteLink('/account/') },
+        });
+        if (error) throw error;
+        if (data.session) {
+          // Email confirmation is off in this project, so the account is ready now.
+          await waitForSession();
+          await settled();
+          location.assign(url('/account/'));
+          return;
+        }
+        sent.querySelector('[data-sent-to]')!.textContent = email.value.trim();
+        form.hidden = true;
+        sent.hidden = false;
+        sent.querySelector<HTMLElement>('[data-sent-title]')!.focus();
+      } catch (err) {
+        fieldError(form, 'form', authMessage(err));
+      } finally {
+        signingUp = false;
+        busy(submit, false, 'Create account');
+      }
+    });
+
+    sent.querySelector('[data-restart]')!.addEventListener('click', () => {
+      sent.hidden = true;
+      form.hidden = false;
+      password.value = '';
+      email.focus();
+      email.select();
+    });
+  }
+</script>
+
+<style>
+  .sent {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--good-tint);
+  }
+  .sent h2:focus {
+    outline: none;
+  }
+</style>

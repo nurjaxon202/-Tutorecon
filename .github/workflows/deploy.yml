@@ -20,6 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: withastro/action@v6
+        env:
+          # Optional. Accounts switch on when both are set as repository
+          # variables (Settings > Secrets and variables > Actions > Variables).
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
 
   deploy:
     needs: build

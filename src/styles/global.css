@@ -572,6 +572,71 @@ input[type='radio'] {
   height: 1.2rem;
 }
 
+/* Account forms: sign up, sign in, password reset, account page */
+.auth-form {
+  display: grid;
+  gap: 1.1rem;
+}
+.pw {
+  position: relative;
+}
+.pw .input {
+  padding-right: 4.75rem;
+}
+.reveal {
+  position: absolute;
+  top: 50%;
+  right: 0.4rem;
+  transform: translateY(-50%);
+  min-height: 34px;
+  padding: 0 0.65rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--brand);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.reveal:hover {
+  background: var(--brand-tint);
+}
+.check {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  cursor: pointer;
+}
+.check input {
+  flex: none;
+  margin-top: 0.2rem;
+}
+.form-error {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--bad-fill);
+  border-radius: var(--radius);
+  background: var(--bad-tint);
+}
+.form-note {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--good-tint);
+  font-weight: 600;
+}
+.form-note:empty {
+  display: none;
+}
+.linklike {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* Notices */
 .notice {
   display: grid;

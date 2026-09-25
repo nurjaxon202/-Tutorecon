@@ -2,6 +2,7 @@
 import Doc from '../layouts/Doc.astro';
 import { site } from '../site';
 import { url } from '../lib/url';
+import { accountsOn } from '../lib/accounts';
 ---
 <Doc title="Terms of use" eyebrow="Policies" updated={site.policiesUpdated} description="The terms for using TutorEcon, including the Pro demo.">
   <p>These terms apply when you use {site.name}. By using the site, you agree to them. If you do not agree, please do not use the site.</p>
@@ -13,8 +14,16 @@ import { url } from '../lib/url';
   <h2>Accuracy</h2>
   <p>We work to keep the lessons correct and up to date, but they may contain mistakes. Check important points against your teacher and official College Board materials. If you find an error, please <a href={site.contactUrl}>report it on GitHub</a>.</p>
 
+  {accountsOn && (
+    <>
+      <h2>Accounts</h2>
+      <p>You do not need an account to use {site.name}. If you create one, you must be 13 or older, give an email address you can use, and keep your password to yourself. You are responsible for what happens in your account.</p>
+      <p>You can delete your account at any time on <a href={url('/account/')}>Your account and data</a>. We may suspend an account that is used to break these terms or disrupt the site. If we ever stop offering accounts, we will say so on this site first, and your progress will still be in your browser to download.</p>
+    </>
+  )}
+
   <h2>Pro and the demo checkout</h2>
-  <p>Pro is offered as a demonstration. No payment is collected, and the checkout accepts only test card numbers. Pro status is stored in your browser only, so it can disappear if you clear your browser data or use another device. We may change or remove Pro features at any time.</p>
+  <p>Pro is offered as a demonstration. No payment is collected, and the checkout accepts only test card numbers. Pro status is stored in your browser{accountsOn ? ', and in your account if you are signed in,' : ' only, so it can disappear if you clear your browser data or use another device'}. We may change or remove Pro features at any time.</p>
   <p>If real payments are ever introduced, these terms, the <a href={url('/refunds/')}>refund policy</a>, and the <a href={url('/privacy/')}>privacy policy</a> will be updated before anyone is charged.</p>
 
   <h2>Using the content</h2>

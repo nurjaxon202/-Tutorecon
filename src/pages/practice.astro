@@ -57,6 +57,7 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
           <label><input type="radio" name="which" value="all" checked /> All matching</label>
           <label><input type="radio" name="which" value="new" /> Not answered yet</label>
           <label><input type="radio" name="which" value="missed" /> Missed last time</label>
+          <label><input type="radio" name="which" value="flagged" /> Flagged for review</label>
         </div>
       </fieldset>
 
@@ -77,18 +78,20 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
     <section class="session" data-session aria-live="off">
       <div class="overview" data-overview>
         <h2 class="h3">Your progress</h2>
-        <p class="muted" data-progress-text>Nothing answered yet. Results are saved in this browser only.</p>
+        <p class="muted" data-progress-text>Nothing answered yet. Results are saved in this browser.</p>
         <div data-weak hidden>
           <h3 class="sub-title">Topics to work on</h3>
           <p class="muted small">Your lowest accuracy among topics with at least three answers.</p>
           <ol class="weak-list" data-weak-list></ol>
         </div>
+        <p class="review-link" data-review-link hidden><a href={url('/missed/')}>Review your missed and flagged questions</a> <span class="muted" data-review-count></span></p>
         <div class="how">
           <h3 class="sub-title">How the questions work</h3>
           <ul>
             <li>Each question has five choices, like the real exam.</li>
             <li>Check each answer as you go. You see why your choice is right or wrong, and why the right answer is right.</li>
             <li>Every question is tagged with its official topic, so a miss tells you exactly what to review.</li>
+            <li>Flag any question to come back to it later from the “Flagged for review” filter or the <a href={url('/missed/')}>missed questions</a> page.</li>
             <li>Keyboard: <kbd>A</kbd> to <kbd>E</kbd> to choose, <kbd>Enter</kbd> to check and continue.</li>
           </ul>
         </div>
@@ -111,6 +114,10 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
           </fieldset>
           <div class="q-actions">
             <button type="button" class="btn" data-check>Check answer</button>
+            <button type="button" class="btn btn-secondary flag-btn" data-flag aria-pressed="false">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 21V4m0 0h10l-2 4 2 4H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /></svg>
+              Flag for review
+            </button>
           </div>
           <div class="q-feedback" data-feedback aria-live="polite"></div>
         </form>
@@ -141,6 +148,25 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
 </script>
 
 <style>
+  .run-card .q-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .flag-btn {
+    margin-left: auto;
+  }
+  .flag-btn[aria-pressed='true'] {
+    background: var(--sun-tint);
+    box-shadow: inset 0 0 0 1.5px var(--sun-lip), 0 var(--lip-size) 0 var(--sun-lip);
+  }
+  .flag-btn[aria-pressed='true'] svg path {
+    fill: var(--sun);
+  }
+  .review-link {
+    font-weight: 600;
+  }
   .bank {
     display: grid;
     gap: 2rem;

@@ -78,7 +78,7 @@ export function initPractice() {
     const c = course();
     const lv = levels();
     const w = which();
-    const stats = store.get().qstats;
+    const { qstats: stats, flags } = store.get();
     const prefix = c === 'micro' ? 'mi' : c === 'macro' ? 'ma' : '';
     const unit = unitSel.value;
     const topic = topicSel.value;
@@ -91,6 +91,7 @@ export function initPractice() {
       } else if (prefix && !x.t.some((t) => t.startsWith(prefix))) return false;
       if (w === 'new' && stats[x.id]) return false;
       if (w === 'missed' && !(stats[x.id] && stats[x.id].l === 0)) return false;
+      if (w === 'flagged' && !flags[x.id]) return false;
       return true;
     });
   };
@@ -114,11 +115,15 @@ export function initPractice() {
 
   // Progress panel
   const renderOverview = () => {
-    const stats = store.get().qstats;
+    const { qstats: stats, flags } = store.get();
     const ids = Object.keys(stats).filter((id) => bank.some((x) => x.id === id));
     const text = $('[data-progress-text]');
+    const missedN = ids.filter((id) => stats[id].l === 0).length;
+    const flaggedN = Object.keys(flags).filter((id) => bank.some((x) => x.id === id)).length;
+    $('[data-review-link]').hidden = !missedN && !flaggedN;
+    $('[data-review-count]').textContent = `(${missedN} missed, ${flaggedN} flagged)`;
     if (!ids.length) {
-      text.textContent = `Nothing answered yet. There are ${bank.length || 'hundreds of'} questions waiting. Results are saved in this browser only.`;
+      text.textContent = `Nothing answered yet. There are ${bank.length || 'hundreds of'} questions waiting. Results are saved in this browser.`;
       $('[data-weak]').hidden = true;
       return;
     }
@@ -160,6 +165,13 @@ export function initPractice() {
   const card = $<HTMLFormElement>('[data-card]');
   const fb = $('[data-feedback]');
   const checkBtn = $<HTMLButtonElement>('[data-check]');
+  const flagBtn = $<HTMLButtonElement>('[data-flag]');
+  const syncFlag = () => flagBtn.setAttribute('aria-pressed', String(Boolean(set[at] && store.get().flags[set[at].id])));
+  flagBtn.addEventListener('click', () => {
+    if (!set[at]) return;
+    store.toggleFlag(set[at].id);
+    syncFlag();
+  });
 
   const show = (el: 'overview' | 'runner' | 'results') => {
     overview.hidden = el !== 'overview';
@@ -200,6 +212,7 @@ export function initPractice() {
     fb.innerHTML = '';
     fb.classList.remove('is-right', 'is-wrong');
     checkBtn.hidden = false;
+    syncFlag();
     $('[data-q-prompt]').focus({ preventScroll: true });
   };
 
@@ -313,7 +326,7 @@ export function initPractice() {
   const pc = params.get('course');
   if (pc === 'micro' || pc === 'macro' || pc === 'all') form.querySelector<HTMLInputElement>(`input[name=course][value=${pc}]`)!.checked = true;
   const pw = params.get('which');
-  if (pw === 'new' || pw === 'missed') form.querySelector<HTMLInputElement>(`input[name=which][value=${pw}]`)!.checked = true;
+  if (pw === 'new' || pw === 'missed' || pw === 'flagged') form.querySelector<HTMLInputElement>(`input[name=which][value=${pw}]`)!.checked = true;
   fillUnits(params.get('unit') ?? undefined);
   fillTopics(params.get('topic') ?? undefined);
 

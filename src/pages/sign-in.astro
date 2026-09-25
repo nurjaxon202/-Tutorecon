@@ -1,0 +1,109 @@
+---
+import AuthShell from '../components/AuthShell.astro';
+import { url } from '../lib/url';
+---
+<AuthShell title="Sign in" description="Sign in to TutorEcon to pick up your AP Economics progress on any device." lede="Pick up where you left off on any device.">
+  <div class="already" data-already hidden>
+    <p>You are signed in as <strong data-already-email></strong>.</p>
+    <a class="btn" href={url('/account/')}>Go to your account</a>
+  </div>
+
+  <form class="auth-form" novalidate data-signin>
+    <div class="field">
+      <label for="si-email">Email</label>
+      <input id="si-email" type="email" class="input" autocomplete="email" spellcheck="false" required aria-describedby="si-email-error" aria-invalid="false" />
+      <p id="si-email-error" class="error-text" data-error="email"></p>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <label for="si-password">Password</label>
+        <a href={url('/forgot-password/')}>Forgot your password?</a>
+      </div>
+      <div class="pw">
+        <input id="si-password" type="password" class="input" autocomplete="current-password" required aria-describedby="si-password-error" aria-invalid="false" />
+        <button type="button" class="reveal" data-reveal aria-controls="si-password" aria-pressed="false" aria-label="Show password">Show</button>
+      </div>
+      <p id="si-password-error" class="error-text" data-error="password"></p>
+    </div>
+
+    <p class="error-text form-error" role="alert" data-error="form"></p>
+    <p class="form-note" role="status" data-note></p>
+    <button type="submit" class="btn btn-big" data-submit>Sign in</button>
+    <p>New here? <a href={url('/sign-up/')}>Create an account</a></p>
+  </form>
+</AuthShell>
+
+<script>
+  import { accountsOn, authMessage, connect, onAuth, settled, waitForSession } from '../scripts/account';
+  import { busy, emailOk, fieldError, safeNext, wireReveal } from '../scripts/forms';
+  import { url } from '../lib/url';
+
+  const form = document.querySelector<HTMLFormElement>('[data-signin]');
+  if (accountsOn && form) {
+    const email = form.querySelector<HTMLInputElement>('#si-email')!;
+    const password = form.querySelector<HTMLInputElement>('#si-password')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const note = form.querySelector<HTMLElement>('[data-note]')!;
+    const already = document.querySelector<HTMLElement>('[data-already]')!;
+    let signingIn = false;
+    wireReveal(form);
+
+    onAuth((s) => {
+      if (signingIn) return;
+      already.hidden = !s;
+      form.hidden = Boolean(s);
+      if (s) already.querySelector('[data-already-email]')!.textContent = s.user.email ?? 'your account';
+    });
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      fieldError(form, 'form', '');
+      const e = email.value.trim();
+      const eMsg = !e ? 'Enter your email address.' : emailOk(e) ? '' : 'Enter an email address like name@example.com.';
+      const pMsg = password.value ? '' : 'Enter your password.';
+      fieldError(form, 'email', eMsg, email);
+      fieldError(form, 'password', pMsg, password);
+      if (eMsg) return email.focus();
+      if (pMsg) return password.focus();
+
+      busy(submit, true, 'Signing in');
+      signingIn = true;
+      try {
+        const client = await connect();
+        const { error } = await client.auth.signInWithPassword({ email: e, password: password.value });
+        if (error) throw error;
+        note.textContent = 'Signed in. Bringing your progress together.';
+        await waitForSession();
+        await settled();
+        location.assign(safeNext(url('/account/')));
+      } catch (err) {
+        signingIn = false;
+        fieldError(form, 'form', authMessage(err));
+        busy(submit, false, 'Sign in');
+      }
+    });
+  }
+</script>
+
+<style>
+  .label-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+  .label-row a {
+    font-size: 0.92rem;
+  }
+  .already {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+    padding: 1.25rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+  }
+</style>

@@ -1,6 +1,7 @@
-// Everything TutorEcon remembers lives in this browser's localStorage.
-// Nothing is sent to a server. Every access is wrapped because storage can be
-// blocked (private windows, strict settings) and the site must still work.
+// Everything TutorEcon remembers lives in this browser's localStorage. If the
+// reader signs in to an account, src/scripts/account.ts keeps a copy of the
+// progress entry in sync with it. Every access is wrapped because storage can
+// be blocked (private windows, strict settings) and the site must still work.
 
 const KEY = 'tutorecon.v1';
 const THEME_KEY = 'tutorecon.theme';
@@ -44,6 +45,22 @@ export interface Saved {
   frq: Record<string, { score: number; total: number; at: number }>;
   /** Flashcards marked as known. */
   cards: Record<string, true>;
+  /** Question-bank questions flagged to look at again. */
+  flags: Record<string, true>;
+  /** The schedule made on the study planner page. */
+  plan: StudyPlan | null;
+}
+
+export interface StudyPlan {
+  /** Exam date, YYYY-MM-DD. */
+  exam: string;
+  course: 'micro' | 'macro' | 'both';
+  /** Days of the week to study, 0 = Sunday. */
+  days: number[];
+  /** The day the plan was made, YYYY-MM-DD. The schedule counts from here. */
+  start: string;
+  /** Study days checked off, by date. */
+  done: Record<string, true>;
 }
 
 export interface QStat {
@@ -55,9 +72,9 @@ export interface QStat {
   l: 0 | 1;
 }
 
-const empty = (): Saved => ({ done: {}, quiz: {}, exams: [], pro: null, xp: 0, streak: 0, lastDay: null, dayXp: 0, answered: {}, steps: {}, qstats: {}, frq: {}, cards: {} });
+export const emptySaved = (): Saved => ({ done: {}, quiz: {}, exams: [], pro: null, xp: 0, streak: 0, lastDay: null, dayXp: 0, answered: {}, steps: {}, qstats: {}, frq: {}, cards: {}, flags: {}, plan: null });
 
-const dayKey = (d = new Date()) =>
+export const dayKey = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 const daysBetween = (a: string, b: string) => {
@@ -69,11 +86,11 @@ const daysBetween = (a: string, b: string) => {
 function read(): Saved {
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return empty();
+    if (!raw) return emptySaved();
     const parsed = JSON.parse(raw);
-    return { ...empty(), ...parsed };
+    return { ...emptySaved(), ...parsed };
   } catch {
-    return empty();
+    return emptySaved();
   }
 }
 
@@ -89,6 +106,27 @@ function write(data: Saved): boolean {
 
 export const store = {
   get: read,
+
+  /** Swap in a whole saved record, for example one merged with an account copy. */
+  replace(data: Saved): boolean {
+    return write(data);
+  },
+
+  /** True once there is anything worth keeping. */
+  hasProgress(): boolean {
+    const d = read();
+    return d.xp > 0 || Object.keys(d.done).length > 0 || Object.keys(d.qstats).length > 0 || Object.keys(d.steps).length > 0 || Object.keys(d.frq).length > 0 || Object.keys(d.cards).length > 0 || d.exams.length > 0;
+  },
+
+  /** Remove study progress but keep device settings like the theme. */
+  clearProgress(): void {
+    try {
+      localStorage.removeItem(KEY);
+    } catch {
+      /* storage unavailable: nothing to clear */
+    }
+    window.dispatchEvent(new CustomEvent('tutorecon:change'));
+  },
 
   isDone(slug: string): boolean {
     return Boolean(read().done[slug]);
@@ -176,6 +214,30 @@ export const store = {
   resetCards(terms: string[]): void {
     const data = read();
     for (const t of terms) delete data.cards[t];
+    write(data);
+  },
+
+  /** Flag or unflag a question. Returns whether it is now flagged. */
+  toggleFlag(id: string): boolean {
+    const data = read();
+    const on = !data.flags[id];
+    if (on) data.flags[id] = true;
+    else delete data.flags[id];
+    write(data);
+    return on;
+  },
+
+  setPlan(plan: StudyPlan | null): void {
+    const data = read();
+    data.plan = plan;
+    write(data);
+  },
+
+  setPlanDay(date: string, done: boolean): void {
+    const data = read();
+    if (!data.plan) return;
+    if (done) data.plan.done[date] = true;
+    else delete data.plan.done[date];
     write(data);
   },
 
