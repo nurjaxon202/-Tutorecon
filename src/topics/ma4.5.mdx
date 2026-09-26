@@ -1,5 +1,7 @@
 import Graph from '../components/Graph.astro';
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 The money market is where the nominal interest rate is set. Its graph is simple, and the exam uses it to show how monetary policy changes interest rates.
 
@@ -32,6 +34,23 @@ The **nominal interest rate** is where MS meets MD.
 ## Why interest rates matter
 
 A lower interest rate makes borrowing cheaper, which raises **investment** and interest-sensitive consumption such as car and home purchases. That raises aggregate demand. This is the first link in the chain from monetary policy to real GDP (Topic 4.6).
+
+## Worked example
+
+<Worked title="Find the interest rate" prompt="At a nominal interest rate of 6%, people want to hold $500 billion of money. At 4% they want $600 billion, and at 2% they want $700 billion. The money supply is $600 billion. What is the equilibrium interest rate? What happens if the central bank raises the money supply to $700 billion?">
+  <Step n={1} title="Match supply and demand">
+    Money demand equals the $600 billion supply at 4%, so the equilibrium nominal interest rate is 4%.
+  </Step>
+  <Step n={2} title="Raise the money supply">
+    At 4%, people now hold $100 billion more than they want. They use it to buy bonds.
+  </Step>
+  <Step n={3} title="Follow the adjustment">
+    Buying bonds raises bond prices and lowers interest rates until people want to hold $700 billion, which happens at 2%.
+  </Step>
+  <Step n={4} title="Connect to the economy">
+    The lower rate makes borrowing cheaper, so investment and interest-sensitive spending rise and AD shifts right.
+  </Step>
+</Worked>
 
 ## On the exam
 

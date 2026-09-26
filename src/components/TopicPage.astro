@@ -7,6 +7,8 @@ import { guide, placeOf, topicPath } from '../lib/topics';
 import { questionsForTopic } from '../data/questions';
 import { units as lessons } from '../data/units';
 import { url } from '../lib/url';
+import { termSlug } from '../data/glossary';
+import { TOPIC_PREVIEW } from '../lib/access';
 
 interface Props {
   id: string;
@@ -23,9 +25,26 @@ const at = flat.findIndex((t) => t.id === id);
 const prev = flat[at - 1];
 const next = flat[at + 1];
 const lessonTitle = lessons.find((l) => l.slug === topic.lesson)?.title ?? 'the lesson';
+const canonical = new URL(url(topicPath(id)), Astro.site).href;
 const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed explanation with examples, how the AP exam tests it, common mistakes, and ${qs.length} practice questions with answers explained.`;
 ---
 <Base title={`${topic.code} ${topic.title} (${course.short})`} description={desc}>
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'LearningResource',
+      name: `${course.short} ${topic.code}: ${topic.title}`,
+      description: desc,
+      url: canonical,
+      inLanguage: 'en',
+      educationalLevel: 'AP (high school)',
+      learningResourceType: ['Study guide', 'Practice questions'],
+      isAccessibleForFree: true,
+      teaches: topic.title,
+      isPartOf: { '@type': 'Course', name: course.name, url: new URL(url(course.path), Astro.site).href },
+    })}
+  />
   <header class="t-head">
     <div class="wrap">
       <nav class="crumbs" aria-label="Breadcrumb">
@@ -43,7 +62,7 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
         <a class="btn" href="#practice">Practice {qs.length} question{qs.length === 1 ? '' : 's'}</a>
         <a class="btn btn-secondary" href={url(`/learn/${topic.lesson}/#${topic.anchor}`)}>Read it in the lesson</a>
       </div>
-      <p class="t-progress" data-topic-progress data-topic={id} hidden></p>
+      <p class="t-progress" data-topic-progress data-topic={id} data-qids={qs.map((q) => q.id).join(' ')} hidden></p>
     </div>
   </header>
 
@@ -53,6 +72,7 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
         <p class="side-title">On this page</p>
         <ol class="side-list">
           {g.headings.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
+          {g.terms.length > 0 && <li><a href="#terms-title">Key terms</a></li>}
           <li><a href="#practice">Practice questions</a></li>
         </ol>
       </div>
@@ -82,6 +102,20 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
         <Content />
       </article>
 
+      {g.terms.length > 0 && (
+        <section class="terms" aria-labelledby="terms-title">
+          <h2 id="terms-title" class="h3">Key terms</h2>
+          <dl class="terms-list">
+            {g.terms.map((k) => (
+              <div>
+                <dt><a href={url(`/glossary/#${termSlug(k.term)}`)}>{k.term}</a></dt>
+                <dd>{k.def}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
       <p class="lesson-link">
         This topic is also part of the lesson <a href={url(`/learn/${topic.lesson}/#${topic.anchor}`)}>{lessonTitle}</a>, which walks through the whole unit with live graphs.
       </p>
@@ -94,6 +128,7 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
             title={`Practice: ${topic.title}`}
             intro="Every question here is tagged with this topic. Pick an answer, then check it. Each choice has its own explanation."
             eyebrow={`Topic ${topic.code}`}
+            preview={TOPIC_PREVIEW}
           />
         )}
       </div>
@@ -124,13 +159,19 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
 <script>
   import { store } from '../scripts/store';
   const el = document.querySelector<HTMLElement>('[data-topic-progress]');
-  if (el) {
-    const q = store.get().quiz[`topic-${el.dataset.topic}`];
-    if (q) {
-      el.textContent = `Your best on this topic: ${q.best} of ${q.total}.`;
-      el.hidden = false;
-    }
-  }
+  const paint = () => {
+    if (!el) return;
+    const saved = store.get();
+    const ids = (el.dataset.qids ?? '').split(' ').filter(Boolean);
+    const tried = ids.filter((q) => saved.qstats[q]).length;
+    const lastRight = ids.filter((q) => saved.qstats[q]?.l === 1).length;
+    if (!tried) return;
+    const mastered = ids.length > 0 && lastRight / ids.length >= 0.8;
+    el.innerHTML = `${mastered ? '<span class="t-badge">Mastered</span> ' : ''}${lastRight} of ${ids.length} questions right on your last try${mastered ? '.' : `. Get ${Math.ceil(ids.length * 0.8)} right to master this topic.`}`;
+    el.hidden = false;
+  };
+  window.addEventListener('tutorecon:change', paint);
+  paint();
 </script>
 
 <style>
@@ -174,7 +215,16 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
   .t-progress {
     margin-top: 0.75rem;
     font-weight: 600;
+    color: var(--ink-2);
+  }
+  .t-progress :global(.t-badge) {
+    display: inline-block;
+    margin-right: 0.35rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    background: var(--good-tint);
     color: var(--good);
+    font-size: 0.88rem;
   }
   .t-body {
     display: grid;
@@ -244,9 +294,16 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
   }
   .t-main {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2rem;
     min-width: 0;
     max-width: 760px;
+  }
+  /* Wide tables scroll sideways on small screens instead of widening the page. */
+  .t-prose :global(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
   }
   .shared {
     padding: 0.8rem 1rem;
@@ -260,6 +317,34 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
   }
   .t-prose > :global(:first-child) {
     margin-top: 0;
+  }
+  .terms {
+    display: grid;
+    gap: 0.8rem;
+    padding: 1.25rem 1.35rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-2);
+    scroll-margin-top: 88px;
+  }
+  .terms-list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+  }
+  @media (min-width: 720px) {
+    .terms-list {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem 1.5rem;
+    }
+  }
+  .terms-list dt {
+    font-weight: 700;
+  }
+  .terms-list dd {
+    margin: 0.15rem 0 0;
+    color: var(--ink-2);
+    font-size: 0.95rem;
   }
   .lesson-link {
     padding-top: 1.25rem;

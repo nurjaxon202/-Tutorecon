@@ -411,4 +411,25 @@ export default [
     ['$150', 'That is only the loss in consumer surplus.'],
     ['$0', 'The tax cuts the quantity traded, so some surplus is lost to everyone.'],
   ], 0),
+  q('mf59', 'mi6.3', 2, 'A toll road that is almost never crowded is best described as', [
+    ['a public good, because anyone can see it', 'The toll keeps out people who do not pay, so it is excludable.'],
+    ['a private good, because each car uses it up', 'When the road is not crowded, one more car does not reduce anyone else’s use.'],
+    ['a common resource, because it is rival but not excludable', 'The toll makes it excludable.'],
+    ['a club good, because it is excludable but not rival while it is uncrowded', 'Correct. The toll booth can keep out people who do not pay, and an empty road can take one more car at no cost to others.'],
+    ['an inferior good', 'Inferior goods are about income, not about rivalry and excludability.'],
+  ], 3),
+  q('mf60', 'mi6.3 mi6.1', 3, 'Three neighbors would get benefits of $40, $30, and $20 a year from a streetlight on their block. It costs $75 a year. No one can be kept from using its light. What is true?', [
+    ['The streetlight is worth building, but none of them would pay for it alone', 'Correct. Together they gain $90, which is more than the $75 cost, so it is efficient. But each neighbor’s own benefit is below $75, and each hopes the others will pay.'],
+    ['The streetlight is not worth building, because no one values it at $75', 'For a public good, add up everyone’s benefit. The total is $90.'],
+    ['The market will provide it, because the benefits are larger than the cost', 'Free riders make it hard to collect payment, so the market may not provide it.'],
+    ['Only the neighbor who values it at $40 should pay', 'Everyone benefits, so everyone paying their share is fairer and more likely to work.'],
+    ['It is a private good, because it costs money to run', 'It is nonrival and nonexcludable, so it is a public good.'],
+  ], 0),
+  q('mf61', 'mi6.3', 1, 'Which pair lists a private good and then a public good?', [
+    ['A public park and a slice of pizza', 'The order is reversed, and a crowded park is not a pure public good.'],
+    ['A movie ticket and a streaming subscription', 'Both are excludable, so neither is a public good.'],
+    ['A slice of pizza and the light from a lighthouse', 'Correct. Pizza is rival and excludable. A lighthouse’s light is nonrival and nonexcludable.'],
+    ['National defense and a toll road', 'National defense is a public good, but it comes first here, and a toll road is excludable.'],
+    ['Fish in the ocean and a cable TV channel', 'Ocean fish are a common resource, and cable TV is a club good.'],
+  ], 2),
 ];

@@ -1,4 +1,7 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+import Graph from '../components/Graph.astro';
 
 Short-run aggregate supply describes what firms across the economy produce at each price level while some costs, especially wages, are slow to change. Its shifts cause supply shocks like the oil crises of the 1970s.
 
@@ -21,6 +24,27 @@ Anything that changes production costs across the economy shifts SRAS:
 - **Supply shocks:** natural disasters, pandemics, and wars that disrupt production.
 
 A leftward shift of SRAS is a **negative supply shock**: the price level rises while real GDP falls. That combination is called **stagflation**.
+
+## See it on a graph
+
+<Graph model="adas" caption="Shift SRAS for a supply shock and follow the price level and real GDP." />
+
+## Worked example
+
+<Worked title="An oil price shock" prompt="The price of oil doubles. Show what happens in the AD-AS model in the short run, and describe the effects on the price level, real GDP, and unemployment.">
+  <Step n={1} title="Pick the curve">
+    Oil is an input for almost every firm, so production costs rise across the economy. That shifts SRAS, not AD.
+  </Step>
+  <Step n={2} title="Pick the direction">
+    Higher costs mean firms supply less at every price level, so SRAS shifts left.
+  </Step>
+  <Step n={3} title="Find the new equilibrium">
+    Along the unchanged AD curve, the new intersection has a higher price level and a lower real GDP.
+  </Step>
+  <Step n={4} title="Name the result">
+    Lower output means fewer jobs, so unemployment rises while prices rise. That combination is stagflation.
+  </Step>
+</Worked>
 
 ## On the exam
 

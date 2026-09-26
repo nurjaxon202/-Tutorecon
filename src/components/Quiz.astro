@@ -2,6 +2,9 @@
 import type { Question } from '../data/questions';
 import { getUnit } from '../data/units';
 import { topicById } from '../data/ced';
+import { uniqueSvg } from '../data/questions/figures';
+import { gated } from '../lib/access';
+import { url } from '../lib/url';
 
 interface Props {
   questions: Question[];
@@ -17,6 +20,8 @@ interface Props {
   eyebrow?: string;
   /** This quiz is a unit's own check: finishing it marks the unit done. */
   unitCheck?: boolean;
+  /** Guests see only this many questions; the rest come with a free account. */
+  preview?: number;
 }
 const {
   questions,
@@ -28,7 +33,9 @@ const {
   numbered = true,
   eyebrow = 'Practice',
   unitCheck = false,
+  preview,
 } = Astro.props;
+const locked = gated && preview && questions.length > preview ? questions.length - preview : 0;
 const Heading = headingLevel;
 const letters = ['A', 'B', 'C', 'D', 'E'];
 const data = Object.fromEntries(
@@ -36,7 +43,7 @@ const data = Object.fromEntries(
 );
 const id = `quiz-${saveAs}`;
 ---
-<section class="quiz" data-quiz data-save={saveAs} data-sample={sample} data-unit-check={unitCheck ? 'true' : undefined} aria-labelledby={`${id}-title`}>
+<section class="quiz" data-quiz data-save={saveAs} data-sample={sample} data-unit-check={unitCheck ? 'true' : undefined} data-preview={locked ? preview : undefined} aria-labelledby={`${id}-title`}>
   <div class="quiz-head">
     <p class="eyebrow">{eyebrow}</p>
     <Heading id={`${id}-title`} class="h2">{title}</Heading>
@@ -47,7 +54,7 @@ const id = `quiz-${saveAs}`;
   <div class="quiz-meta">
     {questions.length > 1 && (
       <ol class="quiz-strip" aria-hidden="true" data-strip>
-        {questions.map((q) => <li data-strip-q={q.id}></li>)}
+        {questions.map((q, i) => <li data-strip-q={q.id} data-over-preview={locked && i >= preview! ? '' : undefined}></li>)}
       </ol>
     )}
     <p class="quiz-keys">Keyboard: <kbd>A</kbd> to <kbd>E</kbd> to choose, <kbd>Enter</kbd> to check</p>
@@ -71,7 +78,7 @@ const id = `quiz-${saveAs}`;
     {questions.map((q, i) => {
       const unit = getUnit(q.unit);
       return (
-        <li class="qcard" data-q={q.id} data-course={unit?.course}>
+        <li class="qcard" data-q={q.id} data-course={unit?.course} data-over-preview={locked && i >= preview! ? '' : undefined}>
           <fieldset>
             <legend>
               {numbered && (
@@ -85,7 +92,7 @@ const id = `quiz-${saveAs}`;
             </legend>
             {q.figure && (
               <figure class="q-fig">
-                <svg viewBox={`0 0 ${q.figure.w} ${q.figure.h}`} width={q.figure.w} height={q.figure.h} role="img" aria-label={q.figure.alt} focusable="false" set:html={q.figure.svg} />
+                <svg viewBox={`0 0 ${q.figure.w} ${q.figure.h}`} width={q.figure.w} height={q.figure.h} role="img" aria-label={q.figure.alt} focusable="false" set:html={uniqueSvg(q.figure, q.id)} />
               </figure>
             )}
             {q.table && (
@@ -114,6 +121,16 @@ const id = `quiz-${saveAs}`;
       );
     })}
   </ol>
+
+  {locked > 0 && (
+    <div class="quiz-more" data-guest-only>
+      <p><strong>{locked} more question{locked === 1 ? '' : 's'} on this topic</strong> come with a free account, along with the full question bank, smart review of the questions you miss, and your progress on every device.</p>
+      <div class="btn-row">
+        <a class="btn btn-small" href={url('/sign-up/')}>Create a free account</a>
+        <a class="btn btn-secondary btn-small" href={url(`/sign-in/?next=${encodeURIComponent(Astro.url.pathname + '#practice')}`)}>Sign in</a>
+      </div>
+    </div>
+  )}
 
   <div class="quiz-score" data-score aria-live="polite" hidden></div>
   <script type="application/json" data-quiz-data set:html={JSON.stringify(data)} />

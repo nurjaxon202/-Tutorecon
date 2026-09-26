@@ -3,8 +3,14 @@ import Base from '../layouts/Base.astro';
 import Logo from '../components/Logo.astro';
 import { url } from '../lib/url';
 import { site } from '../site';
+import AccountGate from '../components/AccountGate.astro';
 ---
 <Base title="Pro checkout (demo)" description="A demo checkout for TutorEcon Pro. No payment is taken." noindex>
+  <AccountGate
+    page
+    title="Create a free account first"
+    body="Pro is added to an account, so it works on every device you sign in on. Make a free account or sign in, then come back to this page."
+  >
   <div class="wrap checkout-wrap">
     <div class="notice notice-demo demo-banner" role="note">
       <strong>This is a demo checkout. No card is charged.</strong>
@@ -108,6 +114,7 @@ import { site } from '../site';
       </section>
     </div>
   </div>
+  </AccountGate>
 </Base>
 
 <script>

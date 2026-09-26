@@ -1,4 +1,7 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+import Graph from '../components/Graph.astro';
 
 Unit 6 is about what happens when markets do not produce the best result for society. This topic gives you the test for “best” and the language for describing a failure.
 
@@ -29,6 +32,27 @@ On a graph, deadweight loss is usually a triangle pointing toward the efficient 
 ## Equity versus efficiency
 
 Efficiency asks whether the size of the pie is as large as it can be. **Equity** asks whether it is divided fairly. A market can be efficient and still leave some people with very little. Governments sometimes accept some inefficiency to get a fairer outcome, which is a normative choice.
+
+## See it on a graph
+
+<Graph model="market-basic" caption="Consumer and producer surplus sit above and below the price at equilibrium." />
+
+## Worked example
+
+<Worked title="Measure surplus and deadweight loss" prompt="Demand is P = 10 − Q and supply is P = 2 + Q. Find the equilibrium, consumer surplus, producer surplus, and the deadweight loss if output is limited to 3 units.">
+  <Step n={1} title="Equilibrium">
+    Set 10 − Q = 2 + Q, so Q = 4 and P = $6.
+  </Step>
+  <Step n={2} title="Consumer surplus">
+    The triangle under demand and above $6: ½ × 4 × (10 − 6) = $8.
+  </Step>
+  <Step n={3} title="Producer surplus">
+    The triangle above supply and below $6: ½ × 4 × (6 − 2) = $8. Total surplus is $16.
+  </Step>
+  <Step n={4} title="Deadweight loss at 3 units">
+    The fourth unit is not made. At Q = 3, buyers value a unit at $7 and it costs $5, so the lost triangle is ½ × 1 × (7 − 5) = $1.
+  </Step>
+</Worked>
 
 ## On the exam
 

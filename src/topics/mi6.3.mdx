@@ -1,4 +1,6 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 Some goods are hard to sell in a market because people can use them without paying, or because one person’s use does not take anything from anyone else. Two questions sort every good into one of four types.
 
@@ -25,6 +27,23 @@ The **marginal social benefit** of a public good is the sum of every person’s 
 ## The tragedy of the commons
 
 **Common resources** are rival but not excludable. Each user takes as much as they want, because no one can stop them and they do not bear the full cost of the resource running out. The result is **overuse**: overfishing, overgrazing, traffic on free roads. Fixes include quotas, fees, and assigning property rights.
+
+## Worked example
+
+<Worked title="Classify the goods" prompt="Decide whether each good is private, public, a common resource, or a club good: (a) a sandwich; (b) national defense; (c) fish in the open ocean; (d) a toll road that is rarely crowded.">
+  <Step n={1} title="(a) A sandwich">
+    Rival (once eaten, it is gone) and excludable (the store can refuse to sell): a private good.
+  </Step>
+  <Step n={2} title="(b) National defense">
+    Nonrival (protecting one more person costs nothing extra) and nonexcludable: a public good.
+  </Step>
+  <Step n={3} title="(c) Ocean fish">
+    Rival (a fish caught is gone) but hard to exclude people from: a common resource, at risk of overuse.
+  </Step>
+  <Step n={4} title="(d) An uncrowded toll road">
+    Excludable (the toll) but nonrival while uncrowded: a club good.
+  </Step>
+</Worked>
 
 ## On the exam
 

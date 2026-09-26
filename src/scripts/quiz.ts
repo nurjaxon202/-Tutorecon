@@ -1,5 +1,6 @@
 // Practice questions: check one at a time, explain every choice, save the score.
 import { store } from './store';
+import { isGuest } from './access';
 
 interface QData {
   answer: number;
@@ -209,6 +210,12 @@ function mount(root: HTMLElement) {
       }
     });
   });
+
+  // Guests practice the first few questions of a topic; the rest need an account.
+  if (root.dataset.preview !== undefined && isGuest()) {
+    active = cards.filter((c) => !c.hasAttribute('data-over-preview'));
+    number();
+  }
 
   if (sample) {
     root.querySelectorAll<HTMLInputElement>('input[data-course]').forEach((r) => r.addEventListener('change', pickSet));

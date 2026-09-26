@@ -9,6 +9,7 @@ import { units } from '../data/units';
 import { graphList } from '../scripts/graphs/models';
 import { formulaGroups } from '../data/formulas';
 import { url } from '../lib/url';
+import { gated } from '../lib/access';
 
 const tools = [
   { href: '/practice/', title: 'Question bank', count: `${questions.length} questions`, text: 'Multiple choice in the AP format, filtered by course, unit, official topic, and difficulty. Every choice explains itself.' },
@@ -28,7 +29,7 @@ const titles = Object.fromEntries(units.map((u) => [u.slug, u.title]));
       <div class="intro-text">
         <h1 class="display">Free AP Micro and AP Macro review, built around graphs you can move.</h1>
         <p class="lede">
-          {`Lessons for all ${allTopics.length} official topics, ${questions.length} practice questions with an explanation for every choice, ${frqs.length} free-response questions with scoring guides, and ${glossary.length} flashcards. No account and no payment needed.`}
+          {`Lessons for all ${allTopics.length} official topics, ${questions.length} practice questions with an explanation for every choice, ${frqs.length} free-response questions with scoring guides, and ${glossary.length} flashcards. ${gated ? 'Start right away, no account needed.' : 'No account and no payment needed.'}`}
         </p>
         <div class="course-links">
           {courses.map((c) => (
@@ -55,6 +56,21 @@ const titles = Object.fromEntries(units.map((u) => [u.slug, u.title]));
       <ul class="resume-list" data-resume-list></ul>
     </div>
   </section>
+
+  {gated && (
+    <section class="join" data-guest-only aria-labelledby="join-title">
+      <div class="wrap join-inner">
+        <div class="join-text">
+          <h2 id="join-title" class="join-title">Studying for the real exam? Make a free account.</h2>
+          <p>Everything on this page works without one. An account adds unlimited practice, smart review of the questions you miss, your weakest topics, a study plan, and your progress on every device.</p>
+        </div>
+        <div class="btn-row">
+          <a class="btn" href={url('/sign-up/')}>Create a free account</a>
+          <a class="btn btn-secondary" href={url('/pricing/')}>Compare plans</a>
+        </div>
+      </div>
+    </section>
+  )}
 
   <section class="block" aria-labelledby="units-title">
     <div class="wrap">
@@ -154,6 +170,31 @@ const titles = Object.fromEntries(units.map((u) => [u.slug, u.title]));
 </script>
 
 <style>
+  .join {
+    border-block: 1px solid var(--line);
+    background: var(--brand-tint);
+  }
+  .join-inner {
+    display: grid;
+    gap: 1rem 2rem;
+    align-items: center;
+    padding-block: 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .join-inner {
+      grid-template-columns: 1fr auto;
+    }
+  }
+  .join-text {
+    display: grid;
+    gap: 0.4rem;
+    max-width: 70ch;
+  }
+  .join-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
   .intro {
     padding-block: clamp(2.5rem, 1.5rem + 3vw, 4.5rem) clamp(2.5rem, 1.5rem + 3vw, 4rem);
     border-bottom: 1px solid var(--line);

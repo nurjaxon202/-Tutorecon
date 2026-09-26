@@ -3,9 +3,10 @@
 Free AP Microeconomics and AP Macroeconomics review, organized by the official course topics, with graphs you can move.
 
 - **Both courses, unit by unit**: course pages for AP Micro and AP Macro list all 6 units per course with their published exam weights and every numbered topic (78 in total)
-- **A guide for every official topic**: each of the 78 topics has its own page with a full explanation, worked examples, how the exam tests it, common mistakes, and every practice question tagged with that topic. Topics taught the same way in both courses share one guide
+- **A guide for every official topic**: each of the 78 topics has its own page with a full explanation, a worked example, an interactive graph where one fits, how the exam tests it, common mistakes, key terms from the glossary, and every practice question tagged with that topic. Topics taught the same way in both courses share one guide. Course and topic pages show how close you are to mastering each topic
 - **11 lessons** with step-by-step reading, 18 live graphs, worked problems, margin definitions, and a six-question check at the end
-- **Question bank**: 726 original multiple-choice questions in the AP format (five choices), each tagged with its official topic and a difficulty level, with an explanation for every choice. Every official topic has at least five. More than 60 questions come with a graph to read, the way the real exam asks them (PPCs, taxes, tariffs, cost curves, monopoly, monopsony, externalities, Lorenz curves, AD-AS, money and loanable funds markets, Phillips curves, and currency markets). Filter by course, unit, topic, difficulty, questions you missed last time, or questions you flagged. Results are broken down by topic, and your weakest topics are tracked
+- **Question bank**: 853 original multiple-choice questions in the AP format (five choices), each tagged with its official topic and a difficulty level, with an explanation for every choice. Every official topic has at least 12, and the build fails if one drops below that. 74 questions come with a graph to read and 60 with a data table, the way the real exam asks them (PPCs, taxes, tariffs, cost curves, monopoly, monopsony, externalities, Lorenz curves, AD-AS, money and loanable funds markets, Phillips curves, and currency markets). Filter by course, unit, topic, difficulty, questions you missed last time, questions you flagged, or questions due for smart review. Practice in tutor mode (an explanation after each answer) or exam mode (results and a full answer review at the end, with an optional timer at the real exam's pace of 70 seconds a question). Results are broken down by topic, and your weakest topics are tracked
+- **Smart review**: every question you miss, anywhere on the site, comes back after 1, 3, 7, 14, and 30 days until you get it right each time
 - **Missed and flagged questions**: one page with every question you got wrong on your last try or flagged, with the answer and the reason
 - **Study planner**: enter your exam date and the days you can study, and get a dated plan that gives each unit time by its exam weight and ends with mock exams and review
 - **Formula sheet**: every formula and decision rule from both courses on one printable page, most with a worked example
@@ -19,9 +20,24 @@ Free AP Microeconomics and AP Macroeconomics review, organized by the official c
 - **The four moves**: pick a news event and a tutor walks through what changed, which curve moves, which way, and what happens, while the graph moves
 - A Pro tier behind a clearly labeled **demo** checkout that only accepts test cards and charges nothing
 
+## What needs an account
+
+When accounts are switched on, the site works like a typical study service:
+
+| | No account | Free account | Pro (demo) |
+| --- | --- | --- | --- |
+| Lessons, topic guides, flashcards, FRQs, formula sheet, graph lab | Yes | Yes | Yes |
+| Question bank | 20 questions a day | Unlimited | Unlimited |
+| Practice set on each topic page | First 5 questions | All | All |
+| Missed and flagged review, smart review, study planner, weakest topics and mastery | No | Yes | Yes |
+| Progress | This browser | Every device | Every device |
+| Timed mock exams and review sheets | No | No | Yes |
+
+The limits live in `src/lib/access.ts` (`GUEST_DAILY` and `TOPIC_PREVIEW`). When accounts are off there is no way to sign up, so nothing is limited and every tool is open to everyone. The plans page, terms, and privacy policy describe whichever setup the site was built with. The limits are checked in the browser, which is fine for a free study site but is not a security boundary.
+
 ## Content checks
 
-Every build checks the question bank, FRQs, and topic guides: each multiple-choice question must have five choices, exactly one marked answer, an explanation for every choice, and a real official topic, and a question with a graph must describe the graph in words for screen readers; every official topic must have a guide; each FRQ must add up to 10 points (long) or 5 points (short). A problem stops the build.
+Every build checks the question bank, FRQs, and topic guides: each multiple-choice question must have five choices, exactly one marked answer, an explanation for every choice, and a real official topic, and a question with a graph must describe the graph in words for screen readers; every official topic must have a guide and at least 12 questions; each FRQ must add up to 10 points (long) or 5 points (short). A problem stops the build.
 
 ## Design
 

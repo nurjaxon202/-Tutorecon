@@ -49,6 +49,10 @@ export interface Saved {
   flags: Record<string, true>;
   /** The schedule made on the study planner page. */
   plan: StudyPlan | null;
+  /** Smart review: missed questions come back after 1, 3, 7, 14, then 30 days. b is the step, d the date it is due. */
+  srs: Record<string, { b: number; d: string }>;
+  /** Question-bank answers today, for the guest daily allowance. */
+  qDay: { d: string; n: number } | null;
 }
 
 export interface StudyPlan {
@@ -72,10 +76,18 @@ export interface QStat {
   l: 0 | 1;
 }
 
-export const emptySaved = (): Saved => ({ done: {}, quiz: {}, exams: [], pro: null, xp: 0, streak: 0, lastDay: null, dayXp: 0, answered: {}, steps: {}, qstats: {}, frq: {}, cards: {}, flags: {}, plan: null });
+export const emptySaved = (): Saved => ({ done: {}, quiz: {}, exams: [], pro: null, xp: 0, streak: 0, lastDay: null, dayXp: 0, answered: {}, steps: {}, qstats: {}, frq: {}, cards: {}, flags: {}, plan: null, srs: {}, qDay: null });
+
+/** Days until a missed question comes back, for each step of smart review. */
+export const REVIEW_DAYS = [1, 3, 7, 14, 30];
 
 export const dayKey = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+const inDays = (n: number) => {
+  const d = new Date();
+  return dayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
+};
 
 const daysBetween = (a: string, b: string) => {
   const [ay, am, ad] = a.split('-').map(Number);
@@ -195,7 +207,39 @@ export const store = {
     if (right) st.c += 1;
     st.l = right ? 1 : 0;
     data.qstats[id] = st;
+    // Smart review: a miss comes back tomorrow. Each right answer after that
+    // pushes it further out, and after the last step it leaves the schedule.
+    const r = data.srs[id];
+    if (!right) data.srs[id] = { b: 0, d: inDays(REVIEW_DAYS[0]) };
+    else if (r) {
+      const b = r.b + 1;
+      if (b >= REVIEW_DAYS.length) delete data.srs[id];
+      else data.srs[id] = { b, d: inDays(REVIEW_DAYS[b]) };
+    }
     write(data);
+  },
+
+  /** Questions whose smart review date has arrived. */
+  dueReviews(): string[] {
+    const today = dayKey();
+    return Object.entries(read().srs)
+      .filter(([, r]) => r.d <= today)
+      .map(([id]) => id);
+  },
+
+  /** Count one question-bank answer toward today. Returns today's total. */
+  countBankAnswer(): number {
+    const data = read();
+    const today = dayKey();
+    data.qDay = data.qDay?.d === today ? { d: today, n: data.qDay.n + 1 } : { d: today, n: 1 };
+    write(data);
+    return data.qDay.n;
+  },
+
+  /** Question-bank answers so far today. */
+  bankToday(): number {
+    const q = read().qDay;
+    return q && q.d === dayKey() ? q.n : 0;
   },
 
   saveFrq(id: string, score: number, total: number): void {

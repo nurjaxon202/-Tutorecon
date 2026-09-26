@@ -1,4 +1,6 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 Governments cannot order an economy to grow, but their policies can make growth more or less likely. This topic covers which policies help, and the supply-side view of taxes.
 
@@ -21,6 +23,23 @@ Governments cannot order an economy to grow, but their policies can make growth 
 - Large, persistent deficits that **crowd out** private investment
 - Weak property rights, corruption, and political instability
 - High, unpredictable inflation
+
+## Worked example
+
+<Worked title="Growth rates add up" prompt="Country A invests heavily in education and equipment, and its real GDP per capita grows 3.5% a year. Country B grows 1.4% a year. Using the rule of 70, how long does each take to double its living standard?">
+  <Step n={1} title="The rule of 70">
+    Years to double ≈ 70 ÷ the annual growth rate in percent.
+  </Step>
+  <Step n={2} title="Country A">
+    70 ÷ 3.5 = 20 years.
+  </Step>
+  <Step n={3} title="Country B">
+    70 ÷ 1.4 = 50 years.
+  </Step>
+  <Step n={4} title="Why it matters">
+    In 50 years, A doubles about two and a half times (more than five times as rich) while B doubles once. Policies that raise investment in physical and human capital change living standards within a lifetime.
+  </Step>
+</Worked>
 
 ## On the exam
 

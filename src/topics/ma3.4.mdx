@@ -1,4 +1,7 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+import Graph from '../components/Graph.astro';
 
 In the long run, wages and all other input prices catch up with the price level. Then output no longer depends on prices at all, and the aggregate supply curve becomes a vertical line at the economy’s potential.
 
@@ -31,6 +34,27 @@ A rightward shift of LRAS is **long-run economic growth** (Unit 5).
 ## In the long run, AD only moves prices
 
 Because LRAS is vertical, an increase in AD in the long run raises only the **price level**, not real GDP. Output always returns to potential.
+
+## See it on a graph
+
+<Graph model="adas" caption="LRAS stands at full-employment output. See how gaps open on either side." />
+
+## Worked example
+
+<Worked title="What moves LRAS?" prompt="Decide whether each event shifts long-run aggregate supply, and which way: (a) a new technology raises productivity in most industries; (b) the price level rises 5%; (c) a war destroys a large part of the capital stock; (d) many more adults finish college.">
+  <Step n={1} title="(a) New technology">
+    The same resources can now make more. Potential output rises, so LRAS shifts right.
+  </Step>
+  <Step n={2} title="(b) A higher price level">
+    LRAS is vertical because potential output does not depend on the price level. No shift.
+  </Step>
+  <Step n={3} title="(c) Capital destroyed">
+    Fewer machines and buildings mean less can be produced at full employment. LRAS shifts left.
+  </Step>
+  <Step n={4} title="(d) More education">
+    Human capital rises, so workers produce more. LRAS shifts right.
+  </Step>
+</Worked>
 
 ## On the exam
 

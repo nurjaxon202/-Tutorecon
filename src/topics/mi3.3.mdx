@@ -1,4 +1,6 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 In the long run a firm can change everything, including the size of its plant. Long-run costs explain why some industries have a few giant firms and others have thousands of small ones.
 
@@ -27,6 +29,23 @@ If a firm doubles all of its inputs and output:
 ## Short run versus long run
 
 Diminishing marginal returns (a short-run idea) and diseconomies of scale (a long-run idea) can both push costs up, but for different reasons. Diminishing returns happen because one input is fixed. Diseconomies of scale happen even when every input can change, because the organization itself gets too big.
+
+## Worked example
+
+<Worked title="Read a long-run cost table" prompt="A firm’s long-run average total cost is $10 at 100 units, $8 at 200, $7 at 300, $7 at 400, and $8 at 500. Where are economies of scale, constant returns, and diseconomies of scale? What is the minimum efficient scale?">
+  <Step n={1} title="Falling LRATC">
+    From 100 to 300 units, average cost falls from $10 to $7: economies of scale.
+  </Step>
+  <Step n={2} title="Flat LRATC">
+    From 300 to 400 units, average cost stays at $7: constant returns to scale.
+  </Step>
+  <Step n={3} title="Rising LRATC">
+    Past 400 units, average cost rises to $8: diseconomies of scale.
+  </Step>
+  <Step n={4} title="Minimum efficient scale">
+    The smallest output with the lowest average cost is 300 units. Firms smaller than this are at a cost disadvantage.
+  </Step>
+</Worked>
 
 ## On the exam
 

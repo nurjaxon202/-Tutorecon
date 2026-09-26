@@ -1,4 +1,6 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 Factor markets are where firms buy the inputs they need: labor, land, and capital. Most of the unit is about labor markets, but the same logic applies to every input.
 
@@ -25,6 +27,23 @@ Because of diminishing marginal returns, MP falls as more workers are hired, so 
 The cost of one more worker is the **marginal factor cost (MFC)**, sometimes called marginal resource cost. In a **competitive labor market**, the firm can hire as many workers as it wants at the market wage, so **MFC = wage**, and the labor supply curve the firm faces is horizontal.
 
 The hiring rule, **MRP = MFC**, is the factor-market version of MR = MC. Topic 5.3 puts it to work.
+
+## Worked example
+
+<Worked title="How many workers to hire" prompt="A firm sells its product for $5 in a competitive market and pays a wage of $32 a day. The first four workers add 10, 8, 6, and 4 units of output a day. How many workers should it hire?">
+  <Step n={1} title="Find each worker’s MRP">
+    MRP = marginal product × price: $50, $40, $30, and $20.
+  </Step>
+  <Step n={2} title="Compare with the wage">
+    The first worker adds $50 and the second adds $40, both above the $32 wage. The third adds only $30.
+  </Step>
+  <Step n={3} title="Answer">
+    Hire 2 workers. The third would cost $32 and bring in only $30.
+  </Step>
+  <Step n={4} title="The idea behind it">
+    The firm’s demand for labor comes from the value of what workers make. If the product’s price rose, every MRP would rise and the firm would hire more.
+  </Step>
+</Worked>
 
 ## On the exam
 

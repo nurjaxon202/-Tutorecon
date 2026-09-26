@@ -11,6 +11,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../site';
 import { url } from '../lib/url';
+import { gated } from '../lib/access';
 
 interface Props {
   title?: string;
@@ -52,6 +53,9 @@ const ogImage = new URL(url('/og.png'), Astro.site);
         if (d && d.pro) document.documentElement.dataset.pro = 'on';
         if (localStorage.getItem('tutorecon.auth') || sessionStorage.getItem('tutorecon.auth')) document.documentElement.dataset.auth = 'in';
       } catch (e) {}
+    </script>
+    <script is:inline define:vars={{ gated }}>
+      document.documentElement.dataset.access = !gated ? 'open' : document.documentElement.dataset.auth === 'in' ? 'member' : 'guest';
     </script>
   </head>
   <body>

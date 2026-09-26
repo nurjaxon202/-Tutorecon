@@ -1,5 +1,7 @@
 import Graph from '../components/Graph.astro';
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 Real GDP does not grow smoothly. It rises and falls around a long-run trend, and those swings are the business cycle. The AD-AS model in Unit 3 explains why they happen.
 
@@ -32,6 +34,23 @@ The trend line through the cycle is **potential output**, the real GDP the econo
 </div>
 
 Unemployment usually keeps rising for a while after a recession ends, because firms wait to see whether the recovery lasts before they hire.
+
+## Worked example
+
+<Worked title="Find the peak and the trough" prompt="Real GDP over five quarters was $20.0 trillion, $20.4 trillion, $20.2 trillion, $19.9 trillion, and $20.1 trillion. Find the peak and the trough, name the phases, and say whether this counts as a recession by the two-quarter rule of thumb.">
+  <Step n={1} title="Find the peak">
+    The highest point before output turns down is quarter 2, at $20.4 trillion. That is the peak.
+  </Step>
+  <Step n={2} title="Find the trough">
+    After the peak, output falls to its lowest point in quarter 4, at $19.9 trillion. That is the trough.
+  </Step>
+  <Step n={3} title="Name the phases">
+    From quarter 2 to quarter 4, real GDP falls: a contraction. After quarter 4 it rises again: an expansion (the recovery).
+  </Step>
+  <Step n={4} title="Apply the rule of thumb">
+    Real GDP fell in quarter 3 and again in quarter 4, two quarters in a row, so this fits the common definition of a recession.
+  </Step>
+</Worked>
 
 ## On the exam
 

@@ -50,6 +50,11 @@ for (const x of questions) {
   if (/[\u2013\u2014]/.test(JSON.stringify({ p: x.prompt, o: x.options })) ) problem('uses an en or em dash');
 }
 
+// Every official topic needs a real practice set of its own.
+export const MIN_PER_TOPIC = 12;
+const thin = allTopics.filter((t) => questions.filter((x) => x.topics.includes(t.id)).length < MIN_PER_TOPIC).map((t) => t.id);
+if (thin.length) throw new Error(`Topics with fewer than ${MIN_PER_TOPIC} questions: ${thin.join(', ')}`);
+
 export const questionsFor = (unit: string) => questions.filter((x) => x.unit === unit);
 
 /** The six questions used as the check at the end of a lesson. */
