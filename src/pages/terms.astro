@@ -3,6 +3,7 @@ import Doc from '../layouts/Doc.astro';
 import { site } from '../site';
 import { url } from '../lib/url';
 import { accountsOn } from '../lib/accounts';
+import { GUEST_DAILY, TOPIC_PREVIEW } from '../lib/access';
 ---
 <Doc title="Terms of use" eyebrow="Policies" updated={site.policiesUpdated} description="The terms for using TutorEcon, including the Pro demo.">
   <p>These terms apply when you use {site.name}. By using the site, you agree to them. If you do not agree, please do not use the site.</p>
@@ -17,7 +18,7 @@ import { accountsOn } from '../lib/accounts';
   {accountsOn && (
     <>
       <h2>Accounts</h2>
-      <p>You do not need an account to use {site.name}. If you create one, you must be 13 or older, give an email address you can use, and keep your password to yourself. You are responsible for what happens in your account.</p>
+      <p>You do not need an account to use {site.name}. Lessons, topic guides, flashcards, free-response questions, and the study tools are open to everyone. Without an account, the question bank allows {GUEST_DAILY} questions a day and each topic page shows its first {TOPIC_PREVIEW} practice questions; a free account removes those limits and adds the review and planning tools listed on the <a href={url('/pricing/')}>plans page</a>. If you create one, you must be 13 or older, give an email address you can use, and keep your password to yourself. You are responsible for what happens in your account.</p>
       <p>You can delete your account at any time on <a href={url('/account/')}>Your account and data</a>. We may suspend an account that is used to break these terms or disrupt the site. If we ever stop offering accounts, we will say so on this site first, and your progress will still be in your browser to download.</p>
     </>
   )}

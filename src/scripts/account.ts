@@ -209,6 +209,7 @@ export const provider = (user: User | null | undefined) => (user?.app_metadata?.
 function syncHeader() {
   const signedIn = session ? true : !ready && hasStoredSession();
   document.documentElement.dataset.auth = signedIn ? 'in' : 'out';
+  if (accountsOn) document.documentElement.dataset.access = signedIn ? 'member' : 'guest';
   const user = session?.user;
   document.querySelectorAll<HTMLElement>('[data-avatar]').forEach((el) => (el.textContent = user ? initials(user) : ''));
   document.querySelectorAll<HTMLElement>('[data-who-name]').forEach((el) => {

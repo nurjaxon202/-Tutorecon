@@ -30,6 +30,7 @@ const links = {
   formulas: url('/formulas/'),
   flashcards: url('/flashcards/'),
 };
+import AccountGate from '../components/AccountGate.astro';
 ---
 <Base title="Study planner" description="Enter your AP Economics exam date and the days you can study, and get a day-by-day plan weighted by how much each unit counts on the exam.">
   <PageBand
@@ -38,6 +39,12 @@ const links = {
     lede="Enter your exam date and the days you can study. You get a day-by-day plan that gives each unit time in proportion to its share of the exam and saves the last days for mock exams and review."
   />
 
+  <AccountGate
+    page
+    title="Get a day-by-day study plan"
+    body="Enter your exam date and the days you can study, and the planner lays out every unit, weighted by how much it counts on the exam, with review days at the end."
+    points={['A plan built around your exam date', 'Today’s tasks on your dashboard', 'A countdown to the exam']}
+  >
   <div class="wrap planner" data-planner>
     <form class="setup" novalidate data-setup>
       <h2 class="h3" data-setup-title>Make your plan</h2>
@@ -85,6 +92,7 @@ const links = {
     </section>
   </div>
 
+  </AccountGate>
   <script type="application/json" data-plan-info set:html={JSON.stringify({ courses: plan, links })} />
 </Base>
 

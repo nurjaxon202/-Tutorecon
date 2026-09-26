@@ -7,6 +7,7 @@ import { guide, placeOf, topicPath } from '../lib/topics';
 import { questionsForTopic } from '../data/questions';
 import { units as lessons } from '../data/units';
 import { url } from '../lib/url';
+import { TOPIC_PREVIEW } from '../lib/access';
 
 interface Props {
   id: string;
@@ -43,7 +44,7 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
         <a class="btn" href="#practice">Practice {qs.length} question{qs.length === 1 ? '' : 's'}</a>
         <a class="btn btn-secondary" href={url(`/learn/${topic.lesson}/#${topic.anchor}`)}>Read it in the lesson</a>
       </div>
-      <p class="t-progress" data-topic-progress data-topic={id} hidden></p>
+      <p class="t-progress" data-topic-progress data-topic={id} data-qids={qs.map((q) => q.id).join(' ')} hidden></p>
     </div>
   </header>
 
@@ -94,6 +95,7 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
             title={`Practice: ${topic.title}`}
             intro="Every question here is tagged with this topic. Pick an answer, then check it. Each choice has its own explanation."
             eyebrow={`Topic ${topic.code}`}
+            preview={TOPIC_PREVIEW}
           />
         )}
       </div>
@@ -124,13 +126,19 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
 <script>
   import { store } from '../scripts/store';
   const el = document.querySelector<HTMLElement>('[data-topic-progress]');
-  if (el) {
-    const q = store.get().quiz[`topic-${el.dataset.topic}`];
-    if (q) {
-      el.textContent = `Your best on this topic: ${q.best} of ${q.total}.`;
-      el.hidden = false;
-    }
-  }
+  const paint = () => {
+    if (!el) return;
+    const saved = store.get();
+    const ids = (el.dataset.qids ?? '').split(' ').filter(Boolean);
+    const tried = ids.filter((q) => saved.qstats[q]).length;
+    const lastRight = ids.filter((q) => saved.qstats[q]?.l === 1).length;
+    if (!tried) return;
+    const mastered = ids.length > 0 && lastRight / ids.length >= 0.8;
+    el.innerHTML = `${mastered ? '<span class="t-badge">Mastered</span> ' : ''}${lastRight} of ${ids.length} questions right on your last try${mastered ? '.' : `. Get ${Math.ceil(ids.length * 0.8)} right to master this topic.`}`;
+    el.hidden = false;
+  };
+  window.addEventListener('tutorecon:change', paint);
+  paint();
 </script>
 
 <style>
@@ -174,7 +182,16 @@ const desc = `${course.short} topic ${topic.code}, ${topic.title}: a detailed ex
   .t-progress {
     margin-top: 0.75rem;
     font-weight: 600;
+    color: var(--ink-2);
+  }
+  .t-progress :global(.t-badge) {
+    display: inline-block;
+    margin-right: 0.35rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    background: var(--good-tint);
     color: var(--good);
+    font-size: 0.88rem;
   }
   .t-body {
     display: grid;

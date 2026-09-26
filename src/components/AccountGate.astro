@@ -1,0 +1,113 @@
+---
+// Tools that come with a free account. Guests see what the tool does and how
+// to get it; members see the tool. Without an account service (accounts off),
+// there is no way to sign up, so the tool is simply shown to everyone.
+import { gated } from '../lib/access';
+import { url } from '../lib/url';
+
+interface Props {
+  title: string;
+  body: string;
+  points?: string[];
+  /** Smaller card for use inside a page, not as the whole page. */
+  compact?: boolean;
+  /** The gate stands in for a whole page body, so give it page margins. */
+  page?: boolean;
+}
+const { title, body, points = [], compact = false, page = false } = Astro.props;
+const here = Astro.url.pathname;
+const id = `gate-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+---
+{gated ? (
+  <>
+    <div class:list={[{ 'wrap gate-page': page }]} data-guest-only>
+    <section class:list={['acct-gate', { compact }]} aria-labelledby={id}>
+      <span class="gate-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26"><circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="2" /><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+      </span>
+      <div class="gate-text">
+        <p class="gate-kicker">Free account</p>
+        <h2 id={id} class="gate-title">{title}</h2>
+        <p>{body}</p>
+        {points.length > 0 && (
+          <ul class="gate-list">
+            {points.map((p) => <li>{p}</li>)}
+          </ul>
+        )}
+        <div class="btn-row">
+          <a class="btn" href={url('/sign-up/')}>Create a free account</a>
+          <a class="btn btn-secondary" href={url(`/sign-in/?next=${encodeURIComponent(here)}`)}>Sign in</a>
+        </div>
+        <p class="gate-note">Free, with no card. Anything you have done as a guest comes with you.</p>
+      </div>
+    </section>
+    </div>
+    <div data-member-only>
+      <slot />
+    </div>
+  </>
+) : (
+  <slot />
+)}
+
+<style>
+  .gate-page {
+    padding-top: 2rem;
+    padding-bottom: 5rem;
+  }
+  .acct-gate {
+    display: grid;
+    gap: 1rem 1.4rem;
+    align-items: start;
+    padding: clamp(1.4rem, 1.1rem + 1.4vw, 2.2rem);
+    max-width: 760px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    box-shadow: var(--shadow-lg);
+  }
+  @media (min-width: 640px) {
+    .acct-gate {
+      grid-template-columns: auto 1fr;
+    }
+  }
+  .acct-gate.compact {
+    box-shadow: none;
+    background: var(--bg-2);
+  }
+  .gate-icon {
+    display: grid;
+    place-items: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 50%;
+    background: var(--brand-tint);
+    color: var(--brand);
+  }
+  .gate-text {
+    display: grid;
+    gap: 0.7rem;
+  }
+  .gate-kicker {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--brand);
+  }
+  .gate-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.8rem);
+    line-height: 1.15;
+  }
+  .gate-list {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+  .gate-note {
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+</style>

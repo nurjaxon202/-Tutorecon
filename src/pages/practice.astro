@@ -4,6 +4,7 @@ import PageBand from '../components/PageBand.astro';
 import { questions } from '../data/questions';
 import { courses } from '../data/ced';
 import { url } from '../lib/url';
+import { gated, GUEST_DAILY } from '../lib/access';
 
 // Everything the client needs to build filters without loading the bank.
 const topicInfo = Object.fromEntries(
@@ -58,6 +59,7 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
           <label><input type="radio" name="which" value="new" /> Not answered yet</label>
           <label><input type="radio" name="which" value="missed" /> Missed last time</label>
           <label><input type="radio" name="which" value="flagged" /> Flagged for review</label>
+          <label data-member-only><input type="radio" name="which" value="due" /> Due for smart review <span class="count" data-due-count></span></label>
         </div>
       </fieldset>
 
@@ -71,7 +73,17 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
         </select>
       </div>
 
+      <fieldset class="field-group">
+        <legend>Mode</legend>
+        <div class="checks">
+          <label><input type="radio" name="mode" value="tutor" checked /> Tutor: see why after each answer</label>
+          <label><input type="radio" name="mode" value="exam" /> Exam: answer them all, then see results</label>
+        </div>
+        <label class="timed"><input type="checkbox" name="timed" disabled data-timed /> Time me at exam pace, 70 seconds a question</label>
+      </fieldset>
+
       <p class="match" aria-live="polite" data-match>Loading questions…</p>
+      {gated && <p class="allow" data-guest-only data-allow></p>}
       <button type="submit" class="btn btn-big" data-start disabled>Start practice</button>
     </form>
 
@@ -100,6 +112,7 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
       <div class="runner" data-runner hidden>
         <div class="run-head">
           <p class="run-count" data-run-count></p>
+          <p class="run-timer mono" data-timer hidden></p>
           <div class="run-track" aria-hidden="true"><span data-run-bar></span></div>
           <button type="button" class="btn btn-secondary btn-small" data-exit>End set</button>
         </div>
@@ -114,6 +127,7 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
             <div class="q-options" data-q-options></div>
           </fieldset>
           <div class="q-actions">
+            <button type="button" class="btn btn-secondary" data-prev hidden>Previous</button>
             <button type="button" class="btn" data-check>Check answer</button>
             <button type="button" class="btn btn-secondary flag-btn" data-flag aria-pressed="false">
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 21V4m0 0h10l-2 4 2 4H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /></svg>
@@ -124,6 +138,19 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
         </form>
       </div>
 
+      {gated && (
+        <div class="guest-wall" data-guest-wall hidden tabindex="-1">
+          <p class="gate-kicker">Daily limit reached</p>
+          <h2 class="h3">That was today’s {GUEST_DAILY} free questions</h2>
+          <p>Create a free account for unlimited practice, smart review of the questions you miss, and your progress on every device. Or come back tomorrow for {GUEST_DAILY} more.</p>
+          <div class="btn-row">
+            <a class="btn" href={url('/sign-up/')}>Create a free account</a>
+            <a class="btn btn-secondary" href={url('/sign-in/?next=' + encodeURIComponent(url('/practice/')))}>Sign in</a>
+          </div>
+          <p class="muted small">Lessons, topic guides, flashcards, and free-response questions stay open to everyone.</p>
+        </div>
+      )}
+
       <div class="results" data-results hidden tabindex="-1">
         <h2 class="h3" data-results-title></h2>
         <p class="muted" data-results-text></p>
@@ -131,6 +158,10 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
           <thead><tr><th scope="col">Topic</th><th scope="col">Correct</th></tr></thead>
           <tbody data-results-topics></tbody>
         </table>
+        <div class="review-wrap" data-review-wrap hidden>
+          <h3 class="sub-title">Review your answers</h3>
+          <ol class="review-list" data-review-list></ol>
+        </div>
         <div class="btn-row">
           <button type="button" class="btn" data-retry-missed>Retry the ones I missed</button>
           <button type="button" class="btn btn-secondary" data-again>New set, same filters</button>
@@ -149,6 +180,85 @@ const levelCount = (l: number) => questions.filter((x) => x.level === l).length;
 </script>
 
 <style>
+  .timed {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+  }
+  .timed:has(input:disabled) {
+    color: var(--ink-3);
+  }
+  .allow {
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+  .run-timer {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .run-timer.is-low {
+    color: var(--bad);
+  }
+  .guest-wall {
+    display: grid;
+    gap: 0.8rem;
+    justify-items: start;
+    padding: 1.5rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: var(--card);
+    box-shadow: var(--shadow-lg);
+  }
+  .guest-wall:focus {
+    outline: none;
+  }
+  .gate-kicker {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--brand);
+  }
+  .review-wrap {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .review-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .review-list :global(details) {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--card);
+  }
+  .review-list :global(summary) {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.7rem 0.9rem;
+    cursor: pointer;
+  }
+  .review-list :global(.mark) {
+    flex: none;
+    font-weight: 700;
+    min-width: 4.8rem;
+  }
+  .review-list :global(.mark-right) {
+    color: var(--good);
+  }
+  .review-list :global(.mark-wrong) {
+    color: var(--bad);
+  }
+  .review-list :global(.rv-body) {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0 0.9rem 0.9rem;
+  }
   .run-card .q-actions {
     display: flex;
     flex-wrap: wrap;

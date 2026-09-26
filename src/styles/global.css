@@ -886,3 +886,9 @@ input[type='radio'] {
   font-size: 0.85rem;
   letter-spacing: 0.02em;
 }
+
+/* Guest and member views (see src/lib/access.ts). data-access is set in <head>. */
+:root[data-access='guest'] [data-member-only],
+:root:not([data-access='guest']) [data-guest-only] {
+  display: none !important;
+}

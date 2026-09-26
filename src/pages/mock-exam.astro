@@ -114,6 +114,7 @@ const plan = Object.fromEntries(
 <script>
   import { store } from '../scripts/store';
   import { figureHtml, type QFig } from '../scripts/qfigure';
+  import { loadBank } from '../scripts/bank';
 
   interface Q {
     id: string;
@@ -355,12 +356,12 @@ const plan = Object.fromEntries(
       $('[data-q-prompt]').focus();
     });
 
-    fetch(root.dataset.src!)
-      .then((r) => r.json())
-      .then((data: Q[]) => {
+    loadBank(root.dataset.src!)
+      .then((data) => {
         bank = data;
         startBtn.disabled = false;
-      });
+      })
+      .catch(() => undefined);
     renderHistory();
   }
 </script>

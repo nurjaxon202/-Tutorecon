@@ -84,7 +84,7 @@ const topicIds = course.units.flatMap((u) => u.topics.map((t) => t.id));
               <tr>
                 <th scope="col">Topic guide</th>
                 <th scope="col" class="num">Questions</th>
-                <th scope="col" class="num">Your accuracy</th>
+                <th scope="col" class="num">Mastery</th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +97,7 @@ const topicIds = course.units.flatMap((u) => u.topics.map((t) => t.id));
                   <td class="num">
                     <a href={url(`/practice/?course=${course.id}&unit=${u.n}&topic=${t.id}`)} aria-label={`Practice ${countTopic(t.id)} questions on ${t.title}`}>{countTopic(t.id)}</a>
                   </td>
-                  <td class="num acc" data-acc={t.id}>Not yet</td>
+                  <td class="num acc" data-acc={t.id}><span class="m-none">Not started</span></td>
                 </tr>
               ))}
             </tbody>
@@ -176,20 +176,63 @@ const topicIds = course.units.flatMap((u) => u.topics.map((t) => t.id));
       }
       const cell = document.querySelector<HTMLElement>(`[data-acc="${id}"]`);
       if (!cell) continue;
-      cell.textContent = a ? `${Math.round((c / a) * 100)}%` : 'Not yet';
+      // Mastery: the topic's questions whose last try was right.
+      const total = byTopic[id].length;
+      const lastRight = byTopic[id].filter((q) => saved.qstats[q]?.l === 1).length;
+      const pct = total ? Math.round((100 * lastRight) / total) : 0;
+      cell.title = a ? `${lastRight} of ${total} right on your last try, ${Math.round((c / a) * 100)}% of all tries` : '';
+      cell.innerHTML = !a
+        ? '<span class="m-none">Not started</span>'
+        : pct >= 80
+          ? '<span class="m-badge">Mastered</span>'
+          : `<span class="m-bar" aria-hidden="true"><span style="width:${pct}%"></span></span><span class="m-num">${lastRight} of ${total}</span>`;
       cell.classList.toggle('low', a >= 3 && c / a < 0.6);
-      cell.classList.toggle('high', a >= 3 && c / a >= 0.8);
+      cell.classList.toggle('high', pct >= 80);
     }
     const lessonsDone = [...new Set(info.units.flat())].filter((s) => saved.done[s]).length;
     const box = document.querySelector<HTMLElement>('[data-mine]')!;
     box.hidden = !tries && !lessonsDone;
-    document.querySelector('[data-mine-text]')!.textContent = `${seen.size} questions answered, ${tries ? Math.round((right / tries) * 100) : 0}% correct. ${lessonsDone} lesson${lessonsDone === 1 ? '' : 's'} marked done.`;
+    const mastered = info.topics.filter((id) => byTopic[id].length && byTopic[id].filter((q) => saved.qstats[q]?.l === 1).length / byTopic[id].length >= 0.8).length;
+    document.querySelector('[data-mine-text]')!.textContent = `${seen.size} questions answered, ${tries ? Math.round((right / tries) * 100) : 0}% correct. ${mastered} of ${info.topics.length} topics mastered. ${lessonsDone} lesson${lessonsDone === 1 ? '' : 's'} marked done. A topic is mastered when you get at least 80% of its questions right on your last try.`;
   };
   window.addEventListener('tutorecon:change', sync);
   sync();
 </script>
 
 <style>
+  .acc :global(.m-none) {
+    color: var(--ink-3);
+    font-size: 0.9rem;
+  }
+  .acc :global(.m-badge) {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--good-tint);
+    color: var(--good);
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .acc :global(.m-bar) {
+    display: inline-block;
+    width: 3.2rem;
+    height: 6px;
+    margin-right: 0.45rem;
+    border-radius: 3px;
+    background: var(--line);
+    overflow: hidden;
+    vertical-align: middle;
+  }
+  .acc :global(.m-bar span) {
+    display: block;
+    height: 100%;
+    background: var(--brand-fill);
+  }
+  .acc :global(.m-num) {
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
   .head {
     display: grid;
     gap: 1.5rem;

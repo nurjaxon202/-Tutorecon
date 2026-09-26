@@ -41,6 +41,8 @@ export function cleanSaved(raw: unknown): Saved {
       done: pick<true>(r.plan.done, (x) => x === true),
     };
   }
+  out.srs = pick<Saved['srs'][string]>(r.srs, (x) => isObj(x) && typeof x.b === 'number' && day(x.d));
+  out.qDay = isObj(r.qDay) && day(r.qDay.d) && typeof r.qDay.n === 'number' ? { d: r.qDay.d, n: Math.max(0, r.qDay.n) } : null;
   return out;
 }
 
@@ -72,6 +74,12 @@ export function mergeSaved(a: Saved, b: Saved): Saved {
   const frq = { ...a.frq };
   for (const [k, v] of Object.entries(b.frq)) frq[k] = later(frq[k], v);
 
+  // Smart review: if both copies schedule a question, keep the sooner date.
+  const srs = { ...a.srs };
+  for (const [k, v] of Object.entries(b.srs)) if (!srs[k] || v.d < srs[k].d) srs[k] = v;
+
+  const qDay = !a.qDay || !b.qDay ? (a.qDay ?? b.qDay) : a.qDay.d === b.qDay.d ? { d: a.qDay.d, n: Math.max(a.qDay.n, b.qDay.n) } : a.qDay.d > b.qDay.d ? a.qDay : b.qDay;
+
   const steps = { ...a.steps };
   for (const [k, v] of Object.entries(b.steps)) steps[k] = Math.max(steps[k] ?? 0, v);
 
@@ -97,6 +105,8 @@ export function mergeSaved(a: Saved, b: Saved): Saved {
     cards: { ...a.cards, ...b.cards },
     flags: { ...a.flags, ...b.flags },
     plan: mergePlan(a.plan, b.plan),
+    srs,
+    qDay,
   };
 }
 
