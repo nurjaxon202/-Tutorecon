@@ -1,4 +1,6 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 Money is anything widely accepted as payment. That sounds simple, but the exam asks what money does, what it is made of today, and how it is measured.
 
@@ -25,6 +27,23 @@ Stocks, bonds, and houses are **assets**, not money. A **credit card is not mone
 ## Moving between categories
 
 Moving money from checking to savings lowers M1 but leaves M2 the same, because savings are already in M2. (In 2020 the Federal Reserve began counting savings deposits in M1 in its own statistics. Exam questions that give definitions expect you to use the definitions they give.) Withdrawing cash from a checking account leaves M1 unchanged at first: currency rises and deposits fall by the same amount.
+
+## Worked example
+
+<Worked title="Count the money" prompt="A household holds $100 in cash, $2,000 in a checking account, a $5,000 certificate of deposit, and a credit card with a $3,000 limit. How much of this is in M1, and how much in M2?">
+  <Step n={1} title="Currency">
+    The $100 of cash is in M1, and so also in M2.
+  </Step>
+  <Step n={2} title="Checking deposits">
+    The $2,000 can be spent directly, so it is in M1 and M2.
+  </Step>
+  <Step n={3} title="The certificate of deposit">
+    A small time deposit is near-money: easy to turn into cash, but not spendable as it is. It is in M2 only.
+  </Step>
+  <Step n={4} title="The credit card">
+    A credit limit is the ability to borrow, not money, so it is in neither. M1 = $2,100 and M2 = $7,100.
+  </Step>
+</Worked>
 
 ## On the exam
 

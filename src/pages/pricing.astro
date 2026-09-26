@@ -214,11 +214,14 @@ const cellsFor = (r: (typeof rows)[number]): Cell[] => (gated ? [r[1], r[2], r[3
   }
   .compare {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.9rem;
     padding-top: 3.5rem;
   }
   .table-scroll {
+    position: relative;
     overflow-x: auto;
+    min-width: 0;
   }
   .compare-table {
     width: 100%;

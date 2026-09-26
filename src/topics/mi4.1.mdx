@@ -1,4 +1,6 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 Most real markets are not perfectly competitive. This topic sorts them into three imperfect structures and explains what they have in common: firms that can set their own price.
 
@@ -38,6 +40,23 @@ Barriers to entry are what let firms keep market power and profit over time:
 ## Measuring concentration
 
 A **concentration ratio** is the share of an industry’s output made by its largest firms, often the top four. A high ratio, like 80%, points to an oligopoly.
+
+## Worked example
+
+<Worked title="Why marginal revenue falls below price" prompt="A firm with market power can sell 1 unit at $10, 2 at $9, 3 at $8, 4 at $7, or 5 at $6. Find total revenue and marginal revenue for each quantity.">
+  <Step n={1} title="Total revenue">
+    Price × quantity: $10, $18, $24, $28, and $30.
+  </Step>
+  <Step n={2} title="Marginal revenue">
+    The change in total revenue: $10, $8, $6, $4, and $2.
+  </Step>
+  <Step n={3} title="Compare with price">
+    For every unit after the first, marginal revenue is below the price. Selling the fourth unit brings in $7 from that buyer but lowers the price on the first three by $1 each, so revenue rises only $4.
+  </Step>
+  <Step n={4} title="Why it matters">
+    Because MR is below demand, a firm with market power makes less than a competitive industry would and charges more. That is the source of deadweight loss in imperfect competition.
+  </Step>
+</Worked>
 
 ## On the exam
 

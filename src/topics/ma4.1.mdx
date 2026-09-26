@@ -1,4 +1,6 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 Unit 4 is about money, banks, and interest rates. It starts with the assets people use to store wealth, and the trade-off between earning a return and being able to spend.
 
@@ -26,6 +28,23 @@ This inverse relationship is central to how monetary policy works through open m
 ## The opportunity cost of holding money
 
 Holding money means giving up the interest you could earn on bonds or other assets. So the **nominal interest rate is the opportunity cost of holding money**. When rates rise, people hold less money. That is why the money demand curve slopes down (Topic 4.5).
+
+## Worked example
+
+<Worked title="Bond prices and interest rates" prompt="A bond will pay $1,050 one year from now and nothing else. What is it worth today if the market interest rate is 5%? What if the rate rises to 10%?">
+  <Step n={1} title="The pricing rule">
+    A buyer pays today the amount that, invested at the market rate, would grow to $1,050. Price = $1,050 ÷ (1 + interest rate).
+  </Step>
+  <Step n={2} title="At 5%">
+    $1,050 ÷ 1.05 = $1,000.
+  </Step>
+  <Step n={3} title="At 10%">
+    $1,050 ÷ 1.10 ≈ $954.55.
+  </Step>
+  <Step n={4} title="The lesson">
+    The bond’s payment is fixed, so when market interest rates rise, its price must fall to give new buyers the higher return. Bond prices and interest rates move in opposite directions.
+  </Step>
+</Worked>
 
 ## On the exam
 

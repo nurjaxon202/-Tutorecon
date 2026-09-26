@@ -1,4 +1,7 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+import Graph from '../components/Graph.astro';
 
 Supply describes sellers. It mirrors demand, with one important twist: the things that shift supply are mostly about the cost of producing.
 
@@ -23,6 +26,27 @@ An increase in supply shifts the curve **right**, which can be read two ways: se
 ## Individual and market supply
 
 **Market supply** is the sum of every seller’s supply at each price, added sideways. If three identical firms each offer 100 units at $5, market quantity supplied at $5 is 300.
+
+## See it on a graph
+
+<Graph model="market-basic" caption="Shift supply and watch the equilibrium price and quantity change." />
+
+## Worked example
+
+<Worked title="Shift a supply schedule" prompt="At prices of $2, $4, and $6, sellers offer 100, 200, and 300 units, so quantity supplied is 50 times the price. Wages rise, and sellers now need $1 more per unit to offer each quantity. What do they offer at $4 now?">
+  <Step n={1} title="Read the old rule">
+    Before, quantity supplied = 50 × price. At $4, that was 200 units.
+  </Step>
+  <Step n={2} title="Apply the cost increase">
+    Each quantity now needs a price $1 higher: 100 units at $3, 200 at $5, and 300 at $7. The new rule is quantity = 50 × (price − 1).
+  </Step>
+  <Step n={3} title="Answer">
+    At $4, sellers now offer 50 × 3 = 150 units, 50 fewer than before.
+  </Step>
+  <Step n={4} title="Name the change">
+    Less is offered at every price, so supply shifted left (up by $1). The rise in wages is a supply shifter, not a movement along the curve.
+  </Step>
+</Worked>
 
 ## On the exam
 

@@ -1,6 +1,7 @@
 // Topic guides: one detailed page for each official topic in both courses.
 // Guides live in src/topics/<topic id>.mdx. AP Macro Unit 1 repeats several
 // AP Micro topics word for word, so those share one guide.
+import { glossary, type Term } from '../data/glossary';
 import type { MarkdownHeading } from 'astro';
 import { courses, allTopics, type Course, type CourseUnit, type Topic } from '../data/ced';
 
@@ -54,10 +55,27 @@ export function guide(id: string) {
   return {
     Content: mod.Content,
     headings: mod.getHeadings().filter((h) => h.depth === 2),
+    terms: keyTerms(raw),
     words,
     minutes: Math.max(3, Math.round(words / 180)),
     sharedWith: sameAs[id] ? placeOf(sameAs[id]) : null,
   };
+}
+
+/** Glossary terms that appear in a guide, in the order they first come up (at most eight). */
+function keyTerms(raw: string): Term[] {
+  const text = raw.replace(/^import .*$/gm, '').toLowerCase();
+  const found: { t: Term; at: number }[] = [];
+  for (const g of glossary) {
+    const name = g.term.replace(/\s*\(.*?\)\s*/g, ' ').trim().toLowerCase();
+    if (name.length < 4) continue;
+    const m = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}s?\\b`).exec(text);
+    if (m) found.push({ t: g, at: m.index });
+  }
+  return found
+    .sort((a, b) => a.at - b.at)
+    .slice(0, 8)
+    .map((f) => f.t);
 }
 
 export const hasGuide = (id: string) => Boolean(modules[`../topics/${sameAs[id] ?? id}.mdx`]);

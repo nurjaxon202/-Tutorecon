@@ -1,4 +1,7 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
+import Graph from '../components/Graph.astro';
 
 Aggregate demand is the total spending on an economy’s final goods and services. Its shifts drive booms and recessions, and it is the curve that fiscal and monetary policy try to move.
 
@@ -26,6 +29,27 @@ Anything that changes spending at every price level shifts AD:
 - **Net exports:** income growth abroad (raises exports), a weaker domestic currency (raises exports and lowers imports), trade policy.
 
 Monetary policy shifts AD by changing interest rates, and fiscal policy shifts it through government spending and taxes.
+
+## See it on a graph
+
+<Graph model="adas" caption="Shift AD and follow the price level and real GDP." />
+
+## Worked example
+
+<Worked title="Shift or movement?" prompt="For each event, say whether the economy moves along the AD curve or AD shifts, and in which direction: (a) the price level falls; (b) consumers become much more confident; (c) incomes in the countries that buy our exports fall; (d) the government raises its spending.">
+  <Step n={1} title="(a) The price level falls">
+    The price level is on the vertical axis, so this is a movement down along AD to a larger quantity of real GDP demanded. It does not shift AD.
+  </Step>
+  <Step n={2} title="(b) Consumer confidence rises">
+    People spend more at every price level. Consumption rises, so AD shifts right.
+  </Step>
+  <Step n={3} title="(c) Foreign incomes fall">
+    Foreign buyers purchase fewer of our exports. Net exports fall, so AD shifts left.
+  </Step>
+  <Step n={4} title="(d) Government spending rises">
+    G is a component of AD, so AD shifts right, by more than the spending itself because of the multiplier.
+  </Step>
+</Worked>
 
 ## On the exam
 

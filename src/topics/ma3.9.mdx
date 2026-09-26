@@ -1,4 +1,6 @@
 import Callout from '../components/Callout.astro';
+import Worked from '../components/Worked.astro';
+import Step from '../components/Step.astro';
 
 Some fiscal policy works without anyone voting on it. Automatic stabilizers are parts of the tax and spending system that push against recessions and booms on their own.
 
@@ -31,6 +33,23 @@ Because they work in the opposite direction of the cycle:
 </div>
 
 Automatic stabilizers reduce the size of swings, but they rarely close a gap by themselves.
+
+## Worked example
+
+<Worked title="How much do stabilizers cushion a recession?" prompt="In a recession, household income before taxes falls by $100 billion. The average tax rate is 20%, and unemployment benefits and other transfers rise by $15 billion. By how much does disposable income fall?">
+  <Step n={1} title="Taxes fall with income">
+    Taxes drop by 20% of $100 billion, which is $20 billion.
+  </Step>
+  <Step n={2} title="Transfers rise">
+    Benefits add $15 billion to what households receive.
+  </Step>
+  <Step n={3} title="Add it up">
+    Disposable income falls by $100 billion − $20 billion − $15 billion = $65 billion.
+  </Step>
+  <Step n={4} title="Interpret">
+    Without the stabilizers, disposable income would fall by the full $100 billion. They soften the drop by $35 billion without any new law, which props up consumption and aggregate demand.
+  </Step>
+</Worked>
 
 ## On the exam
 
